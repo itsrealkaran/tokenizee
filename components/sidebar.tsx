@@ -1,0 +1,119 @@
+"use client";
+
+import {
+  LayoutDashboard,
+  Home,
+  Search,
+  User,
+  LogOut,
+  Bolt,
+  MoreVertical,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { PostModal } from "@/components/modals/post-modal";
+import { useGlobal } from "@/context/global-context";
+import { DropdownMenu } from "@/components/ui/dropdown-menu";
+
+const navigation = [
+  { name: "Feed", href: "/feed", icon: LayoutDashboard },
+  { name: "Explore", href: "/explore", icon: Search },
+  { name: "Profile", href: "/profile", icon: User },
+];
+
+export function Sidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { isLoggedIn, user, logout } = useGlobal();
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+
+  if (!isLoggedIn || !user) {
+    return null;
+  }
+
+  return (
+    <div className="w-72 border-r border-border h-screen flex flex-col">
+      <div className="p-4 flex items-center gap-2">
+        <Bolt className="w-6 h-6" />
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+          Tokenizee
+        </h1>
+      </div>
+
+      <nav className="px-2 flex-1">
+        {navigation.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-2 px-4 py-3 rounded-full transition-all duration-200 group",
+                isActive
+                  ? "text-primary font-bold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              )}
+            >
+              <item.icon
+                className={cn(
+                  "w-6 h-6 transition-colors duration-200",
+                  isActive
+                    ? "text-primary"
+                    : "text-muted-foreground group-hover:text-foreground"
+                )}
+              />
+              <span className="text-lg">{item.name}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="p-4 space-y-6">
+        <Button
+          size="lg"
+          className="w-full h-14 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-lg font-bold rounded-full shadow-sm hover:shadow-md transition-all duration-200"
+          onClick={() => setIsPostModalOpen(true)}
+        >
+          Tokenizee
+        </Button>
+
+        <div className="flex items-center justify-between p-3 rounded-full hover:bg-muted/50 transition-colors cursor-pointer">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <User className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-semibold">{user.displayName}</span>
+              <span className="text-sm text-muted-foreground">
+                @{user.username}
+              </span>
+            </div>
+          </div>
+          <DropdownMenu>
+            <div className="p-1">
+              <button
+                onClick={logout}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Log out
+              </button>
+            </div>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      <PostModal
+        isOpen={isPostModalOpen}
+        onClose={() => setIsPostModalOpen(false)}
+        onSubmit={() => {
+          // Handle post submission
+          setIsPostModalOpen(false);
+        }}
+      />
+    </div>
+  );
+}

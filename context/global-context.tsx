@@ -20,8 +20,13 @@ interface GlobalContextType {
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
 export function GlobalProvider({ children }: { children: ReactNode }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [user, setUser] = useState<User | null>({
+    username: "John Doe",
+    displayName: "John Doe",
+    dateOfBirth: "1990-01-01",
+    walletAddress: "0x1234567890123456789012345678901234567890",
+  });
 
   const logout = () => {
     setIsLoggedIn(false);
