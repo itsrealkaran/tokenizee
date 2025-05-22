@@ -4,7 +4,7 @@ import {
   LayoutDashboard,
   Home,
   Search,
-  User,
+  User2 as User,
   LogOut,
   Bolt,
   MoreVertical,
