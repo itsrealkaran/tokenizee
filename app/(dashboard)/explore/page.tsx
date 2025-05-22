@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { PostCard } from "@/components/post-card";
@@ -8,7 +8,7 @@ import { useGlobal } from "@/context/global-context";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
-export default function ExplorePage() {
+function ExploreContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"trending" | "creators">(
     "trending"
@@ -105,5 +105,19 @@ export default function ExplorePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ExplorePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      }
+    >
+      <ExploreContent />
+    </Suspense>
   );
 }
