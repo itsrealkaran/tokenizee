@@ -58,12 +58,6 @@ export default function UserProfilePage() {
 
   return (
     <div className="space-y-6">
-      {/* Back Button */}
-      <Button variant="ghost" className="gap-2" onClick={() => router.back()}>
-        <ArrowLeft className="h-4 w-4" />
-        Back
-      </Button>
-
       {/* Profile Header */}
       <div className="border-b border-border pb-6">
         <div className="flex items-start justify-between">

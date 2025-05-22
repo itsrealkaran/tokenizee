@@ -40,10 +40,6 @@ export default function PostPage() {
   if (!post) {
     return (
       <div className="space-y-4">
-        <Button variant="ghost" className="gap-2" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
         <div className="text-center py-8">
           <h2 className="text-xl font-semibold mb-2">Post Not Found</h2>
           <p className="text-muted-foreground mb-4">
@@ -58,10 +54,6 @@ export default function PostPage() {
 
   return (
     <div className="space-y-4">
-      <Button variant="ghost" className="gap-2" onClick={() => router.back()}>
-        <ArrowLeft className="h-4 w-4" />
-        Back to Feed
-      </Button>
       <DetailedPost post={post} />
     </div>
   );

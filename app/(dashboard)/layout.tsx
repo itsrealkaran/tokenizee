@@ -5,6 +5,8 @@ import { useEffect } from "react";
 import { useGlobal } from "@/context/global-context";
 import { Sidebar } from "@/components/sidebar";
 import { RankingList } from "@/components/ranking-card";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -36,15 +38,37 @@ export default function DashboardLayout({
             <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
               <div className="max-w-2xl mx-auto p-4">
                 <h1 className="text-xl font-semibold">
-                  {pathname === "/profile"
-                    ? user?.displayName
-                    : (() => {
-                        const lastSegment = pathname?.split("/").pop() || "";
-                        return (
-                          lastSegment.charAt(0).toUpperCase() +
-                            lastSegment.slice(1) || "Dashboard"
-                        );
-                      })()}
+                  {pathname.startsWith("/feed/") ? (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.back()}
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                      </Button>
+                      <span>Article</span>
+                    </div>
+                  ) : pathname.startsWith("/profile/") ? (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.back()}
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                      </Button>
+                      <span>{user?.displayName}</span>
+                    </div>
+                  ) : (
+                    (() => {
+                      const lastSegment = pathname?.split("/").pop() || "";
+                      return (
+                        lastSegment.charAt(0).toUpperCase() +
+                          lastSegment.slice(1) || "Dashboard"
+                      );
+                    })()
+                  )}
                 </h1>
               </div>
             </div>
