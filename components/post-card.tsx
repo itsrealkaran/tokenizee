@@ -18,7 +18,8 @@ interface Post {
   content: string;
   attachment?: string;
   createdAt: string;
-  likes: number;
+  upvotes: number;
+  downvotes: number;
   shares: number;
 }
 
@@ -32,21 +33,39 @@ const MAX_CONTENT_LENGTH = 200;
 export function PostCard({ post, onViewPost }: PostCardProps) {
   const router = useRouter();
   const [voteStatus, setVoteStatus] = useState<"up" | "down" | null>(null);
-  const [votes, setVotes] = useState(post.likes);
+  const [upvotes, setUpvotes] = useState(post.upvotes);
+  const [downvotes, setDownvotes] = useState(post.downvotes);
 
   const handleVote = (type: "up" | "down") => {
     if (voteStatus === type) {
       // Remove vote
       setVoteStatus(null);
-      setVotes(votes - (type === "up" ? 1 : -1));
+      if (type === "up") {
+        setUpvotes(upvotes - 1);
+      } else {
+        setDownvotes(downvotes - 1);
+      }
     } else {
       // Change vote
       const previousVote = voteStatus;
       setVoteStatus(type);
+
       if (previousVote === null) {
-        setVotes(votes + (type === "up" ? 1 : -1));
+        // New vote
+        if (type === "up") {
+          setUpvotes(upvotes + 1);
+        } else {
+          setDownvotes(downvotes + 1);
+        }
       } else {
-        setVotes(votes + (type === "up" ? 2 : -2));
+        // Switch vote
+        if (type === "up") {
+          setUpvotes(upvotes + 1);
+          setDownvotes(downvotes - 1);
+        } else {
+          setUpvotes(upvotes - 1);
+          setDownvotes(downvotes + 1);
+        }
       }
     }
     // TODO: Update votes in Lua table
@@ -109,22 +128,33 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="sm" className="gap-2">
           <ArrowBigUp
-            className={cn("h-4 w-4", voteStatus === "up" && "fill-current")}
+            className={cn(
+              "h-4 w-4",
+              voteStatus === "up" && "fill-current text-primary"
+            )}
             onClick={(e) => {
               e.stopPropagation();
               handleVote("up");
             }}
           />
-          <span>{votes}</span>
+          <span className={cn(voteStatus === "up" && "text-primary")}>
+            {upvotes}
+          </span>
         </Button>
         <Button variant="ghost" size="sm" className="gap-2">
           <ArrowBigDown
-            className={cn("h-4 w-4", voteStatus === "down" && "fill-current")}
+            className={cn(
+              "h-4 w-4",
+              voteStatus === "down" && "fill-current text-destructive"
+            )}
             onClick={(e) => {
               e.stopPropagation();
               handleVote("down");
             }}
           />
+          <span className={cn(voteStatus === "down" && "text-destructive")}>
+            {downvotes}
+          </span>
         </Button>
         <Button variant="ghost" size="sm" className="gap-2">
           <MessageCircle className="h-4 w-4" />

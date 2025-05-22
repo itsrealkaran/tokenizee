@@ -20,7 +20,8 @@ interface Post {
   content: string;
   attachment?: string;
   createdAt: string;
-  likes: number;
+  upvotes: number;
+  downvotes: number;
   shares: number;
 }
 
@@ -78,7 +79,8 @@ Join us on this journey to revolutionize the creator economy! Whether you're a c
 
 Stay tuned for more updates, and don't forget to follow us for the latest news and features! 🌟`,
     createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
-    likes: 42,
+    upvotes: 42,
+    downvotes: 12,
     shares: 12,
   },
   {
@@ -91,7 +93,8 @@ Stay tuned for more updates, and don't forget to follow us for the latest news a
     content:
       "Just minted my first NFT collection! Check out my profile to see the artwork. Would love to hear your thoughts and feedback. 🎨✨",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-    likes: 89,
+    upvotes: 89,
+    downvotes: 34,
     shares: 34,
   },
   {
@@ -104,7 +107,8 @@ Stay tuned for more updates, and don't forget to follow us for the latest news a
     content:
       "Sharing some tips for developers getting started with Web3. The key is to understand the fundamentals of blockchain technology first. Here's a thread...",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(), // 5 hours ago
-    likes: 156,
+    upvotes: 156,
+    downvotes: 45,
     shares: 78,
   },
   {
@@ -117,7 +121,8 @@ Stay tuned for more updates, and don't forget to follow us for the latest news a
     content:
       "My latest digital art piece is now available as an NFT! This piece represents the intersection of traditional art and blockchain technology. 🖼️",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(), // 8 hours ago
-    likes: 234,
+    upvotes: 234,
+    downvotes: 45,
     shares: 45,
   },
   {
@@ -130,7 +135,8 @@ Stay tuned for more updates, and don't forget to follow us for the latest news a
     content:
       "Big update on our DeFi project! We've implemented new features and improved security measures. Check out our latest documentation...",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(), // 12 hours ago
-    likes: 178,
+    upvotes: 178,
+    downvotes: 45,
     shares: 67,
   },
   {
@@ -143,7 +149,8 @@ Stay tuned for more updates, and don't forget to follow us for the latest news a
     content:
       "Join us this weekend for our first Tokenizee community meetup! We'll be discussing the future of NFTs and digital ownership. RSVP now! 🎉",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 24 hours ago
-    likes: 312,
+    upvotes: 312,
+    downvotes: 45,
     shares: 98,
   },
   {
@@ -156,7 +163,8 @@ Stay tuned for more updates, and don't forget to follow us for the latest news a
     content:
       "Starting a new series on blockchain education. First post covers the basics of smart contracts. Let me know if you have any questions! 📚",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 36).toISOString(), // 36 hours ago
-    likes: 145,
+    upvotes: 145,
+    downvotes: 45,
     shares: 56,
   },
 ];
