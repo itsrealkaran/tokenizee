@@ -40,7 +40,7 @@ export function Sidebar() {
 
       <nav className="px-2 flex-1">
         {navigation.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname.includes(item.href);
           return (
             <Link
               key={item.name}
