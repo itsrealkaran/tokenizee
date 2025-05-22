@@ -80,7 +80,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
   };
 
   return (
-    <article className="border border-border rounded-lg p-6 space-y-6">
+    <article className="p-6 space-y-6">
       {/* Author Info */}
       <div className="flex items-center gap-3">
         <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
