@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { GlobalProvider } from "./context/global-context";
+import { GlobalProvider } from "@/context/global-context";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Toaster } from "react-hot-toast";

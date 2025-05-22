@@ -2,18 +2,31 @@
 
 import { createContext, useContext, useState, ReactNode } from "react";
 
+interface User {
+  username: string;
+  displayName: string;
+  dateOfBirth: string;
+  walletAddress: string;
+}
+
 interface GlobalContextType {
   isLoggedIn: boolean;
   setIsLoggedIn: (value: boolean) => void;
-  user: any | null;
-  setUser: (user: any) => void;
+  user: User | null;
+  setUser: (user: User | null) => void;
+  logout: () => void;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
 export function GlobalProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  const logout = () => {
+    setIsLoggedIn(false);
+    setUser(null);
+  };
 
   return (
     <GlobalContext.Provider
@@ -22,6 +35,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         setIsLoggedIn,
         user,
         setUser,
+        logout,
       }}
     >
       {children}

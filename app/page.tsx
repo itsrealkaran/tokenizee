@@ -1,15 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RegisterModal } from "@/components/modals/register-modal";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useGlobal } from "./context/global-context";
+import { useGlobal } from "@/context/global-context";
+import { ConnectButton } from "@/components/ui/wallet-button";
 
 export default function Home() {
   const router = useRouter();
-  const { isLoggedIn, setIsLoggedIn } = useGlobal();
+  const { isLoggedIn, setIsLoggedIn, user, setUser } = useGlobal();
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (isLoggedIn && user) {
+      router.push("/feed");
+    }
+  }, [isLoggedIn, user, router]);
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -23,6 +30,7 @@ export default function Home() {
           <p className="text-lg text-muted-foreground">
             Join our community of content creators
           </p>
+          {/* <ConnectButton /> */}
           <Button onClick={handleLogin}>Get Started</Button>
         </div>
       ) : (
@@ -39,8 +47,12 @@ export default function Home() {
             onClose={() => {
               setIsRegisterModalOpen(false);
             }}
-            onSubmit={() => {
-              router.push("/dashboard");
+            onSubmit={(data) => {
+              setUser({
+                ...data,
+                walletAddress: "temp-wallet-address", // This will be replaced with actual wallet address
+              });
+              router.push("/feed");
             }}
           />
         </div>
