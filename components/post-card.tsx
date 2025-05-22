@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { ArrowBigUp, ArrowBigDown, Share2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,7 @@ interface PostCardProps {
 const MAX_CONTENT_LENGTH = 200;
 
 export function PostCard({ post, onViewPost }: PostCardProps) {
+  const router = useRouter();
   const [voteStatus, setVoteStatus] = useState<"up" | "down" | null>(null);
   const [votes, setVotes] = useState(post.likes);
 
@@ -61,111 +63,78 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
     }
   };
 
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/profile/${post.author.username}`);
+  };
+
   const truncatedContent =
     post.content.length > MAX_CONTENT_LENGTH
       ? post.content.slice(0, MAX_CONTENT_LENGTH) + "..."
       : post.content;
 
   return (
-    <article className="border border-border rounded-lg p-4 space-y-4">
-      {/* Author Info */}
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+    <div
+      className="border rounded-lg p-4 space-y-4 cursor-pointer hover:bg-muted/50 transition-colors"
+      onClick={onViewPost}
+    >
+      <div className="flex items-start gap-4">
+        <div
+          className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-colors"
+          onClick={handleProfileClick}
+        >
           <span className="text-lg font-medium text-primary">
             {post.author.displayName[0]}
           </span>
         </div>
-        <div>
-          <p className="font-medium">{post.author.displayName}</p>
-          <p className="text-sm text-muted-foreground">
-            @{post.author.username}
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <button
+              className="font-medium hover:underline"
+              onClick={handleProfileClick}
+            >
+              {post.author.displayName}
+            </button>
+            <span className="text-muted-foreground">
+              @{post.author.username}
+            </span>
+          </div>
+          <h2 className="text-lg font-semibold mt-1">{post.title}</h2>
+          <p className="text-muted-foreground mt-1 line-clamp-3">
+            {truncatedContent}
           </p>
         </div>
       </div>
 
-      {/* Post Content */}
-      <div className="space-y-2">
-        <h3 className="text-lg font-semibold">{post.title}</h3>
-        <p className="text-muted-foreground">{truncatedContent}</p>
-        {post.content.length > MAX_CONTENT_LENGTH && (
-          <Button
-            variant="link"
-            className="p-0 h-auto text-primary"
-            onClick={onViewPost}
-          >
-            Read more
-          </Button>
-        )}
-        {post.attachment && (
-          <div className="rounded-lg overflow-hidden">
-            <img
-              src={post.attachment}
-              alt="Post attachment"
-              className="w-full h-auto"
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Post Actions */}
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "h-8 w-8 p-0",
-              voteStatus === "up" && "text-primary hover:text-primary"
-            )}
-            onClick={() => handleVote("up")}
-          >
-            <ArrowBigUp
-              className={cn("h-5 w-5", voteStatus === "up" && "fill-current")}
-            />
-          </Button>
-          <span
-            className={cn(
-              "text-sm font-medium min-w-[1.5rem] text-center",
-              votes > 0 && "text-primary",
-              votes < 0 && "text-destructive"
-            )}
-          >
-            {votes}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "h-8 w-8 p-0",
-              voteStatus === "down" && "text-destructive hover:text-destructive"
-            )}
-            onClick={() => handleVote("down")}
-          >
-            <ArrowBigDown
-              className={cn("h-5 w-5", voteStatus === "down" && "fill-current")}
-            />
-          </Button>
-        </div>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-2"
-          onClick={handleShare}
-        >
-          <Share2 className="h-4 w-4" />
-          <span>{post.shares}</span>
+        <Button variant="ghost" size="sm" className="gap-2">
+          <ArrowBigUp
+            className={cn("h-4 w-4", voteStatus === "up" && "fill-current")}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleVote("up");
+            }}
+          />
+          <span>{votes}</span>
         </Button>
-
+        <Button variant="ghost" size="sm" className="gap-2">
+          <ArrowBigDown
+            className={cn("h-4 w-4", voteStatus === "down" && "fill-current")}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleVote("down");
+            }}
+          />
+        </Button>
         <Button variant="ghost" size="sm" className="gap-2">
           <MessageCircle className="h-4 w-4" />
           <span>0</span>
         </Button>
-        {/* Timestamp */}
-        <p className="text-sm text-muted-foreground ml-auto">
-          {new Date(post.createdAt).toLocaleDateString()}
-        </p>
+        <Button variant="ghost" size="sm" className="gap-2">
+          <Share2 className="h-4 w-4" />
+          <span>{post.shares}</span>
+        </Button>
       </div>
-    </article>
+    </div>
   );
 }
