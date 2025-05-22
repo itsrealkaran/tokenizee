@@ -33,8 +33,8 @@ export function Sidebar() {
 
   return (
     <div className="w-72 border-r border-border h-screen flex flex-col">
-      <div className="p-4 flex items-center gap-2">
-        <Bolt className="w-6 h-6" />
+      <div className="p-4 flex items-center gap-1">
+        <Bolt className="w-7 h-7 text-primary" />
         <h1 className="text-2xl font-bold text-primary">Tokenizee</h1>
       </div>
 
