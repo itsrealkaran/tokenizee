@@ -17,7 +17,8 @@ interface Post {
   content: string;
   attachment?: string;
   createdAt: string;
-  likes: number;
+  upvotes: number;
+  downvotes: number;
   shares: number;
 }
 
@@ -26,22 +27,40 @@ interface DetailedPostProps {
 }
 
 export function DetailedPost({ post }: DetailedPostProps) {
-  const [voteStatus, setVoteStatus] = useState<'up' | 'down' | null>(null);
-  const [votes, setVotes] = useState(post.likes);
+  const [voteStatus, setVoteStatus] = useState<"up" | "down" | null>(null);
+  const [upvotes, setUpvotes] = useState(post.upvotes);
+  const [downvotes, setDownvotes] = useState(post.downvotes);
 
-  const handleVote = (type: 'up' | 'down') => {
+  const handleVote = (type: "up" | "down") => {
     if (voteStatus === type) {
       // Remove vote
       setVoteStatus(null);
-      setVotes(votes - (type === 'up' ? 1 : -1));
+      if (type === "up") {
+        setUpvotes(upvotes - 1);
+      } else {
+        setDownvotes(downvotes - 1);
+      }
     } else {
       // Change vote
       const previousVote = voteStatus;
       setVoteStatus(type);
+
       if (previousVote === null) {
-        setVotes(votes + (type === 'up' ? 1 : -1));
+        // New vote
+        if (type === "up") {
+          setUpvotes(upvotes + 1);
+        } else {
+          setDownvotes(downvotes + 1);
+        }
       } else {
-        setVotes(votes + (type === 'up' ? 2 : -2));
+        // Switch vote
+        if (type === "up") {
+          setUpvotes(upvotes + 1);
+          setDownvotes(downvotes - 1);
+        } else {
+          setUpvotes(upvotes - 1);
+          setDownvotes(downvotes + 1);
+        }
       }
     }
     // TODO: Update votes in Lua table
@@ -49,7 +68,9 @@ export function DetailedPost({ post }: DetailedPostProps) {
 
   const handleShare = async () => {
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/post/${post.id}`
+      );
       toast.success("Link copied to clipboard!");
     } catch (err) {
       toast.error("Failed to copy link");
@@ -77,7 +98,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">{post.title}</h1>
         <div className="prose prose-sm dark:prose-invert max-w-none">
-          {post.content.split('\n\n').map((paragraph, index) => (
+          {post.content.split("\n\n").map((paragraph, index) => (
             <p key={index} className="text-muted-foreground">
               {paragraph}
             </p>
@@ -102,36 +123,43 @@ export function DetailedPost({ post }: DetailedPostProps) {
             size="sm"
             className={cn(
               "h-8 w-8 p-0",
-              voteStatus === 'up' && "text-primary hover:text-primary"
+              voteStatus === "up" && "text-primary hover:text-primary"
             )}
-            onClick={() => handleVote('up')}
+            onClick={() => handleVote("up")}
           >
-            <ArrowBigUp className={cn(
-              "h-5 w-5",
-              voteStatus === 'up' && "fill-current"
-            )} />
+            <ArrowBigUp
+              className={cn("h-5 w-5", voteStatus === "up" && "fill-current")}
+            />
           </Button>
-          <span className={cn(
-            "text-sm font-medium min-w-[1.5rem] text-center",
-            votes > 0 && "text-primary",
-            votes < 0 && "text-destructive"
-          )}>
-            {votes}
+          <span
+            className={cn(
+              "text-sm font-medium min-w-[1.5rem] text-center",
+              voteStatus === "up" && "text-primary"
+            )}
+          >
+            {upvotes}
           </span>
           <Button
             variant="ghost"
             size="sm"
             className={cn(
               "h-8 w-8 p-0",
-              voteStatus === 'down' && "text-destructive hover:text-destructive"
+              voteStatus === "down" && "text-destructive hover:text-destructive"
             )}
-            onClick={() => handleVote('down')}
+            onClick={() => handleVote("down")}
           >
-            <ArrowBigDown className={cn(
-              "h-5 w-5",
-              voteStatus === 'down' && "fill-current"
-            )} />
+            <ArrowBigDown
+              className={cn("h-5 w-5", voteStatus === "down" && "fill-current")}
+            />
           </Button>
+          <span
+            className={cn(
+              "text-sm font-medium min-w-[1.5rem] text-center",
+              voteStatus === "down" && "text-destructive"
+            )}
+          >
+            {downvotes}
+          </span>
         </div>
 
         <Button
@@ -155,4 +183,4 @@ export function DetailedPost({ post }: DetailedPostProps) {
       </div>
     </article>
   );
-} 
+}

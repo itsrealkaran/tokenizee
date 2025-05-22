@@ -1,27 +1,13 @@
 "use client";
 
 import { User2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-
-interface RankingUser {
-  id: string;
-  name: string;
-  username: string;
-  position: number;
-}
-
-const mockUsers: RankingUser[] = [
-  { id: "1", name: "John Doe", username: "johndoe", position: 1 },
-  { id: "2", name: "Jane Smith", username: "janesmith", position: 2 },
-  { id: "3", name: "Alice Johnson", username: "alicej", position: 3 },
-  { id: "4", name: "Bob Brown", username: "bobbrown", position: 4 },
-  { id: "5", name: "Charlie Davis", username: "charlied", position: 5 },
-];
+import { useGlobal } from "@/context/global-context";
 
 export function RankingList() {
   const router = useRouter();
+  const { topCreators } = useGlobal();
 
   const handleViewAll = () => {
     router.push("/explore?tab=creators");
@@ -43,7 +29,7 @@ export function RankingList() {
         </Button>
       </div>
       <div className="px-2 pb-4">
-        {mockUsers.map((user) => (
+        {topCreators.map((user) => (
           <div
             key={user.id}
             className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors group"
