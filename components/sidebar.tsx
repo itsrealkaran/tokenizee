@@ -35,9 +35,7 @@ export function Sidebar() {
     <div className="w-72 border-r border-border h-screen flex flex-col">
       <div className="p-4 flex items-center gap-2">
         <Bolt className="w-6 h-6" />
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-          Tokenizee
-        </h1>
+        <h1 className="text-2xl font-bold text-primary">Tokenizee</h1>
       </div>
 
       <nav className="px-2 flex-1">
