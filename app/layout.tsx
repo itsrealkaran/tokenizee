@@ -5,7 +5,6 @@ import { GlobalProvider } from "@/context/global-context";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Toaster } from "react-hot-toast";
-import { ArweaveWalletKit } from "arweave-wallet-kit";
 
 const inter = Inter({ subsets: ["latin"] });
 

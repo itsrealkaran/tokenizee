@@ -37,6 +37,7 @@ interface GlobalContextType {
   setIsLoggedIn: (value: boolean) => void;
   user: User | null;
   setUser: (user: User | null) => void;
+  updateUser: (user: User) => void;
   logout: () => void;
   feedPosts: Post[];
   trendingPosts: Post[];
@@ -195,6 +196,57 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+
+    // Update user info in all posts where they are the author
+    const updatedFeedPosts = feedPosts.map((post) => {
+      if (post.author.username === user?.username) {
+        return {
+          ...post,
+          author: {
+            ...post.author,
+            username: updatedUser.username,
+            displayName: updatedUser.displayName,
+          },
+        };
+      }
+      return post;
+    });
+
+    const updatedTrendingPosts = trendingPosts.map((post) => {
+      if (post.author.username === user?.username) {
+        return {
+          ...post,
+          author: {
+            ...post.author,
+            username: updatedUser.username,
+            displayName: updatedUser.displayName,
+          },
+        };
+      }
+      return post;
+    });
+
+    const updatedMyPosts = myPosts.map((post) => {
+      if (post.author.username === user?.username) {
+        return {
+          ...post,
+          author: {
+            ...post.author,
+            username: updatedUser.username,
+            displayName: updatedUser.displayName,
+          },
+        };
+      }
+      return post;
+    });
+
+    setFeedPosts(updatedFeedPosts);
+    setTrendingPosts(updatedTrendingPosts);
+    setMyPosts(updatedMyPosts);
+  };
+
   return (
     <GlobalContext.Provider
       value={{
@@ -202,6 +254,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         setIsLoggedIn,
         user,
         setUser,
+        updateUser,
         logout,
         feedPosts,
         trendingPosts,

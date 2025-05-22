@@ -78,6 +78,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
       );
       toast.success("Link copied to clipboard!");
     } catch (err) {
+      console.error(err);
       toast.error("Failed to copy link");
     }
   };
@@ -161,7 +162,13 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
           <span>0</span>
         </Button>
         <Button variant="ghost" size="sm" className="gap-2">
-          <Share2 className="h-4 w-4" />
+          <Share2
+            className="h-4 w-4"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleShare();
+            }}
+          />
           <span>{post.shares}</span>
         </Button>
       </div>

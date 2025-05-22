@@ -2,15 +2,13 @@
 
 import {
   LayoutDashboard,
-  Home,
   Search,
   User2 as User,
   LogOut,
   Bolt,
-  MoreVertical,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -26,7 +24,6 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
   const { isLoggedIn, user, logout } = useGlobal();
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
 

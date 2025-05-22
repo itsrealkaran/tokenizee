@@ -20,6 +20,7 @@ export function DropdownMenu({
 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      console.log(event);
       if (isOpen) {
         setIsOpen(false);
       }

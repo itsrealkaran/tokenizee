@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { X, Image as ImageIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import Image from "next/image";
 
 interface PostModalProps {
   isOpen: boolean;
@@ -153,7 +154,7 @@ export function PostModal({ isOpen, onClose, onSubmit }: PostModalProps) {
                       </label>
                       {previewUrl && (
                         <div className="relative h-20 w-20">
-                          <img
+                          <Image
                             src={previewUrl}
                             alt="Preview"
                             className="h-full w-full object-cover rounded-md"

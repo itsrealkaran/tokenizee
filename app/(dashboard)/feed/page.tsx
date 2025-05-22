@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { PostCard } from "@/components/post-card";
 import { useGlobal } from "@/context/global-context";
 import { useRouter } from "next/navigation";
-
+import { Loader2 } from "lucide-react";
 export default function DashboardPage() {
   const router = useRouter();
   const { feedPosts } = useGlobal();
@@ -18,6 +18,14 @@ export default function DashboardPage() {
   const handleViewPost = (postId: string) => {
     router.push(`/feed/${postId}`);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

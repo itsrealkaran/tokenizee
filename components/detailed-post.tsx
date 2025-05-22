@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import Image from "next/image";
 
 interface Post {
   id: string;
@@ -74,6 +75,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
       toast.success("Link copied to clipboard!");
     } catch (err) {
       toast.error("Failed to copy link");
+      console.error(err);
     }
   };
 
@@ -106,7 +108,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
         </div>
         {post.attachment && (
           <div className="rounded-lg overflow-hidden">
-            <img
+            <Image
               src={post.attachment}
               alt="Post attachment"
               className="w-full h-auto"

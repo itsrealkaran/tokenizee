@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: RegisterFormData) => void;
+  initialData?: RegisterFormData;
+  isEditing?: boolean;
 }
 
 export interface RegisterFormData {
@@ -22,12 +24,21 @@ export function RegisterModal({
   isOpen,
   onClose,
   onSubmit,
+  initialData,
+  isEditing = false,
 }: RegisterModalProps) {
   const [formData, setFormData] = useState<RegisterFormData>({
     username: "",
     displayName: "",
     dateOfBirth: "",
   });
+
+  // Update form data when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +85,7 @@ export function RegisterModal({
                     as="h3"
                     className="text-lg font-medium leading-6 text-foreground"
                   >
-                    Create Your Profile
+                    {isEditing ? "Edit Profile" : "Create Your Profile"}
                   </Dialog.Title>
                   <Button
                     variant="ghost"
@@ -147,7 +158,9 @@ export function RegisterModal({
                     <Button type="button" variant="outline" onClick={onClose}>
                       Cancel
                     </Button>
-                    <Button type="submit">Create Profile</Button>
+                    <Button type="submit">
+                      {isEditing ? "Save Changes" : "Create Profile"}
+                    </Button>
                   </div>
                 </form>
               </Dialog.Panel>

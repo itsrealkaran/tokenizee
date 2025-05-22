@@ -5,7 +5,6 @@ import { RegisterModal } from "@/components/modals/register-modal";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useGlobal } from "@/context/global-context";
-import { ConnectButton } from "@/components/ui/wallet-button";
 
 export default function Home() {
   const router = useRouter();

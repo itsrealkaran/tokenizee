@@ -6,11 +6,16 @@ import { PostCard } from "@/components/post-card";
 import { useGlobal } from "@/context/global-context";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import {
+  RegisterModal,
+  RegisterFormData,
+} from "@/components/modals/register-modal";
+import { toast } from "react-hot-toast";
 
 export default function UserProfilePage() {
   const params = useParams();
   const router = useRouter();
-  const { feedPosts, user } = useGlobal();
+  const { feedPosts, user, updateUser } = useGlobal();
   const [isEditing, setIsEditing] = useState(false);
 
   // Filter posts by the profile username
@@ -21,6 +26,27 @@ export default function UserProfilePage() {
   // Get the profile user's info from the first post or use current user if it's their profile
   const profileUser =
     params.username === user?.username ? user : userPosts[0]?.author;
+
+  const handleEditProfile = (data: RegisterFormData) => {
+    if (!user) return;
+
+    // Update user data
+    updateUser({
+      ...user,
+      username: data.username,
+      displayName: data.displayName,
+      dateOfBirth: data.dateOfBirth,
+    });
+
+    // Show success message
+    toast.success("Profile updated successfully!");
+
+    // Close modal and redirect to new profile URL if username changed
+    setIsEditing(false);
+    if (data.username !== user.username) {
+      router.push(`/profile/${data.username}`);
+    }
+  };
 
   if (!profileUser) {
     return (
@@ -88,6 +114,20 @@ export default function UserProfilePage() {
           </div>
         )}
       </div>
+
+      {/* Edit Profile Modal */}
+      {user && (
+        <RegisterModal
+          isOpen={isEditing}
+          onClose={() => setIsEditing(false)}
+          onSubmit={handleEditProfile}
+          initialData={{
+            username: user.username,
+            displayName: user.displayName,
+            dateOfBirth: user.dateOfBirth || "",
+          }}
+        />
+      )}
     </div>
   );
 }
