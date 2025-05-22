@@ -5,42 +5,9 @@ import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/post-card";
 import { useGlobal } from "@/context/global-context";
 
-interface Post {
-  id: string;
-  author: {
-    username: string;
-    displayName: string;
-    avatar?: string;
-  };
-  title: string;
-  content: string;
-  attachment?: string;
-  createdAt: string;
-  likes: number;
-  shares: number;
-}
-
 export default function ProfilePage() {
-  const { user } = useGlobal();
-  const [posts, setPosts] = useState<Post[]>([]);
+  const { user, myPosts } = useGlobal();
   const [isEditing, setIsEditing] = useState(false);
-
-  // TODO: Fetch user posts from Lua table
-  // For now, using dummy data
-  const userPosts: Post[] = [
-    {
-      id: "1",
-      author: {
-        username: user?.username || "user",
-        displayName: user?.displayName || "User",
-      },
-      title: "My First Post",
-      content: "This is my first post on Tokenizee!",
-      createdAt: new Date().toISOString(),
-      likes: 0,
-      shares: 0,
-    },
-  ];
 
   return (
     <div className="space-y-6">
@@ -59,7 +26,7 @@ export default function ProfilePage() {
         {/* Profile Stats */}
         <div className="flex gap-6 mt-4">
           <div>
-            <span className="font-semibold">{userPosts.length}</span>{" "}
+            <span className="font-semibold">{myPosts.length}</span>{" "}
             <span className="text-muted-foreground">Posts</span>
           </div>
           <div>
@@ -76,13 +43,13 @@ export default function ProfilePage() {
       {/* User Posts */}
       <div>
         <h2 className="text-xl font-semibold mb-4">Posts</h2>
-        {userPosts.length === 0 ? (
+        {myPosts.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             No posts yet. Create your first post!
           </div>
         ) : (
           <div className="space-y-4">
-            {userPosts.map((post) => (
+            {myPosts.map((post) => (
               <PostCard key={post.id} post={post} onViewPost={() => {}} />
             ))}
           </div>

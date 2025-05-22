@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { PostCard } from "@/components/post-card";
 import { useGlobal } from "@/context/global-context";
 import { cn } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
 
 export default function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -13,6 +14,14 @@ export default function ExplorePage() {
     "trending"
   );
   const { trendingPosts, topCreators } = useGlobal();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "creators") {
+      setActiveTab("creators");
+    }
+  }, [searchParams]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

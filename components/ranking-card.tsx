@@ -3,6 +3,7 @@
 import { User2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface RankingUser {
   id: string;
@@ -20,6 +21,12 @@ const mockUsers: RankingUser[] = [
 ];
 
 export function RankingList() {
+  const router = useRouter();
+
+  const handleViewAll = () => {
+    router.push("/explore?tab=creators");
+  };
+
   return (
     <div className="border border-border rounded-lg bg-card">
       <div className="flex items-center justify-between px-4 py-2 border-b border-border">
@@ -30,6 +37,7 @@ export function RankingList() {
           variant="ghost"
           size="sm"
           className="text-muted-foreground hover:text-foreground"
+          onClick={handleViewAll}
         >
           View All
         </Button>
