@@ -163,7 +163,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Feed</h1>
       {posts.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           No posts yet. Be the first to post!
