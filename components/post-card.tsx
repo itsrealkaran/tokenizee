@@ -127,50 +127,85 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" className="gap-2">
-          <ArrowBigUp
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
             className={cn(
-              "h-4 w-4",
-              voteStatus === "up" && "fill-current text-primary"
+              "h-8 w-8 p-0",
+              voteStatus === "up" && "text-primary hover:text-primary"
             )}
             onClick={(e) => {
               e.stopPropagation();
               handleVote("up");
             }}
-          />
-          <span className={cn(voteStatus === "up" && "text-primary")}>
+          >
+            <ArrowBigUp
+              className={cn("h-5 w-5", voteStatus === "up" && "fill-current")}
+            />
+          </Button>
+          <span
+            className={cn(
+              "text-sm font-medium min-w-[1.5rem] text-center",
+              voteStatus === "up" && "text-primary"
+            )}
+          >
             {upvotes}
           </span>
-        </Button>
-        <Button variant="ghost" size="sm" className="gap-2">
-          <ArrowBigDown
+          <Button
+            variant="ghost"
+            size="sm"
             className={cn(
-              "h-4 w-4",
-              voteStatus === "down" && "fill-current text-destructive"
+              "h-8 w-8 p-0",
+              voteStatus === "down" && "text-destructive hover:text-destructive"
             )}
             onClick={(e) => {
               e.stopPropagation();
               handleVote("down");
             }}
-          />
-          <span className={cn(voteStatus === "down" && "text-destructive")}>
+          >
+            <ArrowBigDown
+              className={cn("h-5 w-5", voteStatus === "down" && "fill-current")}
+            />
+          </Button>
+          <span
+            className={cn(
+              "text-sm font-medium min-w-[1.5rem] text-center",
+              voteStatus === "down" && "text-destructive"
+            )}
+          >
             {downvotes}
           </span>
+        </div>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-2"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleShare();
+          }}
+        >
+          <Share2 className="h-4 w-4" />
+          <span>{post.shares}</span>
         </Button>
-        <Button variant="ghost" size="sm" className="gap-2">
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-2"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
           <MessageCircle className="h-4 w-4" />
           <span>0</span>
         </Button>
-        <Button variant="ghost" size="sm" className="gap-2">
-          <Share2
-            className="h-4 w-4"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleShare();
-            }}
-          />
-          <span>{post.shares}</span>
-        </Button>
+
+        <p className="text-sm text-muted-foreground ml-auto">
+          {new Date(post.createdAt).toLocaleDateString()}
+        </p>
       </div>
     </div>
   );
