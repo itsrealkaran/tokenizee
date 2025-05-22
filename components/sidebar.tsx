@@ -74,10 +74,10 @@ export function Sidebar() {
       <div className="p-4 space-y-6">
         <Button
           size="lg"
-          className="w-full h-14 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-lg font-bold rounded-full shadow-sm hover:shadow-md transition-all duration-200"
+          className="w-full h-14 gap-2 bg-primary hover:bg-primary/90 text-lg font-bold rounded-full shadow-sm hover:shadow-md transition-all duration-200"
           onClick={() => setIsPostModalOpen(true)}
         >
-          Tokenizee
+          Tokenize
         </Button>
 
         <div className="flex items-center justify-between p-3 rounded-full hover:bg-muted/50 transition-colors cursor-pointer">

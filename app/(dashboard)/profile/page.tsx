@@ -83,7 +83,7 @@ export default function ProfilePage() {
         ) : (
           <div className="space-y-4">
             {userPosts.map((post) => (
-              <PostCard key={post.id} post={post} />
+              <PostCard key={post.id} post={post} onViewPost={() => {}} />
             ))}
           </div>
         )}

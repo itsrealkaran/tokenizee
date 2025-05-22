@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { PostCard } from "@/components/post-card";
+import { DetailedPost } from "@/components/detailed-post";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Post {
   id: string;
@@ -26,8 +29,26 @@ const dummyPosts: Post[] = [
       displayName: "John Doe",
     },
     title: "Welcome to Tokenizee",
-    content:
-      "Excited to be part of this amazing community! Looking forward to connecting with fellow creators and sharing our journey together. 🚀",
+    content: `Welcome to Tokenizee, the revolutionary platform that's changing the way we think about digital ownership and creator economy! 🚀
+
+In this post, I want to share my vision for Tokenizee and how it's going to transform the creator economy landscape.
+
+What is Tokenizee?
+Tokenizee is a decentralized platform that enables creators to tokenize their content, build their community, and monetize their work in ways never before possible. We're leveraging blockchain technology to create a fair and transparent ecosystem where creators have full control over their content and earnings.
+
+Key Features:
+1. Content Tokenization: Convert your digital assets into NFTs
+2. Community Building: Create and manage your own token-gated communities
+3. Revenue Sharing: Implement smart contracts for automatic revenue distribution
+4. Creator Tools: Access powerful analytics and engagement metrics
+5. Cross-platform Integration: Seamlessly connect with other Web3 platforms
+
+The Future of Creator Economy:
+We believe that the future of the creator economy lies in decentralization and direct creator-fan relationships. Tokenizee is building the infrastructure to make this vision a reality. Our platform removes intermediaries, reduces fees, and puts power back in the hands of creators.
+
+Join us on this journey to revolutionize the creator economy! Whether you're a creator looking to tokenize your content, a fan wanting to support your favorite creators, or a developer interested in building on our platform, there's a place for you in the Tokenizee community.
+
+Stay tuned for more updates, and don't forget to follow us for the latest news and features! 🌟`,
     createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
     likes: 42,
     shares: 12,
@@ -115,6 +136,7 @@ const dummyPosts: Post[] = [
 export default function DashboardPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   useEffect(() => {
     // TODO: Fetch posts from Lua table
@@ -131,6 +153,22 @@ export default function DashboardPage() {
     );
   }
 
+  if (selectedPost) {
+    return (
+      <div className="space-y-4">
+        <Button
+          variant="ghost"
+          className="gap-2"
+          onClick={() => setSelectedPost(null)}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Feed
+        </Button>
+        <DetailedPost post={selectedPost} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Feed</h1>
@@ -141,7 +179,11 @@ export default function DashboardPage() {
       ) : (
         <div className="space-y-4">
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard
+              key={post.id}
+              post={post}
+              onViewPost={() => setSelectedPost(post)}
+            />
           ))}
         </div>
       )}

@@ -63,7 +63,7 @@ export default function ExplorePage() {
         <h2 className="text-xl font-semibold mb-4">Trending Posts</h2>
         <div className="space-y-4">
           {trendingPosts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard key={post.id} post={post} onViewPost={() => {}} />
           ))}
         </div>
       </div>
