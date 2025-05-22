@@ -32,7 +32,7 @@ export function RankingList() {
         {topCreators.map((user) => (
           <div
             key={user.id}
-            className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors group"
+            className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors group cursor-pointer"
             onClick={() => router.push(`/profile/${user.username}`)}
           >
             <div className="flex items-center justify-center w-7 h-7">

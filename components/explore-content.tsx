@@ -93,17 +93,17 @@ export default function ExploreContent() {
             {topCreators.map((creator) => (
               <div
                 key={creator.id}
-                className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                className="flex items-center cursor-pointer justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
                 onClick={() => router.push(`/profile/${creator.username}`)}
               >
                 <div className="flex items-center space-x-4">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 cursor-pointer flex items-center justify-center">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                     <span className="text-lg font-medium text-primary">
                       {creator.name[0]}
                     </span>
                   </div>
                   <div>
-                    <h3 className="font-medium cursor-pointer">
+                    <h3 className="font-medium">
                       {creator.name}
                     </h3>
                     <p className="text-sm text-muted-foreground">
