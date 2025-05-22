@@ -7,6 +7,7 @@ import { PostCard } from "@/components/post-card";
 import { useGlobal } from "@/context/global-context";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function ExploreContent() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,6 +16,7 @@ export default function ExploreContent() {
   );
   const { trendingPosts, topCreators } = useGlobal();
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     const tab = searchParams.get("tab");
@@ -54,7 +56,7 @@ export default function ExploreContent() {
                 "py-4 px-1 border-b-2 font-medium text-sm transition-colors",
                 activeTab === "trending"
                   ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-primary/50"
               )}
             >
               Trending Posts
@@ -65,7 +67,7 @@ export default function ExploreContent() {
                 "py-4 px-1 border-b-2 font-medium text-sm transition-colors",
                 activeTab === "creators"
                   ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-primary/50"
               )}
             >
               Top Creators
@@ -79,7 +81,11 @@ export default function ExploreContent() {
         {activeTab === "trending" ? (
           <div className="space-y-4">
             {trendingPosts.map((post) => (
-              <PostCard key={post.id} post={post} onViewPost={() => {}} />
+              <PostCard
+                key={post.id}
+                post={post}
+                onViewPost={() => router.push(`/feed/${post.id}`)}
+              />
             ))}
           </div>
         ) : (
@@ -88,21 +94,24 @@ export default function ExploreContent() {
               <div
                 key={creator.id}
                 className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                onClick={() => router.push(`/profile/${creator.username}`)}
               >
                 <div className="flex items-center space-x-4">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 cursor-pointer flex items-center justify-center">
                     <span className="text-lg font-medium text-primary">
                       {creator.name[0]}
                     </span>
                   </div>
                   <div>
-                    <h3 className="font-medium">{creator.name}</h3>
+                    <h3 className="font-medium cursor-pointer">
+                      {creator.name}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
                       @{creator.username}
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right cursor-pointer">
                   <p className="font-medium">#{creator.position}</p>
                 </div>
               </div>
