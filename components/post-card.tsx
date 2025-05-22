@@ -1,9 +1,10 @@
 "use client";
 
-import { Heart, Share2, MessageCircle } from "lucide-react";
+import { ArrowBigUp, ArrowBigDown, Share2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 
 interface Post {
   id: string;
@@ -25,18 +26,36 @@ interface PostCardProps {
 }
 
 export function PostCard({ post }: PostCardProps) {
-  const [isLiked, setIsLiked] = useState(false);
-  const [likes, setLikes] = useState(post.likes);
+  const [voteStatus, setVoteStatus] = useState<"up" | "down" | null>(null);
+  const [votes, setVotes] = useState(post.likes);
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikes(isLiked ? likes - 1 : likes + 1);
-    // TODO: Update likes in Lua table
+  const handleVote = (type: "up" | "down") => {
+    if (voteStatus === type) {
+      // Remove vote
+      setVoteStatus(null);
+      setVotes(votes - (type === "up" ? 1 : -1));
+    } else {
+      // Change vote
+      const previousVote = voteStatus;
+      setVoteStatus(type);
+      if (previousVote === null) {
+        setVotes(votes + (type === "up" ? 1 : -1));
+      } else {
+        setVotes(votes + (type === "up" ? 2 : -2));
+      }
+    }
+    // TODO: Update votes in Lua table
   };
 
-  const handleShare = () => {
-    // TODO: Implement share functionality
-    navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/post/${post.id}`
+      );
+      toast.success("Link copied to clipboard!");
+    } catch (err) {
+      toast.error("Failed to copy link");
+    }
   };
 
   return (
@@ -73,15 +92,44 @@ export function PostCard({ post }: PostCardProps) {
 
       {/* Post Actions */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          className={cn("gap-2", isLiked && "text-red-500 hover:text-red-500")}
-          onClick={handleLike}
-        >
-          <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
-          <span>{likes}</span>
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "h-8 w-8 p-0",
+              voteStatus === "up" && "text-primary hover:text-primary"
+            )}
+            onClick={() => handleVote("up")}
+          >
+            <ArrowBigUp
+              className={cn("h-5 w-5", voteStatus === "up" && "fill-current")}
+            />
+          </Button>
+          <span
+            className={cn(
+              "text-sm font-medium min-w-[1.5rem] text-center",
+              votes > 0 && "text-primary",
+              votes < 0 && "text-destructive"
+            )}
+          >
+            {votes}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "h-8 w-8 p-0",
+              voteStatus === "down" && "text-destructive hover:text-destructive"
+            )}
+            onClick={() => handleVote("down")}
+          >
+            <ArrowBigDown
+              className={cn("h-5 w-5", voteStatus === "down" && "fill-current")}
+            />
+          </Button>
+        </div>
+
         <Button
           variant="ghost"
           size="sm"
@@ -91,16 +139,16 @@ export function PostCard({ post }: PostCardProps) {
           <Share2 className="h-4 w-4" />
           <span>{post.shares}</span>
         </Button>
+
         <Button variant="ghost" size="sm" className="gap-2">
           <MessageCircle className="h-4 w-4" />
           <span>0</span>
         </Button>
+        {/* Timestamp */}
+        <p className="text-sm text-muted-foreground ml-auto">
+          {new Date(post.createdAt).toLocaleDateString()}
+        </p>
       </div>
-
-      {/* Timestamp */}
-      <p className="text-sm text-muted-foreground">
-        {new Date(post.createdAt).toLocaleDateString()}
-      </p>
     </article>
   );
 }
