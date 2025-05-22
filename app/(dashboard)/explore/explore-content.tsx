@@ -30,7 +30,7 @@ export default function ExploreContent() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
         <form onSubmit={handleSearch} className="relative">
           <Search className="absolute z-10 left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
