@@ -26,6 +26,9 @@ interface Post {
     username: string;
     displayName: string;
     avatar?: string;
+    dateOfBirth: string;
+    score: number;
+    walletAddress: string;
   };
   title: string;
   content: string;
@@ -85,6 +88,9 @@ const dummyPosts: Post[] = [
     author: {
       username: "johndoe",
       displayName: "John Doe",
+      dateOfBirth: "2004-06-01",
+      score: 0,
+      walletAddress: "johndoe",
     },
     title: "Welcome to Tokenizee",
     content: `Welcome to Tokenizee, the revolutionary platform that's changing the way we think about digital ownership and creator economy! 🚀
@@ -117,6 +123,9 @@ Stay tuned for more updates, and don't forget to follow us for the latest news a
     author: {
       username: "alicej",
       displayName: "Alice Johnson",
+      dateOfBirth: "2004-06-01",
+      score: 0,
+      walletAddress: "alicej",
     },
     title: "My First NFT Collection",
     content:
@@ -131,6 +140,9 @@ Stay tuned for more updates, and don't forget to follow us for the latest news a
     author: {
       username: "bobbrown",
       displayName: "Bob Brown",
+      dateOfBirth: "2004-06-01",
+      score: 0,
+      walletAddress: "bobbrown",
     },
     title: "Web3 Development Tips",
     content:
@@ -145,6 +157,9 @@ Stay tuned for more updates, and don't forget to follow us for the latest news a
     author: {
       username: "sarahsmith",
       displayName: "Sarah Smith",
+      dateOfBirth: "2004-06-01",
+      score: 0,
+      walletAddress: "sarahsmith",
     },
     title: "Digital Art Showcase",
     content:
@@ -159,6 +174,9 @@ Stay tuned for more updates, and don't forget to follow us for the latest news a
     author: {
       username: "mikechen",
       displayName: "Mike Chen",
+      dateOfBirth: "2004-06-01",
+      score: 0,
+      walletAddress: "mikechen",
     },
     title: "DeFi Project Update",
     content:
@@ -173,6 +191,9 @@ Stay tuned for more updates, and don't forget to follow us for the latest news a
     author: {
       username: "emilydavis",
       displayName: "Emily Davis",
+      dateOfBirth: "2004-06-01",
+      score: 0,
+      walletAddress: "emilydavis",
     },
     title: "Community Event",
     content:
@@ -187,6 +208,9 @@ Stay tuned for more updates, and don't forget to follow us for the latest news a
     author: {
       username: "davidwilson",
       displayName: "David Wilson",
+      dateOfBirth: "2004-06-01",
+      score: 0,
+      walletAddress: "davidwilson",
     },
     title: "Blockchain Education",
     content:
@@ -408,6 +432,9 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
           author: {
             username: post.author,
             displayName: post.author, // TODO: Get display name from user data
+            dateOfBirth: "",
+            score: 0,
+            walletAddress: "",
           },
           title: post.content.substring(0, 50) + "...",
           content: post.content,
@@ -432,6 +459,9 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
           author: {
             username: post.author,
             displayName: post.author, // TODO: Get display name from user data
+            dateOfBirth: "",
+            score: 0,
+            walletAddress: "",
           },
           title: post.content.substring(0, 50) + "...",
           content: post.content,

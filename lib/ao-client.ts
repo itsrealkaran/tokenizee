@@ -1,4 +1,11 @@
-import { dryrun } from "@permaweb/aoconnect";
+import { connect } from "@permaweb/aoconnect";
+
+const { dryrun } = connect(
+  {
+    CU_URL: "https://cu.arnode.asia",
+    // GATEWAY_URL: "https://arnode.asia",
+  },
+);
 
 // Types
 export interface User {
@@ -50,7 +57,7 @@ export class AOClient {
         process: this.processId,
         data,
         tags: [{ name: "Action", value: action }, ...tags],
-      }) as AOResponse<T>;
+      }) as AOResponse<string>;
 
       if (!result.Messages?.[0]) {
         throw new Error(`No response from AO process for action: ${action}`);
@@ -60,10 +67,16 @@ export class AOClient {
       const status = message.Tags.find((tag: { name: string }) => tag.name === "Status")?.value;
 
       if (status === "Error") {
-        throw new Error(message.Data as string);
+        throw new Error(message.Data);
       }
 
-      return message.Data as T;
+      // Parse the stringified JSON data
+      try {
+        return JSON.parse(message.Data) as T;
+      } catch (parseError) {
+        console.error("Error parsing response data:", parseError);
+        throw new Error("Invalid response data format");
+      }
     } catch (error) {
       console.error(`Error in AO call ${action}:`, error);
       throw error;
