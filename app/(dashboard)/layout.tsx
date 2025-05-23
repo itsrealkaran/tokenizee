@@ -2,6 +2,8 @@ import { Sidebar } from "@/components/sidebar";
 import { RankingList } from "@/components/ranking-card";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { AuthCheck } from "@/components/auth-check";
+import { Header } from "@/components/ui/header";
+import { BottomNav } from "@/components/ui/bottom-nav";
 
 export default function DashboardLayout({
   children,
@@ -12,13 +14,26 @@ export default function DashboardLayout({
     <AuthCheck>
       <div className="min-h-screen bg-background">
         <div className="max-w-[1400px] mx-auto">
-          <div className="flex h-screen">
-            <Sidebar />
+          {/* Mobile Header */}
+          <div className="md:hidden">
+            <Header />
+          </div>
+
+          <div className="flex h-[calc(100vh-3.5rem)] md:h-screen">
+            {/* Desktop Sidebar */}
+            <div className="hidden md:block">
+              <Sidebar />
+            </div>
 
             {/* Main Content */}
             <div className="flex-1 overflow-y-auto">
-              <DashboardHeader />
-              <main className="max-w-2xl mx-auto p-4">{children}</main>
+              {/* Desktop Header */}
+              <div className="hidden md:block">
+                <DashboardHeader />
+              </div>
+              <main className="max-w-2xl mx-auto p-4 pb-20 md:pb-4">
+                {children}
+              </main>
             </div>
 
             {/* Right Sidebar */}
@@ -28,6 +43,11 @@ export default function DashboardLayout({
                 <RankingList />
               </div>
             </div>
+          </div>
+
+          {/* Mobile Bottom Navigation */}
+          <div className="md:hidden">
+            <BottomNav />
           </div>
         </div>
       </div>

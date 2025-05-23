@@ -66,6 +66,7 @@ interface GlobalContextType {
   setWalletConnected: (value: boolean) => void;
   walletAddress: string | null;
   setWalletAddress: (address: string | null) => void;
+  checkUserExists: (walletAddress: string) => Promise<boolean>;
   // AO API Methods
   registerUser: (
     username: string,
@@ -261,8 +262,18 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   // Initialize AO Client
   const aoClient = getAOClient(
     process.env.NEXT_PUBLIC_AO_PROCESS_ID ||
-      "A5Dq5kMTq0ACMwsvPR_PIJO14UFhE1y3GYho9pu6LII"
+      "0Y5WcW477MOcelsMPUtHB-r_3fHrXFOdMg0gemD91wQ"
   );
+
+  const checkUserExists = async (walletAddress: string): Promise<boolean> => {
+    try {
+      const userData = await aoClient.getUser(walletAddress);
+      return !!userData;
+    } catch (error) {
+      console.error("Error checking if user exists:", error);
+      return false;
+    }
+  };
 
   // Check user session on mount
   useEffect(() => {
@@ -273,8 +284,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
           if (address) {
             setWalletAddress(address);
             setWalletConnected(true);
-            const userData = await aoClient.getUser(address);
-            if (userData) {
+
+            const userExists = await checkUserExists(address);
+            if (userExists) {
+              const userData = await aoClient.getUser(address);
               setUser({
                 username: userData.username,
                 displayName: userData.displayName,
@@ -533,6 +546,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         setWalletConnected,
         walletAddress,
         setWalletAddress,
+        checkUserExists,
         // AO API Methods
         registerUser,
         createPost,

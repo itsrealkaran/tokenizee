@@ -23,7 +23,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <GlobalProvider>
           <ThemeProvider>
-            <ThemeToggle />
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
             <main>{children}</main>
             <Toaster />
           </ThemeProvider>
