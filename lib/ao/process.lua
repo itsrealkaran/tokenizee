@@ -1,350 +1,260 @@
--- Tokenizee AO Process
--- Handles user interactions and content management
-
--- State
-local State = {
-  users = {},  -- {username = {displayName, dateOfBirth, wallet, score, posts = {postId = {content, upvotes, downvotes, timestamp}}}}
-  posts = {},  -- {postId = {author, content, upvotes, downvotes, timestamp}}
-  settings = {
-    minUsernameLength = 3,
-    minDisplayNameLength = 2,
-    minPostLength = 10,
-    maxPostLength = 1000
-  }
+users = {
+    itsrealkaran = {
+      displayName = "Karan Singh",
+      dateOfBirth = "2004-06-01",
+      wallet = "KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
+      posts = { "1" },
+      score = 0
+    },
+    ankushkun = {
+      displayName = "Ankush Singh",
+      dateOfBirth = "2004-06-15",
+      wallet = "8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg",
+      posts = { "2" },
+      score = 0
+    }
 }
+posts = {
+    ["1"] = {
+      author = "itsrealkaran",
+      content = "Welcome to the network!",
+      upvotes = 3,
+      downvotes = 0,
+      timestamp = os.time() - 500
+    },
+    ["2"] = {
+      author = "ankushkun",
+      content = "Building the future, one block at a time.",
+      upvotes = 5,
+      downvotes = 1,
+      timestamp = os.time() - 400
+    }
+}
+postCounter = 2
 
--- Helper Functions
-local function generateId()
-  return tostring(os.time()) .. "-" .. tostring(math.random(1000, 9999))
-end
+local json = require("json")
 
-local function validateUser(userData)
-  if not userData.username or #userData.username < State.settings.minUsernameLength then
-    return false, "Username must be at least " .. State.settings.minUsernameLength .. " characters"
-  end
-  if not userData.displayName or #userData.displayName < State.settings.minDisplayNameLength then
-    return false, "Display name must be at least " .. State.settings.minDisplayNameLength .. " characters"
-  end
-  if not userData.dateOfBirth then
-    return false, "Date of birth is required"
-  end
-  return true
-end
+Handlers.add("Register", { Action = "Register" }, function(msg)
+    local username = msg.Tags["Username"]
+    local displayName = msg.Tags["DisplayName"]
+    local dateOfBirth = msg.Tags["DateOfBirth"]
+    local wallet = msg.Tags["Wallet"]
 
-local function validatePost(postData)
-  if not postData.content then
-    return false, "Content is required"
-  end
-  if #postData.content < State.settings.minPostLength then
-    return false, "Post is too short"
-  end
-  if #postData.content > State.settings.maxPostLength then
-    return false, "Post is too long"
-  end
-  return true
-end
-
--- Handlers
-Handlers.add("register",
-  Handlers.utils.hasMatchingTag("Action", "Register"),
-  function(msg)
-    local userData = json.decode(msg.Data)
-    local valid, error = validateUser(userData)
-    
-    if not valid then
-      ao.send({
-        Target = msg.From,
-        Action = "Register-Error",
-        Data = error
-      })
-      return
+    if not username or not displayNam then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "RegisterResponse", Status = "Error" },
+            Data = "Missing required fields."
+        })
+        return
     end
 
-    if State.users[userData.username] then
-      ao.send({
-        Target = msg.From,
-        Action = "Register-Error",
-        Data = "Username already exists"
-      })
-      return
+    if users[username] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "RegisterResponse", Status = "Error" },
+            Data = "Username already exists."
+        })
+        return
     end
 
-    local user = {
-      username = userData.username,
-      displayName = userData.displayName,
-      dateOfBirth = userData.dateOfBirth,
-      wallet = msg.From,
-      score = 0,
-      posts = {},  -- Will store post data directly
-      createdAt = os.time()
+    users[username] = {
+        displayName = displayName,
+        dateOfBirth = dateOfBirth,
+        wallet = wallet,
+        posts = {},
+        score = 0
     }
 
-    State.users[userData.username] = user
-
+    print(username .. " registered")
     ao.send({
-      Target = msg.From,
-      Action = "Register-Success",
-      Data = json.encode(user)
+        Target = msg.From,
+        Tags = { Action = "RegisterResponse", Status = "Success" },
+        Data = "User registered successfully."
     })
-  end
-)
+end)
 
-Handlers.add("create-post",
-  Handlers.utils.hasMatchingTag("Action", "CreatePost"),
-  function(msg)
-    local postData = json.decode(msg.Data)
-    local valid, error = validatePost(postData)
-    
-    if not valid then
-      ao.send({
-        Target = msg.From,
-        Action = "CreatePost-Error",
-        Data = error
-      })
-      return
+Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
+    local username = msg.Tags["Username"]
+    local content = msg.Data
+
+    if not users[username] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "CreatePostResponse", Status = "Error" },
+            Data = "User does not exist."
+        })
+        return
     end
 
-    local user = State.users[postData.author]
-    if not user then
-      ao.send({
-        Target = msg.From,
-        Action = "CreatePost-Error",
-        Data = "User not found"
-      })
-      return
-    end
-
-    local postId = generateId()
+    postCounter = postCounter + 1
+    local postId = tostring(postCounter)
     local timestamp = os.time()
-    
-    -- Create post data
-    local post = {
-      id = postId,
-      author = postData.author,
-      content = postData.content,
-      upvotes = 0,
-      downvotes = 0,
-      timestamp = timestamp
+
+    posts[postId] = {
+        author = username,
+        content = content,
+        upvotes = 0,
+        downvotes = 0,
+        timestamp = timestamp
     }
 
-    -- Store in posts table
-    State.posts[postId] = post
-
-    -- Store in user's posts table
-    user.posts[postId] = {
-      content = postData.content,
-      upvotes = 0,
-      downvotes = 0,
-      timestamp = timestamp
-    }
+    table.insert(users[username].posts, postId)
 
     ao.send({
-      Target = msg.From,
-      Action = "CreatePost-Success",
-      Data = json.encode(post)
-    })
-  end
-)
-
-Handlers.add("upvote",
-  Handlers.utils.hasMatchingTag("Action", "Upvote"),
-  function(msg)
-    local voteData = json.decode(msg.Data)
-    local post = State.posts[voteData.postId]
-    
-    if not post then
-      ao.send({
         Target = msg.From,
-        Action = "Upvote-Error",
-        Data = "Post not found"
-      })
-      return
+        Tags = { Action = "CreatePostResponse", Status = "Success", PostId = postId },
+        Data = "Post created successfully."
+    })
+end)
+
+Handlers.add("UpvotePost", { Action = "Upvote" }, function(msg)
+    local postId = msg.Tags["PostId"]
+
+    if not posts[postId] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "UpvoteResponse", Status = "Error" },
+            Data = "Post does not exist."
+        })
+        return
     end
 
-    -- Update post in posts table
-    post.upvotes = post.upvotes + 1
-
-    -- Update post in user's posts table
-    local author = State.users[post.author]
-    if author and author.posts[voteData.postId] then
-      author.posts[voteData.postId].upvotes = author.posts[voteData.postId].upvotes + 1
-      author.score = author.score + 2
-    end
+    posts[postId].upvotes = posts[postId].upvotes + 1
+    local author = posts[postId].author
+    users[author].score = users[author].score + 1
 
     ao.send({
-      Target = msg.From,
-      Action = "Upvote-Success",
-      Data = json.encode({
-        upvotes = post.upvotes,
-        authorScore = author and author.score or 0
-      })
-    })
-  end
-)
-
-Handlers.add("downvote",
-  Handlers.utils.hasMatchingTag("Action", "Downvote"),
-  function(msg)
-    local voteData = json.decode(msg.Data)
-    local post = State.posts[voteData.postId]
-    
-    if not post then
-      ao.send({
         Target = msg.From,
-        Action = "Downvote-Error",
-        Data = "Post not found"
-      })
-      return
+        Tags = { Action = "UpvoteResponse", Status = "Success" },
+        Data = "Post upvoted successfully."
+    })
+end)
+
+Handlers.add("DownvotePost", { Action = "Downvote" }, function(msg)
+    local postId = msg.Tags["PostId"]
+
+    if not posts[postId] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "DownvoteResponse", Status = "Error" },
+            Data = "Post does not exist."
+        })
+        return
     end
 
-    -- Update post in posts table
-    post.downvotes = post.downvotes + 1
-
-    -- Update post in user's posts table
-    local author = State.users[post.author]
-    if author and author.posts[voteData.postId] then
-      author.posts[voteData.postId].downvotes = author.posts[voteData.postId].downvotes + 1
-      author.score = author.score - 1
-    end
+    posts[postId].downvotes = posts[postId].downvotes + 1
+    local author = posts[postId].author
+    users[author].score = users[author].score - 1
 
     ao.send({
-      Target = msg.From,
-      Action = "Downvote-Success",
-      Data = json.encode({
-        downvotes = post.downvotes,
-        authorScore = author and author.score or 0
-      })
-    })
-  end
-)
-
--- Query Handlers
-Handlers.add("check-user",
-  Handlers.utils.hasMatchingTag("Action", "CheckUser"),
-  function(msg)
-    local username = msg.Tags.Username
-    local user = State.users[username]
-    
-    ao.send({
-      Target = msg.From,
-      Action = "CheckUser-Success",
-      Data = json.encode({
-        exists = user ~= nil,
-        user = user
-      })
-    })
-  end
-)
-
-Handlers.add("get-profile",
-  Handlers.utils.hasMatchingTag("Action", "GetProfile"),
-  function(msg)
-    local username = msg.Tags.Username
-    local user = State.users[username]
-    
-    if not user then
-      ao.send({
         Target = msg.From,
-        Action = "GetProfile-Error",
-        Data = "User not found"
-      })
-      return
-    end
-
-    -- Convert user's posts table to array and sort by timestamp
-    local posts = {}
-    for postId, postData in pairs(user.posts) do
-      table.insert(posts, {
-        id = postId,
-        content = postData.content,
-        upvotes = postData.upvotes,
-        downvotes = postData.downvotes,
-        timestamp = postData.timestamp
-      })
-    end
-
-    -- Sort posts by timestamp
-    table.sort(posts, function(a, b)
-      return a.timestamp > b.timestamp
-    end)
-
-    ao.send({
-      Target = msg.From,
-      Action = "GetProfile-Success",
-      Data = json.encode({
-        user = user,
-        posts = posts
-      })
+        Tags = { Action = "DownvoteResponse", Status = "Success" },
+        Data = "Post downvoted successfully."
     })
-  end
-)
+end)
 
-Handlers.add("get-feed",
-  Handlers.utils.hasMatchingTag("Action", "GetFeed"),
-  function(msg)
-    local posts = {}
-    for _, post in pairs(State.posts) do
-      table.insert(posts, post)
+Handlers.add("GetUser", { Action = "GetUser" }, function(msg)
+    local wallet = msg.Tags["Wallet"]
+    if not wallet then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetUserResponse", Status = "Error" },
+            Data = "Missing Wallet tag."
+        })
+        return
     end
 
-    -- Sort by timestamp
-    table.sort(posts, function(a, b)
-      return a.timestamp > b.timestamp
-    end)
+    local foundUser = nil
+    local username = nil
 
-    ao.send({
-      Target = msg.From,
-      Action = "GetFeed-Success",
-      Data = json.encode({ posts = posts })
-    })
-  end
-)
-
-Handlers.add("get-trending",
-  Handlers.utils.hasMatchingTag("Action", "GetTrending"),
-  function(msg)
-    local posts = {}
-    for _, post in pairs(State.posts) do
-      table.insert(posts, post)
+    for uname, user in pairs(users) do
+        if user.wallet == wallet then
+            foundUser = user
+            username = uname
+            break
+        end
     end
 
-    -- Sort by (upvotes - downvotes)
-    table.sort(posts, function(a, b)
-      local scoreA = a.upvotes - a.downvotes
-      local scoreB = b.upvotes - b.downvotes
-      return scoreA > scoreB
-    end)
+    if not foundUser then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetUserResponse", Status = "Error" },
+            Data = "User not found."
+        })
+        return
+    end
 
-    ao.send({
-      Target = msg.From,
-      Action = "GetTrending-Success",
-      Data = json.encode({ posts = posts })
-    })
-  end
-)
-
-Handlers.add("get-leaderboard",
-  Handlers.utils.hasMatchingTag("Action", "GetLeaderboard"),
-  function(msg)
-    local users = {}
-    for username, user in pairs(State.users) do
-      table.insert(users, {
+    local userInfo = {
         username = username,
-        displayName = user.displayName,
-        score = user.score,
-        posts = #user.posts
-      })
+        displayName = foundUser.displayName,
+        dateOfBirth = foundUser.dateOfBirth,
+        wallet = foundUser.wallet,
+        score = foundUser.score
+    }
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "GetUserResponse", Status = "Success" },
+        Data = userInfo
+    })
+end)
+
+Handlers.add("GetFeed", { Action = "GetFeed" }, function(msg)
+    local feed = {}
+
+    for postId, post in pairs(posts) do
+        table.insert(feed, post)
     end
 
-    -- Sort by score
-    table.sort(users, function(a, b)
-      return a.score > b.score
+    table.sort(feed, function(a, b)
+        return a.timestamp > b.timestamp
     end)
 
     ao.send({
-      Target = msg.From,
-      Action = "GetLeaderboard-Success",
-      Data = json.encode({ users = users })
+        Target = msg.From,
+        Tags = { Action = "GetFeedResponse", Status = "Success" },
+        Data = feed
     })
-  end
-) 
+end)
+
+Handlers.add("GetTrending", { Action = "GetTrending" }, function(msg)
+    local trending = {}
+
+    for postId, post in pairs(posts) do
+        post.netScore = post.upvotes - post.downvotes
+        table.insert(trending, post)
+    end
+
+    table.sort(trending, function(a, b)
+        return a.netScore > b.netScore
+    end)
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "GetTrendingResponse", Status = "Success" },
+        Data = trending
+    })
+end)
+
+Handlers.add("GetLeaderboard", { Action = "GetLeaderboard" }, function(msg)
+    local leaderboard = {}
+
+    for username, user in pairs(users) do
+        table.insert(leaderboard, {
+            username = username,
+            displayName = user.displayName,
+            score = user.score
+        })
+    end
+
+    table.sort(leaderboard, function(a, b)
+        return a.score > b.score
+    end)
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "GetLeaderboardResponse", Status = "Success" },
+        Data = leaderboard
+    })
+end)

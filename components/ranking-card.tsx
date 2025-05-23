@@ -1,6 +1,5 @@
 "use client";
 
-import { User2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useGlobal } from "@/context/global-context";

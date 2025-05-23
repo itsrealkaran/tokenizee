@@ -49,7 +49,9 @@ export default function Home() {
             onSubmit={(data) => {
               setUser({
                 ...data,
-                walletAddress: "temp-wallet-address", // This will be replaced with actual wallet address
+                walletAddress: "temp-wallet-address",
+                followers: [],
+                following: [],
               });
               router.push("/feed");
             }}

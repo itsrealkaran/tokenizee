@@ -7,6 +7,8 @@ interface User {
   displayName: string;
   dateOfBirth: string;
   walletAddress: string;
+  followers: string[];
+  following: string[];
 }
 
 interface Post {
@@ -41,11 +43,11 @@ interface GlobalContextType {
   logout: () => void;
   feedPosts: Post[];
   trendingPosts: Post[];
-  myPosts: Post[];
+  userPosts: Post[];
   topCreators: Creator[];
   setFeedPosts: (posts: Post[]) => void;
   setTrendingPosts: (posts: Post[]) => void;
-  setMyPosts: (posts: Post[]) => void;
+  setUserPosts: (posts: Post[]) => void;
   setTopCreators: (creators: Creator[]) => void;
 }
 
@@ -185,10 +187,12 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     displayName: "John Doe",
     dateOfBirth: "1990-01-01",
     walletAddress: "0x1234567890123456789012345678901234567890",
+    followers: [],
+    following: [],
   });
   const [feedPosts, setFeedPosts] = useState<Post[]>(dummyPosts);
   const [trendingPosts, setTrendingPosts] = useState<Post[]>(dummyPosts);
-  const [myPosts, setMyPosts] = useState<Post[]>(dummyPosts);
+  const [userPosts, setUserPosts] = useState<Post[]>(dummyPosts);
   const [topCreators, setTopCreators] = useState<Creator[]>(dummyCreators);
 
   const logout = () => {
@@ -228,7 +232,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
       return post;
     });
 
-    const updatedMyPosts = myPosts.map((post) => {
+    const updatedUserPosts = userPosts.map((post) => {
       if (post.author.username === user?.username) {
         return {
           ...post,
@@ -244,7 +248,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
     setFeedPosts(updatedFeedPosts);
     setTrendingPosts(updatedTrendingPosts);
-    setMyPosts(updatedMyPosts);
+    setUserPosts(updatedUserPosts);
   };
 
   return (
@@ -258,11 +262,11 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         logout,
         feedPosts,
         trendingPosts,
-        myPosts,
+        userPosts,
         topCreators,
         setFeedPosts,
         setTrendingPosts,
-        setMyPosts,
+        setUserPosts,
         setTopCreators,
       }}
     >
