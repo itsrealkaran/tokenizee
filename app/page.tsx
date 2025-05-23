@@ -18,10 +18,6 @@ export default function Home() {
     }
   }, [isLoggedIn, user, router]);
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary-100">
       {!walletConnected ? (

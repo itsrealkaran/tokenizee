@@ -50,7 +50,7 @@ export class AOClient {
         process: this.processId,
         data,
         tags: [{ name: "Action", value: action }, ...tags],
-      });
+      }) as AOResponse<T>;
 
       if (!result.Messages?.[0]) {
         throw new Error(`No response from AO process for action: ${action}`);

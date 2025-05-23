@@ -15,6 +15,7 @@ import { useState } from "react";
 import { PostModal } from "@/components/modals/post-modal";
 import { useGlobal } from "@/context/global-context";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
+import { toast } from "react-hot-toast";
 
 const navigation = [
   { name: "Feed", href: "/feed", icon: LayoutDashboard },
@@ -83,9 +84,19 @@ export function Sidebar() {
               </span>
             </div>
             <div className="flex flex-col">
-              <span className="font-semibold">{user.displayName}</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="font-semibold truncate max-w-[120px]">{user.displayName}(@{user.username})</span>
+              {/* <span className="text-sm text-muted-foreground truncate max-w-[120px]">
                 @{user.username}
+              </span> */}
+              <span 
+                className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+                onClick={() => {
+                  const address = user.walletAddress;
+                  navigator.clipboard.writeText(address);
+                  toast.success("Address Copied")
+                }}
+              >
+                {`${user.walletAddress.slice(0, 6)}...${user.walletAddress.slice(-4)}`}
               </span>
             </div>
           </div>

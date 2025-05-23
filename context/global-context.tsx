@@ -235,7 +235,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   // Initialize AO Client
-  const aoClient = getAOClient(process.env.NEXT_PUBLIC_AO_PROCESS_ID || "");
+  const aoClient = getAOClient(
+    process.env.NEXT_PUBLIC_AO_PROCESS_ID ||
+      "A5Dq5kMTq0ACMwsvPR_PIJO14UFhE1y3GYho9pu6LII"
+  );
 
   // Check user session on mount
   useEffect(() => {
