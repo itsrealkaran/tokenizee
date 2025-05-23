@@ -8,7 +8,7 @@ import { useGlobal } from "@/context/global-context";
 import ConnectWallet from "@/components/ui/connect";
 export default function Home() {
   const router = useRouter();
-  const { isLoggedIn, setIsLoggedIn, user, setUser, walletConnected } =
+  const { isLoggedIn, setIsLoggedIn, user, setUser, walletConnected, walletAddress } =
     useGlobal();
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
@@ -49,11 +49,13 @@ export default function Home() {
             onSubmit={(data) => {
               setUser({
                 ...data,
-                walletAddress: "temp-wallet-address",
+                walletAddress: walletAddress || "",
                 followers: [],
                 following: [],
                 score: 0,
               });
+              setIsLoggedIn(true);
+              console.log("User logged in:", user);
               router.push("/feed");
             }}
           />
