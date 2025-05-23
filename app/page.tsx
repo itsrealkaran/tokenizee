@@ -5,10 +5,11 @@ import { RegisterModal } from "@/components/modals/register-modal";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useGlobal } from "@/context/global-context";
-
+import ConnectWallet from "@/components/ui/connect";
 export default function Home() {
   const router = useRouter();
-  const { isLoggedIn, setIsLoggedIn, user, setUser } = useGlobal();
+  const { isLoggedIn, setIsLoggedIn, user, setUser, walletConnected } =
+    useGlobal();
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
   useEffect(() => {
@@ -23,14 +24,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary-100">
-      {!isLoggedIn ? (
+      {!walletConnected ? (
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold">Tokenizee</h1>
           <p className="text-lg text-muted-foreground">
             Join our community of content creators
           </p>
-          {/* <ConnectButton /> */}
-          <Button onClick={handleLogin}>Get Started</Button>
+          <ConnectWallet />
         </div>
       ) : (
         <div className="text-center space-y-4">
@@ -52,6 +52,7 @@ export default function Home() {
                 walletAddress: "temp-wallet-address",
                 followers: [],
                 following: [],
+                score: 0,
               });
               router.push("/feed");
             }}

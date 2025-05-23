@@ -1,4 +1,4 @@
-import { createDataItemSigner, dryrun } from "@permaweb/aoconnect";
+import { dryrun } from "@permaweb/aoconnect";
 
 // Types
 export interface User {

@@ -1,6 +1,14 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
+import { getAOClient } from "@/lib/ao-client";
+import { toast } from "react-hot-toast";
 
 interface User {
   username: string;
@@ -9,6 +17,7 @@ interface User {
   walletAddress: string;
   followers: string[];
   following: string[];
+  score: number;
 }
 
 interface Post {
@@ -32,6 +41,7 @@ interface Creator {
   name: string;
   username: string;
   position: number;
+  score: number;
 }
 
 interface GlobalContextType {
@@ -49,6 +59,22 @@ interface GlobalContextType {
   setTrendingPosts: (posts: Post[]) => void;
   setUserPosts: (posts: Post[]) => void;
   setTopCreators: (creators: Creator[]) => void;
+  walletConnected: boolean;
+  setWalletConnected: (value: boolean) => void;
+  walletAddress: string | null;
+  setWalletAddress: (address: string | null) => void;
+  // AO API Methods
+  registerUser: (
+    username: string,
+    displayName: string,
+    dateOfBirth: string
+  ) => Promise<boolean>;
+  createPost: (content: string) => Promise<boolean>;
+  upvotePost: (postId: string) => Promise<boolean>;
+  downvotePost: (postId: string) => Promise<boolean>;
+  refreshFeed: () => Promise<void>;
+  refreshTrending: () => Promise<void>;
+  refreshLeaderboard: () => Promise<void>;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -173,83 +199,285 @@ Stay tuned for more updates, and don't forget to follow us for the latest news a
 ];
 
 const dummyCreators: Creator[] = [
-  { id: "1", name: "John Doe", username: "johndoe", position: 1 },
-  { id: "2", name: "Jane Smith", username: "janesmith", position: 2 },
-  { id: "3", name: "Alice Johnson", username: "alicej", position: 3 },
-  { id: "4", name: "Bob Brown", username: "bobbrown", position: 4 },
-  { id: "5", name: "Charlie Davis", username: "charlied", position: 5 },
+  { id: "1", name: "John Doe", username: "johndoe", position: 1, score: 100 },
+  {
+    id: "2",
+    name: "Jane Smith",
+    username: "janesmith",
+    position: 2,
+    score: 90,
+  },
+  {
+    id: "3",
+    name: "Alice Johnson",
+    username: "alicej",
+    position: 3,
+    score: 80,
+  },
+  { id: "4", name: "Bob Brown", username: "bobbrown", position: 4, score: 70 },
+  {
+    id: "5",
+    name: "Charlie Davis",
+    username: "charlied",
+    position: 5,
+    score: 60,
+  },
 ];
 
 export function GlobalProvider({ children }: { children: ReactNode }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [user, setUser] = useState<User | null>({
-    username: "johndoe",
-    displayName: "John Doe",
-    dateOfBirth: "1990-01-01",
-    walletAddress: "0x1234567890123456789012345678901234567890",
-    followers: [],
-    following: [],
-  });
-  const [feedPosts, setFeedPosts] = useState<Post[]>(dummyPosts);
-  const [trendingPosts, setTrendingPosts] = useState<Post[]>(dummyPosts);
-  const [userPosts, setUserPosts] = useState<Post[]>(dummyPosts);
-  const [topCreators, setTopCreators] = useState<Creator[]>(dummyCreators);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [feedPosts, setFeedPosts] = useState<Post[]>([]);
+  const [trendingPosts, setTrendingPosts] = useState<Post[]>([]);
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
+  const [topCreators, setTopCreators] = useState<Creator[]>([]);
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+
+  // Initialize AO Client
+  const aoClient = getAOClient(process.env.NEXT_PUBLIC_AO_PROCESS_ID || "");
+
+  // Check user session on mount
+  useEffect(() => {
+    const checkUserSession = async () => {
+      try {
+        if (typeof window !== "undefined" && window.arweaveWallet) {
+          const address = await window.arweaveWallet.getActiveAddress();
+          if (address) {
+            setWalletAddress(address);
+            setWalletConnected(true);
+            const userData = await aoClient.getUser(address);
+            if (userData) {
+              setUser({
+                username: userData.username,
+                displayName: userData.displayName,
+                dateOfBirth: userData.dateOfBirth,
+                walletAddress: userData.wallet,
+                followers: [],
+                following: [],
+                score: userData.score,
+              });
+              setIsLoggedIn(true);
+            }
+          } else {
+            setWalletConnected(false);
+            setWalletAddress(null);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking user session:", error);
+        setWalletConnected(false);
+        setWalletAddress(null);
+      }
+    };
+
+    checkUserSession();
+  }, []);
 
   const logout = () => {
     setIsLoggedIn(false);
     setUser(null);
+    setFeedPosts([]);
+    setTrendingPosts([]);
+    setUserPosts([]);
+    setTopCreators([]);
+    setWalletConnected(false);
+    setWalletAddress(null);
   };
 
   const updateUser = (updatedUser: User) => {
     setUser(updatedUser);
-
     // Update user info in all posts where they are the author
-    const updatedFeedPosts = feedPosts.map((post) => {
-      if (post.author.username === user?.username) {
-        return {
-          ...post,
-          author: {
-            ...post.author,
-            username: updatedUser.username,
-            displayName: updatedUser.displayName,
-          },
-        };
-      }
-      return post;
-    });
+    const updatePosts = (posts: Post[]) =>
+      posts.map((post) =>
+        post.author.username === user?.username
+          ? {
+              ...post,
+              author: {
+                ...post.author,
+                username: updatedUser.username,
+                displayName: updatedUser.displayName,
+              },
+            }
+          : post
+      );
 
-    const updatedTrendingPosts = trendingPosts.map((post) => {
-      if (post.author.username === user?.username) {
-        return {
-          ...post,
-          author: {
-            ...post.author,
-            username: updatedUser.username,
-            displayName: updatedUser.displayName,
-          },
-        };
-      }
-      return post;
-    });
-
-    const updatedUserPosts = userPosts.map((post) => {
-      if (post.author.username === user?.username) {
-        return {
-          ...post,
-          author: {
-            ...post.author,
-            username: updatedUser.username,
-            displayName: updatedUser.displayName,
-          },
-        };
-      }
-      return post;
-    });
-
-    setFeedPosts(updatedFeedPosts);
-    setTrendingPosts(updatedTrendingPosts);
-    setUserPosts(updatedUserPosts);
+    setFeedPosts(updatePosts(feedPosts));
+    setTrendingPosts(updatePosts(trendingPosts));
+    setUserPosts(updatePosts(userPosts));
   };
+
+  // AO API Methods
+  const registerUser = async (
+    username: string,
+    displayName: string,
+    dateOfBirth: string
+  ): Promise<boolean> => {
+    try {
+      if (!user?.walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+
+      await aoClient.registerUser(
+        username,
+        displayName,
+        dateOfBirth,
+        user.walletAddress
+      );
+
+      const userData = await aoClient.getUser(user.walletAddress);
+      setUser({
+        username: userData.username,
+        displayName: userData.displayName,
+        dateOfBirth: userData.dateOfBirth,
+        walletAddress: userData.wallet,
+        followers: [],
+        following: [],
+        score: userData.score,
+      });
+      setIsLoggedIn(true);
+      toast.success("Registration successful!");
+      return true;
+    } catch (error) {
+      console.error("Error registering user:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Registration failed"
+      );
+      return false;
+    }
+  };
+
+  const createPost = async (content: string): Promise<boolean> => {
+    try {
+      if (!user?.username) {
+        throw new Error("User not logged in");
+      }
+
+      await aoClient.createPost(user.username, content);
+      await refreshFeed();
+      toast.success("Post created successfully!");
+      return true;
+    } catch (error) {
+      console.error("Error creating post:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create post"
+      );
+      return false;
+    }
+  };
+
+  const upvotePost = async (postId: string): Promise<boolean> => {
+    try {
+      await aoClient.upvotePost(postId);
+      await refreshFeed();
+      await refreshTrending();
+      return true;
+    } catch (error) {
+      console.error("Error upvoting post:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upvote post"
+      );
+      return false;
+    }
+  };
+
+  const downvotePost = async (postId: string): Promise<boolean> => {
+    try {
+      await aoClient.downvotePost(postId);
+      await refreshFeed();
+      await refreshTrending();
+      return true;
+    } catch (error) {
+      console.error("Error downvoting post:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to downvote post"
+      );
+      return false;
+    }
+  };
+
+  const refreshFeed = async (): Promise<void> => {
+    try {
+      const feed = await aoClient.getFeed();
+      setFeedPosts(
+        feed.map((post) => ({
+          id: post.author + "-" + post.timestamp,
+          author: {
+            username: post.author,
+            displayName: post.author, // TODO: Get display name from user data
+          },
+          title: post.content.substring(0, 50) + "...",
+          content: post.content,
+          createdAt: new Date(post.timestamp * 1000).toISOString(),
+          upvotes: post.upvotes,
+          downvotes: post.downvotes,
+          shares: 0,
+        }))
+      );
+    } catch (error) {
+      console.error("Error refreshing feed:", error);
+      toast.error("Failed to refresh feed");
+    }
+  };
+
+  const refreshTrending = async (): Promise<void> => {
+    try {
+      const trending = await aoClient.getTrending();
+      setTrendingPosts(
+        trending.map((post) => ({
+          id: post.author + "-" + post.timestamp,
+          author: {
+            username: post.author,
+            displayName: post.author, // TODO: Get display name from user data
+          },
+          title: post.content.substring(0, 50) + "...",
+          content: post.content,
+          createdAt: new Date(post.timestamp * 1000).toISOString(),
+          upvotes: post.upvotes,
+          downvotes: post.downvotes,
+          shares: 0,
+        }))
+      );
+    } catch (error) {
+      console.error("Error refreshing trending:", error);
+      toast.error("Failed to refresh trending posts");
+    }
+  };
+
+  const refreshLeaderboard = async (): Promise<void> => {
+    try {
+      const leaderboard = await aoClient.getLeaderboard();
+      setTopCreators(
+        leaderboard.map((entry, index) => ({
+          id: entry.username,
+          name: entry.displayName,
+          username: entry.username,
+          position: index + 1,
+          score: entry.score,
+        }))
+      );
+    } catch (error) {
+      console.error("Error refreshing leaderboard:", error);
+      toast.error("Failed to refresh leaderboard");
+    }
+  };
+
+  // Refresh data periodically
+  useEffect(() => {
+    if (isLoggedIn) {
+      refreshFeed();
+      refreshTrending();
+      refreshLeaderboard();
+
+      const interval = setInterval(() => {
+        refreshFeed();
+        refreshTrending();
+        refreshLeaderboard();
+      }, 30000); // Refresh every 30 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [isLoggedIn]);
 
   return (
     <GlobalContext.Provider
@@ -268,6 +496,18 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         setTrendingPosts,
         setUserPosts,
         setTopCreators,
+        walletConnected,
+        setWalletConnected,
+        walletAddress,
+        setWalletAddress,
+        // AO API Methods
+        registerUser,
+        createPost,
+        upvotePost,
+        downvotePost,
+        refreshFeed,
+        refreshTrending,
+        refreshLeaderboard,
       }}
     >
       {children}
