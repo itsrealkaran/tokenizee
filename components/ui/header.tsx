@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useGlobal } from "@/context/global-context";
 import { Button } from "@/components/ui/button";
-import { LogOut, User, ArrowLeft, Bolt } from "lucide-react";
+import { LogOut, Bolt } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 export function Header() {
