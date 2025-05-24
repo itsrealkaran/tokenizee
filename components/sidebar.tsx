@@ -91,12 +91,12 @@ export function Sidebar() {
               <span 
                 className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
                 onClick={() => {
-                  const address = user.walletAddress;
+                  const address = user.wallet;
                   navigator.clipboard.writeText(address);
                   toast.success("Address Copied")
                 }}
               >
-                {`${user.walletAddress.slice(0, 6)}...${user.walletAddress.slice(-4)}`}
+                {`${user.wallet.slice(0, 6)}...${user.wallet.slice(-4)}`}
               </span>
             </div>
           </div>
