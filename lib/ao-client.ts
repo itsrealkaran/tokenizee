@@ -83,15 +83,10 @@ class AOClientImpl implements AOClient {
   }
 
   private async call<T>(action: string, tags: Record<string, string> = {}, data?: string): Promise<T> {
-    const message = {
-      Target: this.processId,
-      Tags: { Action: action, ...tags }
-    };
-
     const result = await dryrun({
       process: this.processId,
-      data: data || JSON.stringify(message),
-      tags: Object.entries(tags).map(([name, value]) => ({ name, value }))
+      data: data || '',
+      tags: [{ name: 'Action', value: action }, ...Object.entries(tags).map(([name, value]) => ({ name, value }))]
     });
 
     if (!result.Messages?.[0]) {
