@@ -456,10 +456,12 @@ Handlers.add("GetUser", { Action = "GetUser" }, function(msg)
     end
 
     local foundUser = nil
+    local foundUsername = nil
 
     for uname, user in pairs(users) do
         if user.wallet == wallet or uname == username then
             foundUser = user
+            foundUsername = uname
             break
         end
     end
@@ -474,7 +476,7 @@ Handlers.add("GetUser", { Action = "GetUser" }, function(msg)
     end
 
     local userInfo = {
-        username = username,
+        username = foundUsername,
         displayName = foundUser.displayName,
         dateOfBirth = foundUser.dateOfBirth,
         bio = foundUser.bio,

@@ -4,46 +4,106 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/post-card";
 import { useGlobal } from "@/context/global-context";
-import { Calendar, Users, UserPlus, PenSquare } from "lucide-react";
-import { useState } from "react";
+import {
+  Calendar,
+  Users,
+  UserPlus,
+  PenSquare,
+  MessageCircle,
+} from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
 import {
   RegisterModal,
   RegisterFormData,
 } from "@/components/modals/register-modal";
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
+import { Post, User, Comment } from "@/lib/ao-client";
 
 export default function UserProfilePage() {
   const params = useParams();
   const router = useRouter();
-  const { userPosts, user, updateUser } = useGlobal();
+  const {
+    user,
+    profileUser,
+    userPosts,
+    userComments,
+    loadProfileData,
+    handleFollowUser,
+    updateUserProfile,
+  } = useGlobal();
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState<"posts" | "about">("posts");
+  const [activeTab, setActiveTab] = useState<"posts" | "comments">("posts");
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Get the profile user's info from the first post or use current user if it's their profile
-  const profileUser =
-    params.username === user?.username ? user : userPosts[0]?.author;
+  const fetchProfileData = useCallback(
+    async (username: string) => {
+      try {
+        setIsLoading(true);
+        await loadProfileData(username);
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [loadProfileData]
+  );
 
-  const handleEditProfile = (data: RegisterFormData) => {
+  useEffect(() => {
+    const username = params.username as string;
+    if (username && (!profileUser || profileUser.username !== username)) {
+      fetchProfileData(username);
+    } else {
+      setIsLoading(false);
+    }
+  }, [params.username, profileUser, fetchProfileData]);
+
+  const handleEditProfile = async (data: RegisterFormData) => {
     if (!user) return;
 
-    // Update user data
-    updateUser({
-      ...user,
-      username: data.username,
-      displayName: data.displayName,
-      dateOfBirth: data.dateOfBirth,
-    });
+    try {
+      const success = await updateUserProfile(
+        data.displayName,
+        data.dateOfBirth,
+        data.bio
+      );
 
-    // Show success message
-    toast.success("Profile updated successfully!");
-
-    // Close modal and redirect to new profile URL if username changed
-    setIsEditing(false);
-    if (data.username !== user.username) {
-      router.push(`/profile/${data.username}`);
+      if (success) {
+        toast.success("Profile updated successfully!");
+        setIsEditing(false);
+        if (data.username !== user.username) {
+          router.push(`/profile/${data.username}`);
+        }
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Failed to update profile");
     }
   };
+
+  const formatPostForCard = (post: Post) => ({
+    id: post.id,
+    author: {
+      username: post.author.username,
+      displayName: post.author.displayName,
+      avatar: undefined,
+    },
+    title: post.title,
+    content: post.content,
+    createdAt: new Date(post.createdAt * 1000).toISOString(),
+    upvotes: post.upvotes,
+    downvotes: post.downvotes,
+    shares: post.shares,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        Loading profile...
+      </div>
+    );
+  }
 
   if (!profileUser) {
     return (
@@ -53,11 +113,8 @@ export default function UserProfilePage() {
     );
   }
 
-  // Get follower and following counts safely
-  const followersCount =
-    "followers" in profileUser ? profileUser.followers?.length || 0 : 0;
-  const followingCount =
-    "following" in profileUser ? profileUser.following?.length || 0 : 0;
+  const isCurrentUser = user?.username === profileUser.username;
+  const isFollowing = user?.following?.[profileUser.username] || false;
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -77,7 +134,7 @@ export default function UserProfilePage() {
               <p className="text-muted-foreground">@{profileUser.username}</p>
             </div>
           </div>
-          {params.username === user?.username ? (
+          {isCurrentUser ? (
             <Button
               variant="outline"
               size="sm"
@@ -86,9 +143,14 @@ export default function UserProfilePage() {
               Edit Profile
             </Button>
           ) : (
-            <Button variant="default" size="sm" className="gap-2">
+            <Button
+              variant={isFollowing ? "outline" : "default"}
+              size="sm"
+              className="gap-2"
+              onClick={() => handleFollowUser(profileUser.username)}
+            >
               <UserPlus className="h-4 w-4" />
-              Follow
+              {isFollowing ? "Following" : "Follow"}
             </Button>
           )}
         </div>
@@ -98,22 +160,30 @@ export default function UserProfilePage() {
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">
-              D.O.B {profileUser.dateOfBirth}
+              Joined{" "}
+              {new Date(profileUser.createdAt * 1000).toLocaleDateString()}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">
-              {followersCount} followers
+              {Object.keys(profileUser.followers || {}).length} followers
             </span>
           </div>
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">
-              {followingCount} following
+              {Object.keys(profileUser.following || {}).length} following
             </span>
           </div>
         </div>
+
+        {/* Bio */}
+        {profileUser.bio && (
+          <div className="px-4">
+            <p className="text-muted-foreground">{profileUser.bio}</p>
+          </div>
+        )}
       </div>
 
       {/* Profile Tabs */}
@@ -131,10 +201,10 @@ export default function UserProfilePage() {
             Posts
           </button>
           <button
-            onClick={() => setActiveTab("about")}
+            onClick={() => setActiveTab("comments")}
             className={cn(
               "py-4 px-1 border-b-2 font-medium text-sm transition-colors",
-              activeTab === "about"
+              activeTab === "comments"
                 ? "border-primary text-foreground"
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-primary/50"
             )}
@@ -157,7 +227,7 @@ export default function UserProfilePage() {
               {userPosts.map((post) => (
                 <PostCard
                   key={post.id}
-                  post={post}
+                  post={formatPostForCard(post)}
                   onViewPost={() => router.push(`/feed/${post.id}`)}
                 />
               ))}
@@ -165,12 +235,33 @@ export default function UserProfilePage() {
           )
         ) : (
           <div className="space-y-4">
-            <div className="bg-card rounded-lg p-6">
+            {userComments.length === 0 ? (
               <div className="text-center py-12">
-                <PenSquare className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+                <MessageCircle className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
                 <p className="text-muted-foreground">No comments yet.</p>
               </div>
-            </div>
+            ) : (
+              userComments.map((comment) => (
+                <div
+                  key={comment.id}
+                  className="bg-card rounded-lg p-4 space-y-2"
+                  onClick={() => router.push(`/feed/${comment.postId}`)}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">
+                      {comment.author.displayName}
+                    </span>
+                    <span className="text-muted-foreground">
+                      @{comment.author.username}
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground">{comment.content}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(comment.createdAt * 1000).toLocaleDateString()}
+                  </p>
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>
@@ -184,8 +275,10 @@ export default function UserProfilePage() {
           initialData={{
             username: user.username,
             displayName: user.displayName,
-            dateOfBirth: user.dateOfBirth || "",
+            dateOfBirth: user.dateOfBirth,
+            bio: user.bio,
           }}
+          isEditing={true}
         />
       )}
     </div>

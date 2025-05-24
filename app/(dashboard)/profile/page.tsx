@@ -9,6 +9,7 @@ export default function ProfilePage() {
   const { user } = useGlobal();
 
   useEffect(() => {
+    console.log("user", user);
     if (user) {
       router.replace(`/profile/${user.username}`);
     }

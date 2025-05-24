@@ -42,6 +42,15 @@ interface GlobalContextType {
     wallet?: string;
     username?: string;
   }) => Promise<boolean>;
+  // Profile related state and functions
+  profileUser: User | null;
+  setProfileUser: (user: User | null) => void;
+  userPosts: Post[];
+  setUserPosts: (posts: Post[]) => void;
+  userComments: Comment[];
+  setUserComments: (comments: Comment[]) => void;
+  loadProfileData: (username: string) => Promise<void>;
+  handleFollowUser: (username: string) => Promise<boolean>;
   // AO API Methods
   registerUser: (
     username: string,
@@ -74,6 +83,9 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   const [topCreators, setTopCreators] = useState<LeaderboardEntry[]>([]);
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [profileUser, setProfileUser] = useState<User | null>(null);
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
+  const [userComments, setUserComments] = useState<Comment[]>([]);
 
   // Initialize AO Client
   const aoClient = getAOClient(process.env.NEXT_PUBLIC_AO_PROCESS_ID || "");
@@ -105,6 +117,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
             if (userExists) {
               const userData = await aoClient.getUser({ wallet: address });
               setUser(userData);
+              console.log("userData", userData, "user", user);
               setIsLoggedIn(true);
             }
           } else {
@@ -405,6 +418,60 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const loadProfileData = async (username: string) => {
+    try {
+      // Only fetch if the username is different from current profile user
+      if (!profileUser || profileUser.username !== username) {
+        // Load user data
+        const userData = await aoClient.getUser({ username });
+        setProfileUser(userData);
+
+        // Load user posts
+        const posts = await getUserPosts(username);
+        setUserPosts(posts);
+
+        // Load user comments
+        const comments = await getUserComments(username);
+        setUserComments(comments);
+      }
+    } catch (error) {
+      console.error("Error loading profile data:", error);
+      toast.error("Failed to load profile data");
+      throw error;
+    }
+  };
+
+  const handleFollowUser = async (username: string): Promise<boolean> => {
+    try {
+      if (!user?.username) {
+        throw new Error("User not logged in");
+      }
+
+      const { follower, following: followedUser } = await aoClient.followUser(
+        user.username,
+        username
+      );
+
+      // Update current user's following list
+      setUser(follower);
+
+      // Update profile user's followers list if we're viewing their profile
+      if (profileUser?.username === username) {
+        setProfileUser(followedUser);
+      }
+
+      await refreshFeed();
+      toast.success("User followed successfully!");
+      return true;
+    } catch (error) {
+      console.error("Error following user:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to follow user"
+      );
+      return false;
+    }
+  };
+
   // Refresh data periodically
   useEffect(() => {
     if (isLoggedIn) {
@@ -443,6 +510,14 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         walletAddress,
         setWalletAddress,
         checkUserExists,
+        profileUser,
+        setProfileUser,
+        userPosts,
+        setUserPosts,
+        userComments,
+        setUserComments,
+        loadProfileData,
+        handleFollowUser,
         // AO API Methods
         registerUser,
         createPost,
