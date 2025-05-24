@@ -63,11 +63,6 @@ export function RankingList() {
                     @{user.username}
                   </p>
                 </div>
-                <div className="ml-auto">
-                  <span className="text-sm font-medium text-primary">
-                    {user.score} pts
-                  </span>
-                </div>
               </div>
             </div>
           ))

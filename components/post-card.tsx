@@ -74,7 +74,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(
-        `${window.location.origin}/post/${post.id}`
+        `${window.location.origin}/feed/${post.id}`
       );
       toast.success("Link copied to clipboard!");
     } catch (err) {
