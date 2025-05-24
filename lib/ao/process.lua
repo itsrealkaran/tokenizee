@@ -3,16 +3,22 @@ if not users then
         itsrealkaran = {
           displayName = "Karan Singh",
           dateOfBirth = "2004-06-01",
+          bio = "Kapsul",
           wallet = "KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
           posts = { "post-1709123456-1234" },
-          score = 0
+          score = 0,
+          followers = {},
+          following = {}
         },
         ankushkun = {
           displayName = "Ankush Singh",
           dateOfBirth = "2004-06-15",
+          bio = "BetterIdea",
           wallet = "8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg",
           posts = { "post-1709123456-5678" },
-          score = 0
+          score = 0,
+          followers = {},
+          following = {}
         }
     }
 end
@@ -27,48 +33,65 @@ if not posts then
     posts = {
         ["post-1709123456-1234"] = {
             id = "post-1709123456-1234",
-            author = "itsrealkaran",
+            author = {
+                username = "itsrealkaran",
+                displayName = "Karan Singh"
+            },
             title = "First Test Article",
             content = "Welcome to the network!",
             upvotes = 3,
             downvotes = 0,
             timestamp = os.time() - 500,
+            createdAt = os.time() - 500,
             shares = 2,
             comments = { "comment-1709123456-1111", "comment-1709123456-2222" }
         },
         ["post-1709123456-5678"] = {
             id = "post-1709123456-5678",
-            author = "ankushkun",
+            author = {
+                username = "ankushkun",
+                displayName = "Ankush Singh"
+            },
             title = "Ankush Test",
             content = "GMAO",
             upvotes = 5,
             downvotes = 1,
             timestamp = os.time() - 400,
+            createdAt = os.time() - 400,
             shares = 1,
             comments = { "comment-1709123456-3333" }
         }
     }
 end
 
-if not comment then
-    comment = {
+if not comments then
+    comments = {
         ["comment-1709123456-1111"] = {
             id = "comment-1709123456-1111",
-            author = "itsrealkaran",
+            author = {
+                username = "itsrealkaran",
+                displayName = "Karan Singh"
+            },
             content = "This is a test comment",
-            timestamp = os.time() - 300
+            createdAt = os.time() - 300
         },
         ["comment-1709123456-2222"] = {
             id = "comment-1709123456-2222",
-            author = "ankushkun",
+            author = {
+                username = "ankushkun",
+                displayName = "Ankush Singh"
+            },
             content = "Great post!",
-            timestamp = os.time() - 250
+            createdAt = os.time() - 250
         },
         ["comment-1709123456-3333"] = {
             id = "comment-1709123456-3333",
-            author = "itsrealkaran",
+            author = {
+                username = "itsrealkaran",
+                displayName = "Karan Singh"
+            },
             content = "Nice one!",
-            timestamp = os.time() - 200
+            createdAt = os.time() - 200
         }
     }
 end
@@ -79,7 +102,20 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
     local username = msg.Tags["Username"]
     local displayName = msg.Tags["DisplayName"]
     local dateOfBirth = msg.Tags["DateOfBirth"]
+    local bio = msg.Tags["Bio"]
     local wallet = msg.Tags["Wallet"]
+
+    -- Check if wallet is already used by any user
+    for _, user in pairs(users) do
+        if user.wallet == wallet then
+            ao.send({
+                Target = msg.From,
+                Tags = { Action = "RegisterResponse", Status = "Error" },
+                Data = json.encode({ error = "Wallet already exists." })
+            })
+            return
+        end
+    end
 
     if not username or not displayName then
         ao.send({
@@ -102,6 +138,7 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
     users[username] = {
         displayName = displayName,
         dateOfBirth = dateOfBirth,
+        bio = bio,
         wallet = wallet,
         posts = {},
         score = 0,
@@ -118,8 +155,47 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
     })
 end)
 
+--update user
+Handlers.add("UpdateUser", { Action = "UpdateUser" }, function(msg)
+    local username = msg.Tags["Username"]
+    local displayName = msg.Tags["DisplayName"]
+    local dateOfBirth = msg.Tags["DateOfBirth"]
+    local bio = msg.Tags["Bio"]
+
+    if not users[username] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "UpdateUserResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
+
+    users[username].displayName = displayName
+    users[username].dateOfBirth = dateOfBirth
+    users[username].wallet = users[username].wallet
+    users[username].bio = bio
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "UpdateUserResponse", Status = "Success" },
+        Data = json.encode({ message = "User updated successfully." })
+    })
+end)
+
 Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
     local username = msg.Tags["Username"]
+    
+    if not users[username] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "CreatePostResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
+
+    local displayName = users[username].displayName
     local title, content = string.match(msg.Data, "([^:]+):(.+)")
 
     if not title or not content then
@@ -131,21 +207,15 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
         return
     end
 
-    if not users[username] then
-        ao.send({
-            Target = msg.From,
-            Tags = { Action = "CreatePostResponse", Status = "Error" },
-            Data = json.encode({ error = "User does not exist." })
-        })
-        return
-    end
-
     local postId = generateId("post")
     local timestamp = os.time()
 
     posts[postId] = {
         id = postId,
-        author = username,
+        author = {
+            username = username,
+            displayName = displayName
+        },
         title = title,
         content = content,
         upvotes = 0,
@@ -171,7 +241,15 @@ end)
 Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
     local postId = msg.Tags["PostId"]
     local username = msg.Tags["Username"]
-    local content = msg.Data
+    
+    if not users[username] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "CommentPostResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
 
     if not posts[postId] then
         ao.send({
@@ -182,14 +260,29 @@ Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
         return
     end
 
+    local displayName = users[username].displayName
+    local content = msg.Data
+
+    if not content or content == "" then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "CommentPostResponse", Status = "Error" },
+            Data = json.encode({ error = "Comment content cannot be empty." })
+        })
+        return
+    end
+
     local commentId = generateId("comment")
     local timestamp = os.time()
 
-    comment[commentId] = {
+    comments[commentId] = {
         id = commentId,
-        author = username,
+        author = {
+            username = username,
+            displayName = displayName
+        },
         content = content,
-        timestamp = timestamp
+        createdAt = timestamp
     }
 
     table.insert(posts[postId].comments, commentId)
@@ -200,15 +293,23 @@ Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
         Data = json.encode({ 
             message = "Comment posted successfully.",
             commentId = commentId,
-            comment = comment[commentId]
+            comment = comments[commentId]
         })
     })
 end)
 
--- load comments of particular post
 Handlers.add("LoadComments", { Action = "LoadComments" }, function(msg)
     local postId = msg.Tags["PostId"]
     
+    if not postId then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "LoadCommentsResponse", Status = "Error" },
+            Data = json.encode({ error = "Missing PostId tag." })
+        })
+        return
+    end
+
     if not posts[postId] then
         ao.send({
             Target = msg.From,
@@ -222,10 +323,15 @@ Handlers.add("LoadComments", { Action = "LoadComments" }, function(msg)
     local commentData = {}
     
     for _, commentId in ipairs(commentIds) do
-        if comment[commentId] then
-            table.insert(commentData, comment[commentId])
+        if comments[commentId] then
+            table.insert(commentData, comments[commentId])
         end
     end
+
+    -- Sort comments by creation time (newest first)
+    table.sort(commentData, function(a, b)
+        return a.createdAt > b.createdAt
+    end)
     
     ao.send({
         Target = msg.From,
@@ -247,8 +353,8 @@ Handlers.add("UpvotePost", { Action = "Upvote" }, function(msg)
     end
 
     posts[postId].upvotes = posts[postId].upvotes + 1
-    local author = posts[postId].author
-    users[author].score = users[author].score + 1
+    local username = posts[postId].author.username
+    users[username].score = users[username].score + 1
 
     ao.send({
         Target = msg.From,
@@ -273,8 +379,8 @@ Handlers.add("DownvotePost", { Action = "Downvote" }, function(msg)
     end
 
     posts[postId].downvotes = posts[postId].downvotes + 1
-    local author = posts[postId].author
-    users[author].score = users[author].score - 1
+    local username = posts[postId].author.username
+    users[username].score = users[username].score - 1
 
     ao.send({
         Target = msg.From,
@@ -373,11 +479,13 @@ Handlers.add("GetUser", { Action = "GetUser" }, function(msg)
         username = username,
         displayName = foundUser.displayName,
         dateOfBirth = foundUser.dateOfBirth,
+        bio = foundUser.bio,
         wallet = foundUser.wallet,
         followers = foundUser.followers,
         following = foundUser.following,
         score = foundUser.score,
-        posts = foundUser.posts
+        posts = foundUser.posts,
+        createdAt = foundUser.createdAt
     }
 
     ao.send({
@@ -396,7 +504,7 @@ Handlers.add("SearchUser", { Action = "SearchUser" }, function(msg)
             table.insert(results, {
                 username = username,
                 displayName = user.displayName,
-                score = user.score,
+                bio = user.bio,
                 followers = user.followers,
                 following = user.following
             })
@@ -417,8 +525,9 @@ Handlers.add("GetFeed", { Action = "GetFeed" }, function(msg)
         table.insert(feed, post)
     end
 
+    -- Sort posts by creation time (newest first)
     table.sort(feed, function(a, b)
-        return a.timestamp > b.timestamp
+        return a.createdAt > b.createdAt
     end)
 
     ao.send({
@@ -436,6 +545,7 @@ Handlers.add("GetTrending", { Action = "GetTrending" }, function(msg)
         table.insert(trending, post)
     end
 
+    -- Sort posts by net score (highest first)
     table.sort(trending, function(a, b)
         return a.netScore > b.netScore
     end)
@@ -489,7 +599,6 @@ Handlers.add("GetUserPosts", { Action = "GetUserPosts" }, function(msg)
         end
     end
 
-    -- Sort posts by creation time (newest first)
     table.sort(userPosts, function(a, b)
         return a.createdAt > b.createdAt
     end)
@@ -503,8 +612,17 @@ end)
 
 Handlers.add("GetUserComments", { Action = "GetUserComments" }, function(msg)
     local username = msg.Tags["Username"]
-    local user = users[username]
+    
+    if not username then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetUserCommentsResponse", Status = "Error" },
+            Data = json.encode({ error = "Missing Username tag." })
+        })
+        return
+    end
 
+    local user = users[username]
     if not user then
         ao.send({
             Target = msg.From,
@@ -518,10 +636,13 @@ Handlers.add("GetUserComments", { Action = "GetUserComments" }, function(msg)
     -- Search through all posts to find comments by this user
     for _, post in pairs(posts) do
         for _, commentId in ipairs(post.comments) do
-            if comment[commentId] and comment[commentId].author == username then
-                -- Add post reference to the comment
+            if comments[commentId] and comments[commentId].author.username == username then
+                -- Create a new table with all comment data plus post info
                 local commentWithPost = {
-                    ...comment[commentId],
+                    id = comments[commentId].id,
+                    author = comments[commentId].author,
+                    content = comments[commentId].content,
+                    createdAt = comments[commentId].createdAt,
                     postId = post.id,
                     postTitle = post.title
                 }
@@ -530,9 +651,9 @@ Handlers.add("GetUserComments", { Action = "GetUserComments" }, function(msg)
         end
     end
 
-    -- Sort comments by timestamp (newest first)
+    -- Sort comments by creation time (newest first)
     table.sort(userComments, function(a, b)
-        return a.timestamp > b.timestamp
+        return a.createdAt > b.createdAt
     end)
 
     ao.send({
