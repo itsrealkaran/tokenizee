@@ -10,6 +10,7 @@ export interface User {
   username: string;
   displayName: string;
   dateOfBirth: string;
+  bio: string;
   wallet: string;
   followers: Record<string, boolean>;
   following: Record<string, boolean>;
@@ -20,7 +21,10 @@ export interface User {
 
 export interface Post {
   id: string;
-  author: string;
+  author: {
+    username: string;
+    displayName: string;
+  };
   title: string;
   content: string;
   upvotes: number;
@@ -32,9 +36,12 @@ export interface Post {
 
 export interface Comment {
   id: string;
-  author: string;
+  author: {
+    username: string;
+    displayName: string;
+  };
   content: string;
-  timestamp: number;
+  createdAt: number;
   postId?: string;    // Added for user comments
   postTitle?: string; // Added for user comments
 }
@@ -47,7 +54,8 @@ export interface LeaderboardEntry {
 
 interface AOClient {
   getUser: (params: { wallet?: string; username?: string }) => Promise<User>;
-  registerUser: (username: string, displayName: string, dateOfBirth: string, wallet: string) => Promise<void>;
+  registerUser: (username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string) => Promise<void>;
+  updateUser: (username: string, displayName: string, dateOfBirth: string, bio: string) => Promise<void>;
   createPost: (username: string, title: string, content: string) => Promise<{ postId: string; post: Post }>;
   commentPost: (postId: string, username: string, content: string) => Promise<{ commentId: string; comment: Comment }>;
   loadComments: (postId: string) => Promise<Comment[]>;
@@ -112,12 +120,22 @@ class AOClientImpl implements AOClient {
     return response.user;
   }
 
-  async registerUser(username: string, displayName: string, dateOfBirth: string, wallet: string): Promise<void> {
+  async registerUser(username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string): Promise<void> {
     await this.call("Register", {
       Username: username,
       DisplayName: displayName,
       DateOfBirth: dateOfBirth,
+      Bio: bio,
       Wallet: wallet
+    });
+  }
+
+  async updateUser(username: string, displayName: string, dateOfBirth: string, bio: string): Promise<void> {
+    await this.call("UpdateUser", {
+      Username: username,
+      DisplayName: displayName,
+      DateOfBirth: dateOfBirth,
+      Bio: bio
     });
   }
 

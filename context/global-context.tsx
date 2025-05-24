@@ -22,6 +22,11 @@ interface GlobalContextType {
   user: User | null;
   setUser: (user: User | null) => void;
   updateUser: (user: User) => void;
+  updateUserProfile: (
+    displayName: string,
+    dateOfBirth: string,
+    bio: string
+  ) => Promise<boolean>;
   logout: () => void;
   feedPosts: Post[];
   trendingPosts: Post[];
@@ -41,7 +46,8 @@ interface GlobalContextType {
   registerUser: (
     username: string,
     displayName: string,
-    dateOfBirth: string
+    dateOfBirth: string,
+    bio: string
   ) => Promise<boolean>;
   createPost: (title: string, content: string) => Promise<boolean>;
   commentPost: (postId: string, content: string) => Promise<boolean>;
@@ -131,8 +137,14 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     // Update user info in posts where they are the author
     const updatePosts = (posts: Post[]) =>
       posts.map((post) =>
-        post.author === user?.username
-          ? { ...post, author: updatedUser.username }
+        post.author.username === user?.username
+          ? {
+              ...post,
+              author: {
+                username: updatedUser.username,
+                displayName: updatedUser.displayName,
+              },
+            }
           : post
       );
 
@@ -140,11 +152,37 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     setTrendingPosts(updatePosts(trendingPosts));
   };
 
+  const updateUserProfile = async (
+    displayName: string,
+    dateOfBirth: string,
+    bio: string
+  ): Promise<boolean> => {
+    try {
+      if (!user?.username) {
+        throw new Error("User not logged in");
+      }
+
+      await aoClient.updateUser(user.username, displayName, dateOfBirth, bio);
+
+      const userData = await aoClient.getUser({ username: user.username });
+      setUser(userData);
+      toast.success("Profile updated successfully!");
+      return true;
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update profile"
+      );
+      return false;
+    }
+  };
+
   // AO API Methods
   const registerUser = async (
     username: string,
     displayName: string,
-    dateOfBirth: string
+    dateOfBirth: string,
+    bio: string
   ): Promise<boolean> => {
     try {
       if (!user?.wallet) {
@@ -155,6 +193,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         username,
         displayName,
         dateOfBirth,
+        bio,
         user.wallet
       );
 
@@ -391,6 +430,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         user,
         setUser,
         updateUser,
+        updateUserProfile,
         logout,
         feedPosts,
         trendingPosts,

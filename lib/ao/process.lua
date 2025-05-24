@@ -41,7 +41,6 @@ if not posts then
             content = "Welcome to the network!",
             upvotes = 3,
             downvotes = 0,
-            timestamp = os.time() - 500,
             createdAt = os.time() - 500,
             shares = 2,
             comments = { "comment-1709123456-1111", "comment-1709123456-2222" }
@@ -56,7 +55,6 @@ if not posts then
             content = "GMAO",
             upvotes = 5,
             downvotes = 1,
-            timestamp = os.time() - 400,
             createdAt = os.time() - 400,
             shares = 1,
             comments = { "comment-1709123456-3333" }

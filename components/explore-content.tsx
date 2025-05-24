@@ -8,6 +8,7 @@ import { useGlobal } from "@/context/global-context";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { Post } from "@/lib/ao-client";
 
 export default function ExploreContent() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,6 +31,15 @@ export default function ExploreContent() {
     // TODO: Implement search functionality
     console.log("Searching for:", searchQuery);
   };
+
+  const formatPostForCard = (post: Post) => ({
+    ...post,
+    author: {
+      username: post.author,
+      displayName: post.author, // We'll need to fetch the actual display name
+      avatar: undefined,
+    },
+  });
 
   return (
     <div className="flex flex-col h-full">
@@ -80,10 +90,10 @@ export default function ExploreContent() {
       <div className="flex-1 overflow-y-auto pr-2">
         {activeTab === "trending" ? (
           <div className="space-y-4">
-            {trendingPosts.map((post, index) => (
+            {trendingPosts.map((post) => (
               <PostCard
                 key={`${post.author}-${post.createdAt}`}
-                post={post}
+                post={formatPostForCard(post)}
                 onViewPost={() =>
                   router.push(`/feed/${post.author}-${post.createdAt}`)
                 }
