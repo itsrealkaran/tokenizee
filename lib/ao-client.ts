@@ -52,10 +52,14 @@ export interface LeaderboardEntry {
   score: number;
 }
 
+interface AOResponse {
+  Data: string; // JSON string containing the actual response data
+}
+
 interface AOClient {
   getUser: (params: { wallet?: string; username?: string }) => Promise<User>;
-  registerUser: (username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string) => Promise<void>;
-  updateUser: (username: string, displayName: string, dateOfBirth: string, bio: string) => Promise<void>;
+  registerUser: (username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string) => Promise<string>;
+  updateUser: (username: string, displayName: string, dateOfBirth: string, bio: string) => Promise<string>;
   createPost: (username: string, title: string, content: string) => Promise<{ postId: string; post: Post }>;
   commentPost: (postId: string, username: string, content: string) => Promise<{ commentId: string; comment: Comment }>;
   loadComments: (postId: string) => Promise<Comment[]>;
@@ -94,13 +98,14 @@ class AOClientImpl implements AOClient {
       throw new Error(`No response from AO process for action: ${action}`);
     }
 
-    const messageData = result.Messages[0].Data;
+    const response = result.Messages[0] as AOResponse;
+    
     try {
-      const response = JSON.parse(messageData);
-      if (response.error) {
-        throw new Error(response.error);
+      const parsedData = JSON.parse(response.Data);
+      if (parsedData.error) {
+        throw new Error(parsedData.error);
       }
-      return response as T;
+      return parsedData as T;
     } catch (error) {
       console.error("Error parsing response data:", error);
       throw new Error("Invalid response data format");
@@ -120,40 +125,42 @@ class AOClientImpl implements AOClient {
     return response.user;
   }
 
-  async registerUser(username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string): Promise<void> {
-    await this.call("Register", {
+  async registerUser(username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string): Promise<string> {
+    const response = await this.call<{ message: string }>("Register", {
       Username: username,
       DisplayName: displayName,
       DateOfBirth: dateOfBirth,
       Bio: bio,
       Wallet: wallet
     });
+    return response.message;
   }
 
-  async updateUser(username: string, displayName: string, dateOfBirth: string, bio: string): Promise<void> {
-    await this.call("UpdateUser", {
+  async updateUser(username: string, displayName: string, dateOfBirth: string, bio: string): Promise<string> {
+    const response = await this.call<{ message: string }>("UpdateUser", {
       Username: username,
       DisplayName: displayName,
       DateOfBirth: dateOfBirth,
       Bio: bio
     });
+    return response.message;
   }
 
   async createPost(username: string, title: string, content: string): Promise<{ postId: string; post: Post }> {
-    const response = await this.call<{ postId: string; post: Post }>("CreatePost", {
+    const response = await this.call<{ postId: string; post: Post; message: string }>("CreatePost", {
       Username: username,
       Data: `${title}:${content}`
     });
-    return response;
+    return { postId: response.postId, post: response.post };
   }
 
   async commentPost(postId: string, username: string, content: string): Promise<{ commentId: string; comment: Comment }> {
-    const response = await this.call<{ commentId: string; comment: Comment }>("CommentPost", {
+    const response = await this.call<{ commentId: string; comment: Comment; message: string }>("CommentPost", {
       PostId: postId,
       Username: username,
       Data: content
     });
-    return response;
+    return { commentId: response.commentId, comment: response.comment };
   }
 
   async loadComments(postId: string): Promise<Comment[]> {
@@ -162,17 +169,17 @@ class AOClientImpl implements AOClient {
   }
 
   async upvotePost(postId: string): Promise<Post> {
-    const response = await this.call<{ post: Post }>("Upvote", { PostId: postId });
+    const response = await this.call<{ post: Post; message: string }>("Upvote", { PostId: postId });
     return response.post;
   }
 
   async downvotePost(postId: string): Promise<Post> {
-    const response = await this.call<{ post: Post }>("Downvote", { PostId: postId });
+    const response = await this.call<{ post: Post; message: string }>("Downvote", { PostId: postId });
     return response.post;
   }
 
   async sharePost(postId: string, username: string): Promise<Post> {
-    const response = await this.call<{ post: Post }>("SharePost", {
+    const response = await this.call<{ post: Post; message: string }>("SharePost", {
       PostId: postId,
       Username: username
     });
@@ -180,11 +187,11 @@ class AOClientImpl implements AOClient {
   }
 
   async followUser(follower: string, following: string): Promise<{ follower: User; following: User }> {
-    const response = await this.call<{ follower: User; following: User }>("FollowUser", {
+    const response = await this.call<{ follower: User; following: User; message: string }>("FollowUser", {
       Follower: follower,
       Following: following
     });
-    return response;
+    return { follower: response.follower, following: response.following };
   }
 
   async searchUser(searchTerm: string): Promise<User[]> {
