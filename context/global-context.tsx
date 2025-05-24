@@ -7,45 +7,14 @@ import {
   ReactNode,
   useEffect,
 } from "react";
-import { getAOClient } from "@/lib/ao-client";
+import {
+  getAOClient,
+  User,
+  Post,
+  Comment,
+  LeaderboardEntry,
+} from "@/lib/ao-client";
 import { toast } from "react-hot-toast";
-
-interface User {
-  username: string;
-  displayName: string;
-  dateOfBirth: string;
-  walletAddress: string;
-  followers: string[];
-  following: string[];
-  score: number;
-}
-
-interface Post {
-  id: string;
-  author: {
-    username: string;
-    displayName: string;
-    avatar?: string;
-    dateOfBirth: string;
-    score: number;
-    walletAddress: string;
-  };
-  title: string;
-  content: string;
-  attachment?: string;
-  createdAt: string;
-  upvotes: number;
-  downvotes: number;
-  shares: number;
-}
-
-interface Creator {
-  id: string;
-  name: string;
-  username: string;
-  position: number;
-  score: number;
-}
 
 interface GlobalContextType {
   isLoggedIn: boolean;
@@ -57,11 +26,11 @@ interface GlobalContextType {
   feedPosts: Post[];
   trendingPosts: Post[];
   userPosts: Post[];
-  topCreators: Creator[];
+  topCreators: LeaderboardEntry[];
   setFeedPosts: (posts: Post[]) => void;
   setTrendingPosts: (posts: Post[]) => void;
   setUserPosts: (posts: Post[]) => void;
-  setTopCreators: (creators: Creator[]) => void;
+  setTopCreators: (creators: LeaderboardEntry[]) => void;
   walletConnected: boolean;
   setWalletConnected: (value: boolean) => void;
   walletAddress: string | null;
@@ -73,9 +42,13 @@ interface GlobalContextType {
     displayName: string,
     dateOfBirth: string
   ) => Promise<boolean>;
-  createPost: (content: string) => Promise<boolean>;
+  createPost: (title: string, content: string) => Promise<boolean>;
+  commentPost: (postId: string, content: string) => Promise<boolean>;
   upvotePost: (postId: string) => Promise<boolean>;
   downvotePost: (postId: string) => Promise<boolean>;
+  sharePost: (postId: string) => Promise<boolean>;
+  followUser: (following: string) => Promise<boolean>;
+  searchUser: (searchTerm: string) => Promise<User[]>;
   refreshFeed: () => Promise<void>;
   refreshTrending: () => Promise<void>;
   refreshLeaderboard: () => Promise<void>;
@@ -83,186 +56,20 @@ interface GlobalContextType {
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
-const dummyPosts: Post[] = [
-  {
-    id: "1",
-    author: {
-      username: "johndoe",
-      displayName: "John Doe",
-      dateOfBirth: "2004-06-01",
-      score: 0,
-      walletAddress: "johndoe",
-    },
-    title: "Welcome to Tokenizee",
-    content: `Welcome to Tokenizee, the revolutionary platform that's changing the way we think about digital ownership and creator economy! 🚀
-
-In this post, I want to share my vision for Tokenizee and how it's going to transform the creator economy landscape.
-
-What is Tokenizee?
-Tokenizee is a decentralized platform that enables creators to tokenize their content, build their community, and monetize their work in ways never before possible. We're leveraging blockchain technology to create a fair and transparent ecosystem where creators have full control over their content and earnings.
-
-Key Features:
-1. Content Tokenization: Convert your digital assets into NFTs
-2. Community Building: Create and manage your own token-gated communities
-3. Revenue Sharing: Implement smart contracts for automatic revenue distribution
-4. Creator Tools: Access powerful analytics and engagement metrics
-5. Cross-platform Integration: Seamlessly connect with other Web3 platforms
-
-The Future of Creator Economy:
-We believe that the future of the creator economy lies in decentralization and direct creator-fan relationships. Tokenizee is building the infrastructure to make this vision a reality. Our platform removes intermediaries, reduces fees, and puts power back in the hands of creators.
-
-Join us on this journey to revolutionize the creator economy! Whether you're a creator looking to tokenize your content, a fan wanting to support your favorite creators, or a developer interested in building on our platform, there's a place for you in the Tokenizee community.
-
-Stay tuned for more updates, and don't forget to follow us for the latest news and features! 🌟`,
-    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
-    upvotes: 42,
-    downvotes: 12,
-    shares: 12,
-  },
-  {
-    id: "2",
-    author: {
-      username: "alicej",
-      displayName: "Alice Johnson",
-      dateOfBirth: "2004-06-01",
-      score: 0,
-      walletAddress: "alicej",
-    },
-    title: "My First NFT Collection",
-    content:
-      "Just minted my first NFT collection! Check out my profile to see the artwork. Would love to hear your thoughts and feedback. 🎨✨",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-    upvotes: 89,
-    downvotes: 34,
-    shares: 34,
-  },
-  {
-    id: "3",
-    author: {
-      username: "bobbrown",
-      displayName: "Bob Brown",
-      dateOfBirth: "2004-06-01",
-      score: 0,
-      walletAddress: "bobbrown",
-    },
-    title: "Web3 Development Tips",
-    content:
-      "Sharing some tips for developers getting started with Web3. The key is to understand the fundamentals of blockchain technology first. Here's a thread...",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(), // 5 hours ago
-    upvotes: 156,
-    downvotes: 45,
-    shares: 78,
-  },
-  {
-    id: "4",
-    author: {
-      username: "sarahsmith",
-      displayName: "Sarah Smith",
-      dateOfBirth: "2004-06-01",
-      score: 0,
-      walletAddress: "sarahsmith",
-    },
-    title: "Digital Art Showcase",
-    content:
-      "My latest digital art piece is now available as an NFT! This piece represents the intersection of traditional art and blockchain technology. 🖼️",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(), // 8 hours ago
-    upvotes: 234,
-    downvotes: 45,
-    shares: 45,
-  },
-  {
-    id: "5",
-    author: {
-      username: "mikechen",
-      displayName: "Mike Chen",
-      dateOfBirth: "2004-06-01",
-      score: 0,
-      walletAddress: "mikechen",
-    },
-    title: "DeFi Project Update",
-    content:
-      "Big update on our DeFi project! We've implemented new features and improved security measures. Check out our latest documentation...",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(), // 12 hours ago
-    upvotes: 178,
-    downvotes: 45,
-    shares: 67,
-  },
-  {
-    id: "6",
-    author: {
-      username: "emilydavis",
-      displayName: "Emily Davis",
-      dateOfBirth: "2004-06-01",
-      score: 0,
-      walletAddress: "emilydavis",
-    },
-    title: "Community Event",
-    content:
-      "Join us this weekend for our first Tokenizee community meetup! We'll be discussing the future of NFTs and digital ownership. RSVP now! 🎉",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 24 hours ago
-    upvotes: 312,
-    downvotes: 45,
-    shares: 98,
-  },
-  {
-    id: "7",
-    author: {
-      username: "davidwilson",
-      displayName: "David Wilson",
-      dateOfBirth: "2004-06-01",
-      score: 0,
-      walletAddress: "davidwilson",
-    },
-    title: "Blockchain Education",
-    content:
-      "Starting a new series on blockchain education. First post covers the basics of smart contracts. Let me know if you have any questions! 📚",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 36).toISOString(), // 36 hours ago
-    upvotes: 145,
-    downvotes: 45,
-    shares: 56,
-  },
-];
-
-const dummyCreators: Creator[] = [
-  { id: "1", name: "John Doe", username: "johndoe", position: 1, score: 100 },
-  {
-    id: "2",
-    name: "Jane Smith",
-    username: "janesmith",
-    position: 2,
-    score: 90,
-  },
-  {
-    id: "3",
-    name: "Alice Johnson",
-    username: "alicej",
-    position: 3,
-    score: 80,
-  },
-  { id: "4", name: "Bob Brown", username: "bobbrown", position: 4, score: 70 },
-  {
-    id: "5",
-    name: "Charlie Davis",
-    username: "charlied",
-    position: 5,
-    score: 60,
-  },
-];
-
 export function GlobalProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [feedPosts, setFeedPosts] = useState<Post[]>([]);
   const [trendingPosts, setTrendingPosts] = useState<Post[]>([]);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
-  const [topCreators, setTopCreators] = useState<Creator[]>([]);
+  const [topCreators, setTopCreators] = useState<LeaderboardEntry[]>([]);
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   // Initialize AO Client
   const aoClient = getAOClient(
     process.env.NEXT_PUBLIC_AO_PROCESS_ID ||
-      "0Y5WcW477MOcelsMPUtHB-r_3fHrXFOdMg0gemD91wQ"
+      "UXCykyuzt_aHqn50GtOk9qDa4BicuLyPKIF_mmrNW-M"
   );
 
   const checkUserExists = async (walletAddress: string): Promise<boolean> => {
@@ -288,15 +95,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
             const userExists = await checkUserExists(address);
             if (userExists) {
               const userData = await aoClient.getUser(address);
-              setUser({
-                username: userData.username,
-                displayName: userData.displayName,
-                dateOfBirth: userData.dateOfBirth,
-                walletAddress: userData.wallet,
-                followers: [],
-                following: [],
-                score: userData.score,
-              });
+              setUser(userData);
               setIsLoggedIn(true);
             }
           } else {
@@ -330,14 +129,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     // Update user info in all posts where they are the author
     const updatePosts = (posts: Post[]) =>
       posts.map((post) =>
-        post.author.username === user?.username
+        post.author === user?.username
           ? {
               ...post,
-              author: {
-                ...post.author,
-                username: updatedUser.username,
-                displayName: updatedUser.displayName,
-              },
+              author: updatedUser.username,
             }
           : post
       );
@@ -354,7 +149,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     dateOfBirth: string
   ): Promise<boolean> => {
     try {
-      if (!user?.walletAddress) {
+      if (!user?.wallet) {
         throw new Error("Wallet not connected");
       }
 
@@ -362,19 +157,11 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         username,
         displayName,
         dateOfBirth,
-        user.walletAddress
+        user.wallet
       );
 
-      const userData = await aoClient.getUser(user.walletAddress);
-      setUser({
-        username: userData.username,
-        displayName: userData.displayName,
-        dateOfBirth: userData.dateOfBirth,
-        walletAddress: userData.wallet,
-        followers: [],
-        following: [],
-        score: userData.score,
-      });
+      const userData = await aoClient.getUser(user.wallet);
+      setUser(userData);
       setIsLoggedIn(true);
       toast.success("Registration successful!");
       return true;
@@ -387,13 +174,16 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const createPost = async (content: string): Promise<boolean> => {
+  const createPost = async (
+    title: string,
+    content: string
+  ): Promise<boolean> => {
     try {
       if (!user?.username) {
         throw new Error("User not logged in");
       }
 
-      await aoClient.createPost(user.username, content);
+      await aoClient.createPost(user.username, title, content);
       await refreshFeed();
       toast.success("Post created successfully!");
       return true;
@@ -401,6 +191,28 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
       console.error("Error creating post:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to create post"
+      );
+      return false;
+    }
+  };
+
+  const commentPost = async (
+    postId: string,
+    content: string
+  ): Promise<boolean> => {
+    try {
+      if (!user?.username) {
+        throw new Error("User not logged in");
+      }
+
+      await aoClient.commentPost(postId, user.username, content);
+      await refreshFeed();
+      toast.success("Comment posted successfully!");
+      return true;
+    } catch (error) {
+      console.error("Error commenting on post:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to comment on post"
       );
       return false;
     }
@@ -436,27 +248,61 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const sharePost = async (postId: string): Promise<boolean> => {
+    try {
+      if (!user?.username) {
+        throw new Error("User not logged in");
+      }
+
+      await aoClient.sharePost(postId, user.username);
+      await refreshFeed();
+      toast.success("Post shared successfully!");
+      return true;
+    } catch (error) {
+      console.error("Error sharing post:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to share post"
+      );
+      return false;
+    }
+  };
+
+  const followUser = async (following: string): Promise<boolean> => {
+    try {
+      if (!user?.username) {
+        throw new Error("User not logged in");
+      }
+
+      await aoClient.followUser(user.username, following);
+      await refreshFeed();
+      toast.success("User followed successfully!");
+      return true;
+    } catch (error) {
+      console.error("Error following user:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to follow user"
+      );
+      return false;
+    }
+  };
+
+  const searchUser = async (searchTerm: string): Promise<User[]> => {
+    try {
+      const results = await aoClient.searchUser(searchTerm);
+      return results;
+    } catch (error) {
+      console.error("Error searching users:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to search users"
+      );
+      return [];
+    }
+  };
+
   const refreshFeed = async (): Promise<void> => {
     try {
       const feed = await aoClient.getFeed();
-      setFeedPosts(
-        feed.map((post) => ({
-          id: post.author + "-" + post.timestamp,
-          author: {
-            username: post.author,
-            displayName: post.author, // TODO: Get display name from user data
-            dateOfBirth: "",
-            score: 0,
-            walletAddress: "",
-          },
-          title: post.content.substring(0, 50) + "...",
-          content: post.content,
-          createdAt: new Date(post.timestamp * 1000).toISOString(),
-          upvotes: post.upvotes,
-          downvotes: post.downvotes,
-          shares: 0,
-        }))
-      );
+      setFeedPosts(feed);
     } catch (error) {
       console.error("Error refreshing feed:", error);
       toast.error("Failed to refresh feed");
@@ -466,24 +312,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   const refreshTrending = async (): Promise<void> => {
     try {
       const trending = await aoClient.getTrending();
-      setTrendingPosts(
-        trending.map((post) => ({
-          id: post.author + "-" + post.timestamp,
-          author: {
-            username: post.author,
-            displayName: post.author, // TODO: Get display name from user data
-            dateOfBirth: "",
-            score: 0,
-            walletAddress: "",
-          },
-          title: post.content.substring(0, 50) + "...",
-          content: post.content,
-          createdAt: new Date(post.timestamp * 1000).toISOString(),
-          upvotes: post.upvotes,
-          downvotes: post.downvotes,
-          shares: 0,
-        }))
-      );
+      setTrendingPosts(trending);
     } catch (error) {
       console.error("Error refreshing trending:", error);
       toast.error("Failed to refresh trending posts");
@@ -493,15 +322,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   const refreshLeaderboard = async (): Promise<void> => {
     try {
       const leaderboard = await aoClient.getLeaderboard();
-      setTopCreators(
-        leaderboard.map((entry, index) => ({
-          id: entry.username,
-          name: entry.displayName,
-          username: entry.username,
-          position: index + 1,
-          score: entry.score,
-        }))
-      );
+      setTopCreators(leaderboard);
     } catch (error) {
       console.error("Error refreshing leaderboard:", error);
       toast.error("Failed to refresh leaderboard");
@@ -550,8 +371,12 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         // AO API Methods
         registerUser,
         createPost,
+        commentPost,
         upvotePost,
         downvotePost,
+        sharePost,
+        followUser,
+        searchUser,
         refreshFeed,
         refreshTrending,
         refreshLeaderboard,

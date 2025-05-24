@@ -1,11 +1,9 @@
 import { connect } from "@permaweb/aoconnect";
 
-const { dryrun } = connect(
-  {
-    CU_URL: "https://cu.arnode.asia",
-    // GATEWAY_URL: "https://arnode.asia",
-  },
-);
+const { dryrun } = connect({
+  CU_URL: "https://cu.arnode.asia",
+  // GATEWAY_URL: "https://arnode.asia",
+});
 
 // Types
 export interface User {
@@ -13,15 +11,27 @@ export interface User {
   displayName: string;
   dateOfBirth: string;
   wallet: string;
+  followers: Record<string, boolean>;
+  following: Record<string, boolean>;
   score: number;
   posts: string[];
+  createdAt: number;
 }
 
 export interface Post {
   author: string;
+  title: string;
   content: string;
   upvotes: number;
   downvotes: number;
+  createdAt: number;
+  shares: number;
+  comments: string[];
+}
+
+export interface Comment {
+  author: string;
+  content: string;
   timestamp: number;
 }
 
@@ -31,93 +41,109 @@ export interface LeaderboardEntry {
   score: number;
 }
 
-// Response types
-interface AOResponse<T> {
-  Messages: Array<{
-    Tags: Array<{ name: string; value: string }>;
-    Data: T;
-  }>;
+interface AOClient {
+  getUser: (wallet: string) => Promise<User>;
+  registerUser: (username: string, displayName: string, dateOfBirth: string, wallet: string) => Promise<void>;
+  createPost: (username: string, title: string, content: string) => Promise<void>;
+  commentPost: (postId: string, username: string, content: string) => Promise<void>;
+  upvotePost: (postId: string) => Promise<void>;
+  downvotePost: (postId: string) => Promise<void>;
+  sharePost: (postId: string, username: string) => Promise<void>;
+  followUser: (follower: string, following: string) => Promise<void>;
+  searchUser: (searchTerm: string) => Promise<User[]>;
+  getFeed: () => Promise<Post[]>;
+  getTrending: () => Promise<Post[]>;
+  getLeaderboard: () => Promise<LeaderboardEntry[]>;
 }
 
-// Client class
-export class AOClient {
+class AOClientImpl implements AOClient {
   private processId: string;
 
   constructor(processId: string) {
     this.processId = processId;
   }
 
-  private async call<T>(
-    action: string,
-    data: string = "",
-    tags: Array<{ name: string; value: string }> = []
-  ): Promise<T> {
+  private async call<T>(action: string, tags: Record<string, string> = {}): Promise<T> {
+    const message = {
+      Target: this.processId,
+      Tags: { Action: action, ...tags }
+    };
+
+    const result = await dryrun({
+      process: this.processId,
+      data: JSON.stringify(message),
+      tags: Object.entries(tags).map(([name, value]) => ({ name, value }))
+    });
+
+    if (!result.Messages?.[0]) {
+      throw new Error(`No response from AO process for action: ${action}`);
+    }
+
+    const messageData = result.Messages[0].Data;
     try {
-      const result = await dryrun({
-        process: this.processId,
-        data,
-        tags: [{ name: "Action", value: action }, ...tags],
-      }) as AOResponse<string>;
-
-      if (!result.Messages?.[0]) {
-        throw new Error(`No response from AO process for action: ${action}`);
-      }
-
-      const message = result.Messages[0];
-      const status = message.Tags.find((tag: { name: string }) => tag.name === "Status")?.value;
-
-      if (status === "Error") {
-        throw new Error(message.Data);
-      }
-
-      // Parse the stringified JSON data
-      try {
-        return JSON.parse(message.Data) as T;
-      } catch (parseError) {
-        console.error("Error parsing response data:", parseError);
-        throw new Error("Invalid response data format");
-      }
+      return JSON.parse(messageData) as T;
     } catch (error) {
-      console.error(`Error in AO call ${action}:`, error);
-      throw error;
+      console.error("Error parsing response data:", error);
+      throw new Error("Invalid response data format");
     }
   }
 
-  // User Management
-  async registerUser(
-    username: string,
-    displayName: string,
-    dateOfBirth: string,
-    wallet: string
-  ): Promise<string> {
-    return this.call<string>("Register", "", [
-      { name: "Username", value: username },
-      { name: "DisplayName", value: displayName },
-      { name: "DateOfBirth", value: dateOfBirth },
-      { name: "Wallet", value: wallet },
-    ]);
-  }
-
   async getUser(wallet: string): Promise<User> {
-    return this.call<User>("GetUser", "", [{ name: "Wallet", value: wallet }]);
+    return this.call<User>("GetUser", { Wallet: wallet });
   }
 
-  // Post Management
-  async createPost(username: string, content: string): Promise<string> {
-    return this.call<string>("CreatePost", content, [
-      { name: "Username", value: username },
-    ]);
+  async registerUser(username: string, displayName: string, dateOfBirth: string, wallet: string): Promise<void> {
+    await this.call("Register", {
+      Username: username,
+      DisplayName: displayName,
+      DateOfBirth: dateOfBirth,
+      Wallet: wallet
+    });
   }
 
-  async upvotePost(postId: string): Promise<string> {
-    return this.call<string>("Upvote", "", [{ name: "PostId", value: postId }]);
+  async createPost(username: string, title: string, content: string): Promise<void> {
+    await this.call("CreatePost", {
+      Username: username,
+      Data: `${title}:${content}`
+    });
   }
 
-  async downvotePost(postId: string): Promise<string> {
-    return this.call<string>("Downvote", "", [{ name: "PostId", value: postId }]);
+  async commentPost(postId: string, username: string, content: string): Promise<void> {
+    await this.call("CommentPost", {
+      PostId: postId,
+      Username: username,
+      Data: content
+    });
   }
 
-  // Feed and Trending
+  async upvotePost(postId: string): Promise<void> {
+    await this.call("Upvote", { PostId: postId });
+  }
+
+  async downvotePost(postId: string): Promise<void> {
+    await this.call("Downvote", { PostId: postId });
+  }
+
+  async sharePost(postId: string, username: string): Promise<void> {
+    await this.call("SharePost", {
+      PostId: postId,
+      Username: username
+    });
+  }
+
+  async followUser(follower: string, following: string): Promise<void> {
+    await this.call("FollowUser", {
+      Follower: follower,
+      Following: following
+    });
+  }
+
+  async searchUser(searchTerm: string): Promise<User[]> {
+    return this.call<User[]>("SearchUser", {
+      SearchTerm: searchTerm
+    });
+  }
+
   async getFeed(): Promise<Post[]> {
     return this.call<Post[]>("GetFeed");
   }
@@ -131,14 +157,8 @@ export class AOClient {
   }
 }
 
-// Create a singleton instance
-let aoClient: AOClient | null = null;
-
 export function getAOClient(processId: string): AOClient {
-  if (!aoClient) {
-    aoClient = new AOClient(processId);
-  }
-  return aoClient;
+  return new AOClientImpl(processId);
 }
 
 // Example usage:
