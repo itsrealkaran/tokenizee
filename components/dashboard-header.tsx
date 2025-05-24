@@ -8,7 +8,7 @@ import { useGlobal } from "@/context/global-context";
 export function DashboardHeader() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user } = useGlobal();
+  const { profileUser } = useGlobal();
 
   return (
     <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
@@ -26,7 +26,7 @@ export function DashboardHeader() {
               <Button variant="ghost" size="sm" onClick={() => router.back()}>
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <span>{user?.displayName}</span>
+              <span>{profileUser?.displayName}</span>
             </div>
           ) : (
             (() => {
