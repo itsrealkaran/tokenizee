@@ -18,6 +18,7 @@ export interface RegisterFormData {
   username: string;
   displayName: string;
   dateOfBirth: string;
+  bio: string;
 }
 
 export function RegisterModal({
@@ -31,6 +32,7 @@ export function RegisterModal({
     username: "",
     displayName: "",
     dateOfBirth: "",
+    bio: "",
   });
 
   // Update form data when initialData changes
@@ -132,6 +134,25 @@ export function RegisterModal({
                       onChange={handleChange}
                       className={inputClassName}
                       placeholder="Your display name"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="bio"
+                      className="block text-sm font-medium text-foreground"
+                    >
+                      Bio
+                    </label>
+                    <input
+                      type="text"
+                      id="bio"
+                      name="bio"
+                      value={formData.bio}
+                      onChange={handleChange}
+                      className={inputClassName}
+                      placeholder="Your bio"
                       required
                     />
                   </div>

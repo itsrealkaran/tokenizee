@@ -33,12 +33,18 @@ export default function ExploreContent() {
   };
 
   const formatPostForCard = (post: Post) => ({
-    ...post,
+    id: post.id,
     author: {
-      username: post.author,
-      displayName: post.author, // We'll need to fetch the actual display name
+      username: post.author.username,
+      displayName: post.author.displayName,
       avatar: undefined,
     },
+    title: post.title,
+    content: post.content,
+    createdAt: new Date(post.createdAt * 1000).toISOString(), // Convert Unix timestamp to ISO string
+    upvotes: post.upvotes,
+    downvotes: post.downvotes,
+    shares: post.shares,
   });
 
   return (
@@ -92,11 +98,9 @@ export default function ExploreContent() {
           <div className="space-y-4">
             {trendingPosts.map((post) => (
               <PostCard
-                key={`${post.author}-${post.createdAt}`}
+                key={post.id}
                 post={formatPostForCard(post)}
-                onViewPost={() =>
-                  router.push(`/feed/${post.author}-${post.createdAt}`)
-                }
+                onViewPost={() => router.push(`/feed/${post.id}`)}
               />
             ))}
           </div>

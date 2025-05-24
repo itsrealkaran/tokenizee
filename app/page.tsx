@@ -13,10 +13,10 @@ export default function Home() {
     isLoggedIn,
     setIsLoggedIn,
     user,
-    setUser,
     walletConnected,
     walletAddress,
     checkUserExists,
+    registerUser,
   } = useGlobal();
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isCheckingUser, setIsCheckingUser] = useState(false);
@@ -32,7 +32,7 @@ export default function Home() {
       if (walletConnected && walletAddress && !isLoggedIn) {
         setIsCheckingUser(true);
         try {
-          const exists = await checkUserExists(walletAddress);
+          const exists = await checkUserExists({ wallet: walletAddress });
           if (exists) {
             router.push("/feed");
           }
@@ -79,13 +79,12 @@ export default function Home() {
               setIsRegisterModalOpen(false);
             }}
             onSubmit={(data) => {
-              setUser({
-                ...data,
-                walletAddress: walletAddress || "",
-                followers: [],
-                following: [],
-                score: 0,
-              });
+              registerUser(
+                data.username,
+                data.displayName,
+                data.dateOfBirth,
+                data.bio
+              );
               setIsLoggedIn(true);
               router.push("/feed");
             }}

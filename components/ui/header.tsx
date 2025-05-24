@@ -48,11 +48,11 @@ export function Header() {
                   <span
                     className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
                     onClick={() => {
-                      navigator.clipboard.writeText(user.walletAddress);
+                      navigator.clipboard.writeText(user.wallet);
                       toast.success("Address Copied");
                     }}
                   >
-                    {`${user.walletAddress.slice(0, 6)}...${user.walletAddress.slice(-4)}`}
+                    {`${user.wallet.slice(0, 6)}...${user.wallet.slice(-4)}`}
                   </span>
                 </div>
               </Button>
