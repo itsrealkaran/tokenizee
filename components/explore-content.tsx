@@ -80,39 +80,42 @@ export default function ExploreContent() {
       <div className="flex-1 overflow-y-auto pr-2">
         {activeTab === "trending" ? (
           <div className="space-y-4">
-            {trendingPosts.map((post) => (
+            {trendingPosts.map((post, index) => (
               <PostCard
-                key={post.id}
+                key={`${post.author}-${post.createdAt}`}
                 post={post}
-                onViewPost={() => router.push(`/feed/${post.id}`)}
+                onViewPost={() =>
+                  router.push(`/feed/${post.author}-${post.createdAt}`)
+                }
               />
             ))}
           </div>
         ) : (
           <div className="space-y-4">
-            {topCreators.map((creator) => (
+            {topCreators.map((creator, index) => (
               <div
-                key={creator.id}
+                key={creator.username}
                 className="flex items-center cursor-pointer justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
                 onClick={() => router.push(`/profile/${creator.username}`)}
               >
                 <div className="flex items-center space-x-4">
                   <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                     <span className="text-lg font-medium text-primary">
-                      {creator.name[0]}
+                      {creator.displayName[0]}
                     </span>
                   </div>
                   <div>
-                    <h3 className="font-medium">
-                      {creator.name}
-                    </h3>
+                    <h3 className="font-medium">{creator.displayName}</h3>
                     <p className="text-sm text-muted-foreground">
                       @{creator.username}
                     </p>
                   </div>
                 </div>
-                <div className="text-right cursor-pointer">
-                  <p className="font-medium">#{creator.position}</p>
+                <div className="text-right">
+                  <p className="font-medium text-primary">
+                    {creator.score} pts
+                  </p>
+                  <p className="text-sm text-muted-foreground">#{index + 1}</p>
                 </div>
               </div>
             ))}

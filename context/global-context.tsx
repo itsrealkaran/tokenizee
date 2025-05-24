@@ -25,17 +25,18 @@ interface GlobalContextType {
   logout: () => void;
   feedPosts: Post[];
   trendingPosts: Post[];
-  userPosts: Post[];
   topCreators: LeaderboardEntry[];
   setFeedPosts: (posts: Post[]) => void;
   setTrendingPosts: (posts: Post[]) => void;
-  setUserPosts: (posts: Post[]) => void;
   setTopCreators: (creators: LeaderboardEntry[]) => void;
   walletConnected: boolean;
   setWalletConnected: (value: boolean) => void;
   walletAddress: string | null;
   setWalletAddress: (address: string | null) => void;
-  checkUserExists: (walletAddress: string) => Promise<boolean>;
+  checkUserExists: (params: {
+    wallet?: string;
+    username?: string;
+  }) => Promise<boolean>;
   // AO API Methods
   registerUser: (
     username: string,
@@ -44,6 +45,7 @@ interface GlobalContextType {
   ) => Promise<boolean>;
   createPost: (title: string, content: string) => Promise<boolean>;
   commentPost: (postId: string, content: string) => Promise<boolean>;
+  loadComments: (postId: string) => Promise<Comment[]>;
   upvotePost: (postId: string) => Promise<boolean>;
   downvotePost: (postId: string) => Promise<boolean>;
   sharePost: (postId: string) => Promise<boolean>;
@@ -52,6 +54,8 @@ interface GlobalContextType {
   refreshFeed: () => Promise<void>;
   refreshTrending: () => Promise<void>;
   refreshLeaderboard: () => Promise<void>;
+  getUserPosts: (username: string) => Promise<Post[]>;
+  getUserComments: (username: string) => Promise<Comment[]>;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -61,20 +65,19 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [feedPosts, setFeedPosts] = useState<Post[]>([]);
   const [trendingPosts, setTrendingPosts] = useState<Post[]>([]);
-  const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [topCreators, setTopCreators] = useState<LeaderboardEntry[]>([]);
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   // Initialize AO Client
-  const aoClient = getAOClient(
-    process.env.NEXT_PUBLIC_AO_PROCESS_ID ||
-      "UXCykyuzt_aHqn50GtOk9qDa4BicuLyPKIF_mmrNW-M"
-  );
+  const aoClient = getAOClient(process.env.NEXT_PUBLIC_AO_PROCESS_ID || "");
 
-  const checkUserExists = async (walletAddress: string): Promise<boolean> => {
+  const checkUserExists = async (params: {
+    wallet?: string;
+    username?: string;
+  }): Promise<boolean> => {
     try {
-      const userData = await aoClient.getUser(walletAddress);
+      const userData = await aoClient.getUser(params);
       return !!userData;
     } catch (error) {
       console.error("Error checking if user exists:", error);
@@ -92,9 +95,9 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
             setWalletAddress(address);
             setWalletConnected(true);
 
-            const userExists = await checkUserExists(address);
+            const userExists = await checkUserExists({ wallet: address });
             if (userExists) {
-              const userData = await aoClient.getUser(address);
+              const userData = await aoClient.getUser({ wallet: address });
               setUser(userData);
               setIsLoggedIn(true);
             }
@@ -118,7 +121,6 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setFeedPosts([]);
     setTrendingPosts([]);
-    setUserPosts([]);
     setTopCreators([]);
     setWalletConnected(false);
     setWalletAddress(null);
@@ -126,20 +128,16 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const updateUser = (updatedUser: User) => {
     setUser(updatedUser);
-    // Update user info in all posts where they are the author
+    // Update user info in posts where they are the author
     const updatePosts = (posts: Post[]) =>
       posts.map((post) =>
         post.author === user?.username
-          ? {
-              ...post,
-              author: updatedUser.username,
-            }
+          ? { ...post, author: updatedUser.username }
           : post
       );
 
     setFeedPosts(updatePosts(feedPosts));
     setTrendingPosts(updatePosts(trendingPosts));
-    setUserPosts(updatePosts(userPosts));
   };
 
   // AO API Methods
@@ -160,7 +158,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         user.wallet
       );
 
-      const userData = await aoClient.getUser(user.wallet);
+      const userData = await aoClient.getUser({ username });
       setUser(userData);
       setIsLoggedIn(true);
       toast.success("Registration successful!");
@@ -215,6 +213,18 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         error instanceof Error ? error.message : "Failed to comment on post"
       );
       return false;
+    }
+  };
+
+  const loadComments = async (postId: string): Promise<Comment[]> => {
+    try {
+      return await aoClient.loadComments(postId);
+    } catch (error) {
+      console.error("Error loading comments:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to load comments"
+      );
+      return [];
     }
   };
 
@@ -273,7 +283,11 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         throw new Error("User not logged in");
       }
 
-      await aoClient.followUser(user.username, following);
+      const { follower, following: followedUser } = await aoClient.followUser(
+        user.username,
+        following
+      );
+      setUser(follower);
       await refreshFeed();
       toast.success("User followed successfully!");
       return true;
@@ -288,8 +302,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const searchUser = async (searchTerm: string): Promise<User[]> => {
     try {
-      const results = await aoClient.searchUser(searchTerm);
-      return results;
+      return await aoClient.searchUser(searchTerm);
     } catch (error) {
       console.error("Error searching users:", error);
       toast.error(
@@ -329,6 +342,30 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const getUserPosts = async (username: string): Promise<Post[]> => {
+    try {
+      return await aoClient.getUserPosts(username);
+    } catch (error) {
+      console.error("Error getting user posts:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to get user posts"
+      );
+      return [];
+    }
+  };
+
+  const getUserComments = async (username: string): Promise<Comment[]> => {
+    try {
+      return await aoClient.getUserComments(username);
+    } catch (error) {
+      console.error("Error getting user comments:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to get user comments"
+      );
+      return [];
+    }
+  };
+
   // Refresh data periodically
   useEffect(() => {
     if (isLoggedIn) {
@@ -357,11 +394,9 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         logout,
         feedPosts,
         trendingPosts,
-        userPosts,
         topCreators,
         setFeedPosts,
         setTrendingPosts,
-        setUserPosts,
         setTopCreators,
         walletConnected,
         setWalletConnected,
@@ -372,6 +407,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         registerUser,
         createPost,
         commentPost,
+        loadComments,
         upvotePost,
         downvotePost,
         sharePost,
@@ -380,6 +416,8 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         refreshFeed,
         refreshTrending,
         refreshLeaderboard,
+        getUserPosts,
+        getUserComments,
       }}
     >
       {children}
