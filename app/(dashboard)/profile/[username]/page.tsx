@@ -82,21 +82,6 @@ export default function UserProfilePage() {
     }
   };
 
-  const formatPostForCard = (post: Post) => ({
-    id: post.id,
-    author: {
-      username: post.author.username,
-      displayName: post.author.displayName,
-      avatar: undefined,
-    },
-    title: post.title,
-    content: post.content,
-    createdAt: new Date(post.createdAt).toISOString(),
-    upvotes: post.upvotes,
-    downvotes: post.downvotes,
-    shares: post.shares,
-  });
-
   if (isLoading) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -160,8 +145,7 @@ export default function UserProfilePage() {
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">
-              Joined{" "}
-              {new Date(profileUser.createdAt).toLocaleDateString()}
+              Joined {new Date(profileUser.createdAt).toLocaleDateString()}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -227,7 +211,7 @@ export default function UserProfilePage() {
               {userPosts.map((post) => (
                 <PostCard
                   key={post.id}
-                  post={formatPostForCard(post)}
+                  post={post}
                   onViewPost={() => router.push(`/feed/${post.id}`)}
                 />
               ))}

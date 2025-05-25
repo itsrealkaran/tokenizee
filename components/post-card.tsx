@@ -6,22 +6,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-
-interface Post {
-  id: string;
-  author: {
-    username: string;
-    displayName: string;
-    avatar?: string;
-  };
-  title: string;
-  content: string;
-  attachment?: string;
-  createdAt: string;
-  upvotes: number;
-  downvotes: number;
-  shares: number;
-}
+import { useGlobal } from "@/context/global-context";
+import { Post } from "@/lib/ao-client";
 
 interface PostCardProps {
   post: Post;
@@ -32,54 +18,85 @@ const MAX_CONTENT_LENGTH = 200;
 
 export function PostCard({ post, onViewPost }: PostCardProps) {
   const router = useRouter();
+  const { upvotePost, downvotePost, sharePost } = useGlobal();
   const [voteStatus, setVoteStatus] = useState<"up" | "down" | null>(null);
   const [upvotes, setUpvotes] = useState(post.upvotes);
   const [downvotes, setDownvotes] = useState(post.downvotes);
+  const [shares, setShares] = useState(post.shares);
+  const [isVoting, setIsVoting] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
-  const handleVote = (type: "up" | "down") => {
-    if (voteStatus === type) {
-      // Remove vote
-      setVoteStatus(null);
-      if (type === "up") {
-        setUpvotes(upvotes - 1);
-      } else {
-        setDownvotes(downvotes - 1);
-      }
-    } else {
-      // Change vote
-      const previousVote = voteStatus;
-      setVoteStatus(type);
+  const handleVote = async (type: "up" | "down") => {
+    if (isVoting) return;
+    setIsVoting(true);
 
-      if (previousVote === null) {
-        // New vote
+    const previousVote = voteStatus;
+
+    try {
+      if (voteStatus === type) {
+        // Remove vote
+        setVoteStatus(null);
         if (type === "up") {
-          setUpvotes(upvotes + 1);
-        } else {
-          setDownvotes(downvotes + 1);
-        }
-      } else {
-        // Switch vote
-        if (type === "up") {
-          setUpvotes(upvotes + 1);
-          setDownvotes(downvotes - 1);
-        } else {
           setUpvotes(upvotes - 1);
-          setDownvotes(downvotes + 1);
+        } else {
+          setDownvotes(downvotes - 1);
+        }
+      } else {
+        // Change vote
+        setVoteStatus(type);
+
+        if (previousVote === null) {
+          // New vote
+          if (type === "up") {
+            setUpvotes(upvotes + 1);
+            await upvotePost(post.id);
+          } else {
+            setDownvotes(downvotes + 1);
+            await downvotePost(post.id);
+          }
+        } else {
+          // Switch vote
+          if (type === "up") {
+            setUpvotes(upvotes + 1);
+            setDownvotes(downvotes - 1);
+            await upvotePost(post.id);
+          } else {
+            setUpvotes(upvotes - 1);
+            setDownvotes(downvotes + 1);
+            await downvotePost(post.id);
+          }
         }
       }
+    } catch (error) {
+      // Revert UI state on error
+      if (type === "up") {
+        setUpvotes(upvotes);
+      } else {
+        setDownvotes(downvotes);
+      }
+      setVoteStatus(previousVote);
+      toast.error("Failed to vote on post");
+    } finally {
+      setIsVoting(false);
     }
-    // TODO: Update votes in Lua table
   };
 
   const handleShare = async () => {
+    if (isSharing) return;
+    setIsSharing(true);
+
     try {
+      await sharePost(post.id);
+      setShares(shares + 1);
       await navigator.clipboard.writeText(
         `${window.location.origin}/feed/${post.id}`
       );
       toast.success("Link copied to clipboard!");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to copy link");
+      toast.error("Failed to share post");
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -139,6 +156,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
               e.stopPropagation();
               handleVote("up");
             }}
+            disabled={isVoting}
           >
             <ArrowBigUp
               className={cn("h-5 w-5", voteStatus === "up" && "fill-current")}
@@ -163,6 +181,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
               e.stopPropagation();
               handleVote("down");
             }}
+            disabled={isVoting}
           >
             <ArrowBigDown
               className={cn("h-5 w-5", voteStatus === "down" && "fill-current")}
@@ -186,9 +205,10 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
             e.stopPropagation();
             handleShare();
           }}
+          disabled={isSharing}
         >
           <Share2 className="h-4 w-4" />
-          <span>{post.shares}</span>
+          <span>{shares}</span>
         </Button>
 
         <Button
@@ -200,7 +220,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
           }}
         >
           <MessageCircle className="h-4 w-4" />
-          <span>0</span>
+          <span>{post.comments.length}</span>
         </Button>
 
         <p className="text-sm text-muted-foreground ml-auto">

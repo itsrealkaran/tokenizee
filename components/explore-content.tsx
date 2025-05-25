@@ -32,21 +32,6 @@ export default function ExploreContent() {
     console.log("Searching for:", searchQuery);
   };
 
-  const formatPostForCard = (post: Post) => ({
-    id: post.id,
-    author: {
-      username: post.author.username,
-      displayName: post.author.displayName,
-      avatar: undefined,
-    },
-    title: post.title,
-    content: post.content,
-    createdAt: new Date(post.createdAt * 1000).toISOString(), // Convert Unix timestamp to ISO string
-    upvotes: post.upvotes,
-    downvotes: post.downvotes,
-    shares: post.shares,
-  });
-
   return (
     <div className="flex flex-col h-full">
       {/* Fixed Header Section */}
@@ -99,7 +84,7 @@ export default function ExploreContent() {
             {trendingPosts.map((post) => (
               <PostCard
                 key={post.id}
-                post={formatPostForCard(post)}
+                post={post}
                 onViewPost={() => router.push(`/feed/${post.id}`)}
               />
             ))}
