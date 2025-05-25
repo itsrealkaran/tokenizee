@@ -2,19 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { MessageCircle } from "lucide-react";
-
-interface Comment {
-  id: string;
-  author: {
-    username: string;
-    displayName: string;
-    avatar?: string;
-  };
-  content: string;
-  createdAt: string;
-  postId?: string;
-  postTitle?: string;
-}
+import { Comment } from "@/lib/ao-client";
 
 interface CommentCardProps {
   comment: Comment;

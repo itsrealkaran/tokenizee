@@ -8,7 +8,6 @@ import { useGlobal } from "@/context/global-context";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { Post } from "@/lib/ao-client";
 
 export default function ExploreContent() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -111,10 +110,10 @@ export default function ExploreContent() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium text-primary">
+                  {/* <p className="font-medium text-primary">
                     {creator.score} pts
-                  </p>
-                  <p className="text-sm text-muted-foreground">#{index + 1}</p>
+                  </p> */}
+                  <p className="text-lg text-muted-foreground">#{index + 1}</p>
                 </div>
               </div>
             ))}

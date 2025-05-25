@@ -10,6 +10,7 @@ import {
   UserPlus,
   PenSquare,
   MessageCircle,
+  Loader2,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -18,7 +19,7 @@ import {
 } from "@/components/modals/register-modal";
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
-import { Post, User, Comment } from "@/lib/ao-client";
+import { CommentCard } from "@/components/comment-card";
 
 export default function UserProfilePage() {
   const params = useParams();
@@ -43,6 +44,7 @@ export default function UserProfilePage() {
         await loadProfileData(username);
       } catch (error) {
         console.error("Error loading profile:", error);
+        toast.error("Failed to load profile data");
       } finally {
         setIsLoading(false);
       }
@@ -84,16 +86,19 @@ export default function UserProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        Loading profile...
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!profileUser) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        User not found
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-4">
+          <MessageCircle className="h-12 w-12 text-muted-foreground/50 mx-auto" />
+          <p className="text-muted-foreground">User not found</p>
+        </div>
       </div>
     );
   }
@@ -226,23 +231,8 @@ export default function UserProfilePage() {
               </div>
             ) : (
               userComments.map((comment) => (
-                <div
-                  key={comment.id}
-                  className="bg-card rounded-lg p-4 space-y-2"
-                  onClick={() => router.push(`/feed/${comment.postId}`)}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">
-                      {comment.author.displayName}
-                    </span>
-                    <span className="text-muted-foreground">
-                      @{comment.author.username}
-                    </span>
-                  </div>
-                  <p className="text-muted-foreground">{comment.content}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(comment.createdAt).toLocaleDateString()}
-                  </p>
+                <div key={comment.id} className="cursor-pointer">
+                  <CommentCard comment={comment} />
                 </div>
               ))
             )}
@@ -251,18 +241,17 @@ export default function UserProfilePage() {
       </div>
 
       {/* Edit Profile Modal */}
-      {user && (
+      {isEditing && (
         <RegisterModal
           isOpen={isEditing}
           onClose={() => setIsEditing(false)}
           onSubmit={handleEditProfile}
           initialData={{
-            username: user.username,
-            displayName: user.displayName,
-            dateOfBirth: user.dateOfBirth,
-            bio: user.bio,
+            username: profileUser.username,
+            displayName: profileUser.displayName,
+            dateOfBirth: profileUser.dateOfBirth,
+            bio: profileUser.bio,
           }}
-          isEditing={true}
         />
       )}
     </div>
