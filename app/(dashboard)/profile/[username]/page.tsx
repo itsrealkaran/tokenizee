@@ -91,7 +91,7 @@ export default function UserProfilePage() {
     },
     title: post.title,
     content: post.content,
-    createdAt: new Date(post.createdAt * 1000).toISOString(),
+    createdAt: new Date(post.createdAt).toISOString(),
     upvotes: post.upvotes,
     downvotes: post.downvotes,
     shares: post.shares,
@@ -161,7 +161,7 @@ export default function UserProfilePage() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">
               Joined{" "}
-              {new Date(profileUser.createdAt * 1000).toLocaleDateString()}
+              {new Date(profileUser.createdAt).toLocaleDateString()}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -257,7 +257,7 @@ export default function UserProfilePage() {
                   </div>
                   <p className="text-muted-foreground">{comment.content}</p>
                   <p className="text-sm text-muted-foreground">
-                    {new Date(comment.createdAt * 1000).toLocaleDateString()}
+                    {new Date(comment.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               ))

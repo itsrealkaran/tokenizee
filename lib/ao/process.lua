@@ -8,7 +8,8 @@ if not users then
           posts = { "post-1709123456-1234" },
           score = 0,
           followers = {},
-          following = {}
+          following = {},
+          createdAt = 1748131914411
         },
         ankushkun = {
           displayName = "Ankush Singh",
@@ -18,7 +19,8 @@ if not users then
           posts = { "post-1709123456-5678" },
           score = 0,
           followers = {},
-          following = {}
+          following = {},
+          createdAt = 1748131914415
         }
     }
 end
@@ -133,7 +135,9 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
         return
     end
 
+    local timestamp = os.time()
     users[username] = {
+        username = username,
         displayName = displayName,
         dateOfBirth = dateOfBirth,
         bio = bio,
@@ -142,14 +146,17 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
         score = 0,
         followers = {},
         following = {},
-        createdAt = os.time()
+        createdAt = timestamp
     }
 
     print(username .. " registered")
     ao.send({
         Target = msg.From,
         Tags = { Action = "RegisterResponse", Status = "Success" },
-        Data = json.encode({ message = "User registered successfully." })
+        Data = json.encode({ 
+            message = "User registered successfully.",
+            user = users[username]
+        })
     })
 end)
 
