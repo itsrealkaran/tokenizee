@@ -14,7 +14,7 @@ import { toast } from "react-hot-toast";
 import { useGlobal } from "@/context/global-context";
 import { CommentCard } from "./comment-card";
 import { Textarea } from "@/components/ui/textarea";
-import { Post } from "@/lib/ao-client";
+import { Post, Comment } from "@/lib/ao-client";
 
 interface DetailedPostProps {
   post: Post;
@@ -33,7 +33,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
   const [upvotes, setUpvotes] = useState(post.upvotes);
   const [downvotes, setDownvotes] = useState(post.downvotes);
   const [shares, setShares] = useState(post.shares);
-  const [comments, setComments] = useState<any[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [isVoting, setIsVoting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
@@ -51,6 +51,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
       setComments(postComments);
     } catch (error) {
       toast.error("Failed to load comments");
+      console.error(error);
     } finally {
       setIsLoadingComments(false);
     }
@@ -98,6 +99,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
         }
       }
     } catch (error) {
+      console.error(error);
       // Revert UI state on error
       if (type === "up") {
         setUpvotes(upvotes);
@@ -151,6 +153,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
       toast.success("Comment posted successfully!");
     } catch (error) {
       toast.error("Failed to post comment");
+      console.error(error);
     } finally {
       setIsCommenting(false);
     }

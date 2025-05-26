@@ -68,6 +68,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
         }
       }
     } catch (error) {
+      console.error(error);
       // Revert UI state on error
       if (type === "up") {
         setUpvotes(upvotes);

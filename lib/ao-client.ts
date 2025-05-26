@@ -109,7 +109,7 @@ class AOClientImpl implements AOClient {
         process: this.processId,
       });
       
-      response = resultData.Messages[0];
+      response = resultData.Messages[0] as AOResponse;
     } else {
       const dryrunResult = await dryrun({
         process: this.processId,
@@ -229,7 +229,7 @@ class AOClientImpl implements AOClient {
           throw new Error(errorData.error);
         }
       } catch (parseError) {
-        console.error("Error parsing response data:", error);
+        console.error("Error parsing response data:", parseError);
         throw new Error("Invalid response data format");
       }
     }
