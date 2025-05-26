@@ -31,7 +31,7 @@ export function RankingList() {
       </div>
       <div className="px-2 pb-4">
         {topCreators.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
+          <div className="flex flex-col items-center justify-center py-16 text-center">
             <p className="text-muted-foreground">No creators found</p>
             <p className="text-sm text-muted-foreground mt-1">
               Be the first to join!

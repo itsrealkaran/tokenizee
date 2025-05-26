@@ -14,6 +14,7 @@ const ConnectWallet = () => {
         "ACCESS_ADDRESS",
         "ACCESS_PUBLIC_KEY",
         "ACCESS_ALL_ADDRESSES",
+        "SIGN_TRANSACTION",
       ]);
 
       // Retrieve the active wallet address

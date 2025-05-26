@@ -1,29 +1,92 @@
-if not users then
-    users = {
-        itsrealkaran = {
-          displayName = "Karan Singh",
-          dateOfBirth = "2004-06-01",
-          bio = "Kapsul",
-          wallet = "KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
-          posts = { "post-1709123456-1234" },
-          score = 0,
-          followers = {},
-          following = {},
-          createdAt = 1748131914411
-        },
-        ankushkun = {
-          displayName = "Ankush Singh",
-          dateOfBirth = "2004-06-15",
-          bio = "BetterIdea",
-          wallet = "8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg",
-          posts = { "post-1709123456-5678" },
-          score = 0,
-          followers = {},
-          following = {},
-          createdAt = 1748131914415
-        }
+users = users or {
+    itsrealkaran = {
+        displayName = "Karan Singh",
+        dateOfBirth = "2004-06-01",
+        bio = "Tokenizee | Kapsul",
+        wallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
+        posts = { "post-1709123456-1234" },
+        score = 0,
+        followers = {},
+        following = {},
+        createdAt = 1748131914411
+    },
+    ankushkun = {
+        displayName = "Ankush Singh",
+        dateOfBirth = "2004-06-15",
+        bio = "BetterIdea",
+        wallet = "8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg",
+        posts = { "post-1709123456-5678" },
+        score = 0,
+        followers = {},
+        following = {},
+        createdAt = 1748131914415
     }
-end
+}
+
+posts = posts or {
+    ["post-1709123456-1234"] = {
+        id = "post-1709123456-1234",
+        author = {
+            username = "itsrealkaran",
+            displayName = "Karan Singh"
+        },
+        title = "First Test Article",
+        content = "Welcome to the network!",
+        upvotes = 3,
+        downvotes = 0,
+        createdAt = os.time() - 500,
+        shares = 2,
+        comments = { "comment-1709123456-1111", "comment-1709123456-2222" }
+    },
+    ["post-1709123456-5678"] = {
+        id = "post-1709123456-5678",
+        author = {
+            username = "ankushkun",
+            displayName = "Ankush Singh"
+        },
+        title = "Ankush Test",
+        content = "GMAO",
+        upvotes = 5,
+        downvotes = 1,
+        createdAt = os.time() - 400,
+        shares = 1,
+        comments = { "comment-1709123456-3333" }
+    }
+}
+
+comments = comments or {
+    ["comment-1709123456-1111"] = {
+        id = "comment-1709123456-1111",
+        author = {
+            username = "itsrealkaran",
+            displayName = "Karan Singh"
+        },
+        content = "This is a test comment",
+        createdAt = os.time() - 300
+    },
+    ["comment-1709123456-2222"] = {
+        id = "comment-1709123456-2222",
+        author = {
+            username = "ankushkun",
+            displayName = "Ankush Singh"
+        },
+        content = "Great post!",
+        createdAt = os.time() - 250
+    },
+    ["comment-1709123456-3333"] = {
+        id = "comment-1709123456-3333",
+        author = {
+            username = "itsrealkaran",
+            displayName = "Karan Singh"
+        },
+        content = "Nice one!",
+        createdAt = os.time() - 200
+    }
+}
+
+-- users = users or {}
+-- posts = posts or {}
+-- comments = comments or {}
 
 local function generateId(prefix)
     local timestamp = os.time()
@@ -31,72 +94,8 @@ local function generateId(prefix)
     return string.format("%s-%d-%d", prefix, timestamp, random)
 end
 
-if not posts then
-    posts = {
-        ["post-1709123456-1234"] = {
-            id = "post-1709123456-1234",
-            author = {
-                username = "itsrealkaran",
-                displayName = "Karan Singh"
-            },
-            title = "First Test Article",
-            content = "Welcome to the network!",
-            upvotes = 3,
-            downvotes = 0,
-            createdAt = os.time() - 500,
-            shares = 2,
-            comments = { "comment-1709123456-1111", "comment-1709123456-2222" }
-        },
-        ["post-1709123456-5678"] = {
-            id = "post-1709123456-5678",
-            author = {
-                username = "ankushkun",
-                displayName = "Ankush Singh"
-            },
-            title = "Ankush Test",
-            content = "GMAO",
-            upvotes = 5,
-            downvotes = 1,
-            createdAt = os.time() - 400,
-            shares = 1,
-            comments = { "comment-1709123456-3333" }
-        }
-    }
-end
-
-if not comments then
-    comments = {
-        ["comment-1709123456-1111"] = {
-            id = "comment-1709123456-1111",
-            author = {
-                username = "itsrealkaran",
-                displayName = "Karan Singh"
-            },
-            content = "This is a test comment",
-            createdAt = os.time() - 300
-        },
-        ["comment-1709123456-2222"] = {
-            id = "comment-1709123456-2222",
-            author = {
-                username = "ankushkun",
-                displayName = "Ankush Singh"
-            },
-            content = "Great post!",
-            createdAt = os.time() - 250
-        },
-        ["comment-1709123456-3333"] = {
-            id = "comment-1709123456-3333",
-            author = {
-                username = "itsrealkaran",
-                displayName = "Karan Singh"
-            },
-            content = "Nice one!",
-            createdAt = os.time() - 200
-        }
-    }
-end
-
 local json = require("json")
+
 
 Handlers.add("Register", { Action = "Register" }, function(msg)
     local username = msg.Tags["Username"]
@@ -201,7 +200,8 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
     end
 
     local displayName = users[username].displayName
-    local title, content = string.match(msg.Data, "([^:]+):(.+)")
+    local title = msg.Tags["Title"]
+    local content = msg.Tags["Content"]
 
     if not title or not content then
         ao.send({

@@ -84,16 +84,18 @@ export function Sidebar() {
               </span>
             </div>
             <div className="flex flex-col">
-              <span className="font-semibold truncate max-w-[120px]">{user.displayName}</span>
+              <span className="font-semibold truncate max-w-[120px]">
+                {user.displayName}
+              </span>
               {/* <span className="text-sm text-muted-foreground truncate max-w-[120px]">
                 @{user.username}
               </span> */}
-              <span 
+              <span
                 className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
                 onClick={() => {
                   const address = user.wallet;
                   navigator.clipboard.writeText(address);
-                  toast.success("Address Copied")
+                  toast.success("Address Copied");
                 }}
               >
                 {`${user.wallet.slice(0, 6)}...${user.wallet.slice(-4)}`}
@@ -117,10 +119,6 @@ export function Sidebar() {
       <PostModal
         isOpen={isPostModalOpen}
         onClose={() => setIsPostModalOpen(false)}
-        onSubmit={() => {
-          // Handle post submission
-          setIsPostModalOpen(false);
-        }}
       />
     </div>
   );

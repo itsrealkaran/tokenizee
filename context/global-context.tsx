@@ -58,13 +58,21 @@ interface GlobalContextType {
     dateOfBirth: string,
     bio: string
   ) => Promise<boolean>;
-  createPost: (title: string, content: string) => Promise<boolean>;
-  commentPost: (postId: string, content: string) => Promise<boolean>;
+  createPost: (
+    title: string,
+    content: string
+  ) => Promise<{ postId: string; post: Post }>;
+  commentPost: (
+    postId: string,
+    content: string
+  ) => Promise<{ commentId: string; comment: Comment }>;
   loadComments: (postId: string) => Promise<Comment[]>;
-  upvotePost: (postId: string) => Promise<boolean>;
-  downvotePost: (postId: string) => Promise<boolean>;
-  sharePost: (postId: string) => Promise<boolean>;
-  followUser: (following: string) => Promise<boolean>;
+  upvotePost: (postId: string) => Promise<Post>;
+  downvotePost: (postId: string) => Promise<Post>;
+  sharePost: (postId: string) => Promise<Post>;
+  followUser: (
+    following: string
+  ) => Promise<{ follower: User; following: User }>;
   searchUser: (searchTerm: string) => Promise<User[]>;
   refreshFeed: () => Promise<void>;
   refreshTrending: () => Promise<void>;
@@ -116,8 +124,8 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
             const userExists = await checkUserExists({ wallet: address });
             if (userExists) {
               const userData = await aoClient.getUser({ wallet: address });
-              setUser(userData);
-              console.log("userData", userData, "user", user);
+              setUser(userData.user);
+              console.log("userData", userData, user);
               setIsLoggedIn(true);
             }
           } else {
@@ -175,11 +183,15 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         throw new Error("User not logged in");
       }
 
-      await aoClient.updateUser(user.username, displayName, dateOfBirth, bio);
+      const response = await aoClient.updateUser(
+        user.username,
+        displayName,
+        dateOfBirth,
+        bio
+      );
 
-      const userData = await aoClient.getUser({ username: user.username });
-      setUser(userData);
-      toast.success("Profile updated successfully!");
+      setUser(response.user);
+      toast.success(response.message);
       return true;
     } catch (error) {
       console.error("Error updating user profile:", error);
@@ -198,22 +210,21 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     bio: string
   ): Promise<boolean> => {
     try {
-      if (!user?.wallet) {
+      if (!walletAddress) {
         throw new Error("Wallet not connected");
       }
 
-      await aoClient.registerUser(
+      const response = await aoClient.registerUser(
         username,
         displayName,
         dateOfBirth,
         bio,
-        user.wallet
+        walletAddress
       );
 
-      const userData = await aoClient.getUser({ username });
-      setUser(userData);
+      setUser(response.user);
       setIsLoggedIn(true);
-      toast.success("Registration successful!");
+      toast.success(response.message);
       return true;
     } catch (error) {
       console.error("Error registering user:", error);
@@ -227,50 +238,55 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   const createPost = async (
     title: string,
     content: string
-  ): Promise<boolean> => {
+  ): Promise<{ postId: string; post: Post }> => {
     try {
       if (!user?.username) {
         throw new Error("User not logged in");
       }
 
-      await aoClient.createPost(user.username, title, content);
+      const response = await aoClient.createPost(user.username, title, content);
       await refreshFeed();
-      toast.success("Post created successfully!");
-      return true;
+      toast.success(response.message);
+      return { postId: response.postId, post: response.post };
     } catch (error) {
       console.error("Error creating post:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to create post"
       );
-      return false;
+      throw error;
     }
   };
 
   const commentPost = async (
     postId: string,
     content: string
-  ): Promise<boolean> => {
+  ): Promise<{ commentId: string; comment: Comment }> => {
     try {
       if (!user?.username) {
         throw new Error("User not logged in");
       }
 
-      await aoClient.commentPost(postId, user.username, content);
+      const response = await aoClient.commentPost(
+        postId,
+        user.username,
+        content
+      );
       await refreshFeed();
-      toast.success("Comment posted successfully!");
-      return true;
+      toast.success(response.message);
+      return { commentId: response.commentId, comment: response.comment };
     } catch (error) {
       console.error("Error commenting on post:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to comment on post"
       );
-      return false;
+      throw error;
     }
   };
 
   const loadComments = async (postId: string): Promise<Comment[]> => {
     try {
-      return await aoClient.loadComments(postId);
+      const response = await aoClient.loadComments(postId);
+      return response.comments;
     } catch (error) {
       console.error("Error loading comments:", error);
       toast.error(
@@ -280,81 +296,83 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const upvotePost = async (postId: string): Promise<boolean> => {
+  const upvotePost = async (postId: string): Promise<Post> => {
     try {
-      await aoClient.upvotePost(postId);
+      const response = await aoClient.upvotePost(postId);
       await refreshFeed();
       await refreshTrending();
-      return true;
+      toast.success(response.message);
+      return response.post;
     } catch (error) {
       console.error("Error upvoting post:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to upvote post"
       );
-      return false;
+      throw error;
     }
   };
 
-  const downvotePost = async (postId: string): Promise<boolean> => {
+  const downvotePost = async (postId: string): Promise<Post> => {
     try {
-      await aoClient.downvotePost(postId);
+      const response = await aoClient.downvotePost(postId);
       await refreshFeed();
       await refreshTrending();
-      return true;
+      toast.success(response.message);
+      return response.post;
     } catch (error) {
       console.error("Error downvoting post:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to downvote post"
       );
-      return false;
+      throw error;
     }
   };
 
-  const sharePost = async (postId: string): Promise<boolean> => {
+  const sharePost = async (postId: string): Promise<Post> => {
     try {
       if (!user?.username) {
         throw new Error("User not logged in");
       }
 
-      await aoClient.sharePost(postId, user.username);
+      const response = await aoClient.sharePost(postId, user.username);
       await refreshFeed();
-      toast.success("Post shared successfully!");
-      return true;
+      toast.success(response.message);
+      return response.post;
     } catch (error) {
       console.error("Error sharing post:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to share post"
       );
-      return false;
+      throw error;
     }
   };
 
-  const followUser = async (following: string): Promise<boolean> => {
+  const followUser = async (
+    following: string
+  ): Promise<{ follower: User; following: User }> => {
     try {
       if (!user?.username) {
         throw new Error("User not logged in");
       }
 
-      const { follower, following: followedUser } = await aoClient.followUser(
-        user.username,
-        following
-      );
-      setUser(follower);
+      const result = await aoClient.followUser(user.username, following);
+      setUser(result.follower);
       await refreshFeed();
       toast.success("User followed successfully!");
-      return true;
+      return result;
     } catch (error) {
       console.error("Error following user:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to follow user"
       );
-      return false;
+      throw error;
     }
   };
 
   const searchUser = async (searchTerm: string): Promise<User[]> => {
     try {
-      return await aoClient.searchUser(searchTerm);
+      const response = await aoClient.searchUser(searchTerm);
+      return response.users;
     } catch (error) {
       console.error("Error searching users:", error);
       toast.error(
@@ -366,8 +384,8 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const refreshFeed = async (): Promise<void> => {
     try {
-      const feed = await aoClient.getFeed();
-      setFeedPosts(feed);
+      const response = await aoClient.getFeed();
+      setFeedPosts(response.posts);
     } catch (error) {
       console.error("Error refreshing feed:", error);
       toast.error("Failed to refresh feed");
@@ -376,8 +394,8 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const refreshTrending = async (): Promise<void> => {
     try {
-      const trending = await aoClient.getTrending();
-      setTrendingPosts(trending);
+      const response = await aoClient.getTrending();
+      setTrendingPosts(response.posts);
     } catch (error) {
       console.error("Error refreshing trending:", error);
       toast.error("Failed to refresh trending posts");
@@ -386,8 +404,8 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const refreshLeaderboard = async (): Promise<void> => {
     try {
-      const leaderboard = await aoClient.getLeaderboard();
-      setTopCreators(leaderboard);
+      const response = await aoClient.getLeaderboard();
+      setTopCreators(response.users);
     } catch (error) {
       console.error("Error refreshing leaderboard:", error);
       toast.error("Failed to refresh leaderboard");
@@ -396,7 +414,8 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const getUserPosts = async (username: string): Promise<Post[]> => {
     try {
-      return await aoClient.getUserPosts(username);
+      const response = await aoClient.getUserPosts(username);
+      return response.posts;
     } catch (error) {
       console.error("Error getting user posts:", error);
       toast.error(
@@ -408,7 +427,8 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const getUserComments = async (username: string): Promise<Comment[]> => {
     try {
-      return await aoClient.getUserComments(username);
+      const response = await aoClient.getUserComments(username);
+      return response.comments;
     } catch (error) {
       console.error("Error getting user comments:", error);
       toast.error(
@@ -424,7 +444,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
       if (!profileUser || profileUser.username !== username) {
         // Load user data
         const userData = await aoClient.getUser({ username });
-        setProfileUser(userData);
+        setProfileUser(userData.user);
 
         // Load user posts
         const posts = await getUserPosts(username);
@@ -447,17 +467,12 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         throw new Error("User not logged in");
       }
 
-      const { follower, following: followedUser } = await aoClient.followUser(
-        user.username,
-        username
-      );
-
-      // Update current user's following list
-      setUser(follower);
+      const result = await aoClient.followUser(user.username, username);
+      setUser(result.follower);
 
       // Update profile user's followers list if we're viewing their profile
       if (profileUser?.username === username) {
-        setProfileUser(followedUser);
+        setProfileUser(result.following);
       }
 
       await refreshFeed();

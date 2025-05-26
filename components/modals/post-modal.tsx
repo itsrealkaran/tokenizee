@@ -8,29 +8,40 @@ import { X, Image as ImageIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
+import { useGlobal } from "@/context/global-context";
+import { toast } from "react-hot-toast";
 
 interface PostModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: PostFormData) => void;
 }
 
-export interface PostFormData {
-  title: string;
-  content: string;
-  attachment?: File;
-}
-
-export function PostModal({ isOpen, onClose, onSubmit }: PostModalProps) {
-  const [formData, setFormData] = useState<PostFormData>({
+export function PostModal({ isOpen, onClose }: PostModalProps) {
+  const { createPost } = useGlobal();
+  const [formData, setFormData] = useState({
     title: "",
     content: "",
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    setIsSubmitting(true);
+
+    try {
+      const success = await createPost(formData.title, formData.content);
+      if (success) {
+        setFormData({ title: "", content: "" });
+        setPreviewUrl(null);
+        onClose();
+      }
+    } catch (error) {
+      console.error("Error creating post:", error);
+      toast.error("Failed to create post");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (
@@ -43,7 +54,6 @@ export function PostModal({ isOpen, onClose, onSubmit }: PostModalProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData((prev) => ({ ...prev, attachment: file }));
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
     }
@@ -109,6 +119,7 @@ export function PostModal({ isOpen, onClose, onSubmit }: PostModalProps) {
                       onChange={handleChange}
                       placeholder="Enter post title"
                       required
+                      disabled={isSubmitting}
                     />
                   </div>
 
@@ -127,6 +138,7 @@ export function PostModal({ isOpen, onClose, onSubmit }: PostModalProps) {
                       placeholder="What's on your mind?"
                       required
                       className="min-h-[150px]"
+                      disabled={isSubmitting}
                     />
                   </div>
 
@@ -146,9 +158,10 @@ export function PostModal({ isOpen, onClose, onSubmit }: PostModalProps) {
                           onChange={handleFileChange}
                           className="hidden"
                           accept="image/*"
+                          disabled={true}
                         />
-                        <div className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-input rounded-md hover:border-primary">
-                          <ImageIcon className="h-5 w-5" />
+                        <div className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-input rounded-md text-muted-foreground">
+                          <ImageIcon className="h-5 w-5 text-muted-foreground" />
                           <span>Add Image</span>
                         </div>
                       </label>
@@ -163,12 +176,9 @@ export function PostModal({ isOpen, onClose, onSubmit }: PostModalProps) {
                             type="button"
                             onClick={() => {
                               setPreviewUrl(null);
-                              setFormData((prev) => ({
-                                ...prev,
-                                attachment: undefined,
-                              }));
                             }}
                             className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center"
+                            disabled={isSubmitting}
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -178,10 +188,17 @@ export function PostModal({ isOpen, onClose, onSubmit }: PostModalProps) {
                   </div>
 
                   <div className="mt-6 flex justify-end space-x-3">
-                    <Button type="button" variant="outline" onClick={onClose}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={onClose}
+                      disabled={isSubmitting}
+                    >
                       Cancel
                     </Button>
-                    <Button type="submit">Post</Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? "Tokenizing..." : "Tokenize"}
+                    </Button>
                   </div>
                 </form>
               </Dialog.Panel>
