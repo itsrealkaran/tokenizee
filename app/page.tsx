@@ -22,10 +22,16 @@ export default function Home() {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isCheckingUser, setIsCheckingUser] = useState(false);
 
-  // Redirect to feed if already logged in
+  // Handle redirect after successful login
   useEffect(() => {
     if (isLoggedIn && user) {
-      router.push("/feed");
+      const redirectPath = sessionStorage.getItem("redirectPath");
+      if (redirectPath) {
+        sessionStorage.removeItem("redirectPath");
+        router.push(redirectPath);
+      } else {
+        router.push("/feed");
+      }
     }
   }, [isLoggedIn, user, router]);
 
@@ -37,7 +43,13 @@ export default function Home() {
         try {
           const exists = await checkUserExists({ wallet: walletAddress });
           if (exists) {
-            router.push("/feed");
+            const redirectPath = sessionStorage.getItem("redirectPath");
+            if (redirectPath) {
+              sessionStorage.removeItem("redirectPath");
+              router.push(redirectPath);
+            } else {
+              router.push("/feed");
+            }
           } else {
             // If user doesn't exist, show registration modal
             setIsRegisterModalOpen(true);
@@ -70,7 +82,13 @@ export default function Home() {
       if (success) {
         setIsRegisterModalOpen(false);
         setIsLoggedIn(true);
-        router.push("/feed");
+        const redirectPath = sessionStorage.getItem("redirectPath");
+        if (redirectPath) {
+          sessionStorage.removeItem("redirectPath");
+          router.push(redirectPath);
+        } else {
+          router.push("/feed");
+        }
       }
     } catch (error) {
       console.error("Error registering user:", error);
