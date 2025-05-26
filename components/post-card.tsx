@@ -106,6 +106,11 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
     router.push(`/profile/${post.author.username}`);
   };
 
+  const handleCommentClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/feed/${post.id}?focus=comment`);
+  };
+
   const truncatedContent =
     post.content.length > MAX_CONTENT_LENGTH
       ? post.content.slice(0, MAX_CONTENT_LENGTH) + "..."
@@ -216,9 +221,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
           variant="ghost"
           size="sm"
           className="gap-2"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
+          onClick={handleCommentClick}
         >
           <MessageCircle className="h-4 w-4" />
           <span>{post.comments.length}</span>

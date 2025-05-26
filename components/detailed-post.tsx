@@ -9,18 +9,21 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
 import { useGlobal } from "@/context/global-context";
 import { CommentCard } from "./comment-card";
 import { Textarea } from "@/components/ui/textarea";
 import { Post, Comment } from "@/lib/ao-client";
+import { useSearchParams } from "next/navigation";
 
 interface DetailedPostProps {
   post: Post;
 }
 
 export function DetailedPost({ post }: DetailedPostProps) {
+  const searchParams = useSearchParams();
+  const commentInputRef = useRef<HTMLTextAreaElement>(null);
   const {
     upvotePost,
     downvotePost,
@@ -43,6 +46,17 @@ export function DetailedPost({ post }: DetailedPostProps) {
   useEffect(() => {
     loadPostComments();
   }, [post.id]);
+
+  // Focus comment input if focus=comment is in URL
+  useEffect(() => {
+    if (searchParams.get("focus") === "comment" && commentInputRef.current) {
+      commentInputRef.current.focus();
+      commentInputRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [searchParams]);
 
   const loadPostComments = async () => {
     setIsLoadingComments(true);
@@ -280,6 +294,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
         {/* Comment Input */}
         <div className="space-y-4 bg-accent/5 p-4 rounded-lg">
           <Textarea
+            ref={commentInputRef}
             placeholder="Write a comment..."
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
