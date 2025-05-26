@@ -11,7 +11,7 @@ export function DashboardHeader() {
   const { profileUser } = useGlobal();
 
   return (
-    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+    <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
       <div className="max-w-2xl mx-auto p-4">
         <h1 className="text-xl font-semibold">
           {pathname.startsWith("/feed/") ? (
