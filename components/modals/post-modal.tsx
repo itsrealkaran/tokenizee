@@ -85,11 +85,11 @@ export function PostModal({ isOpen, onClose }: PostModalProps) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-background p-6 text-left align-middle shadow-xl transition-all border border-border">
+              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-background p-4 sm:p-6 text-left align-middle shadow-xl transition-all border border-border">
                 <div className="flex items-center justify-between">
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-medium leading-6 text-foreground"
+                    className="text-base sm:text-lg font-medium leading-6 text-foreground"
                   >
                     Create New Post
                   </Dialog.Title>
@@ -103,7 +103,10 @@ export function PostModal({ isOpen, onClose }: PostModalProps) {
                   </Button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+                <form
+                  onSubmit={handleSubmit}
+                  className="mt-3 sm:mt-4 space-y-3 sm:space-y-4"
+                >
                   <div>
                     <label
                       htmlFor="title"
@@ -120,6 +123,7 @@ export function PostModal({ isOpen, onClose }: PostModalProps) {
                       placeholder="Enter post title"
                       required
                       disabled={isSubmitting}
+                      className="mt-1.5 sm:mt-2"
                     />
                   </div>
 
@@ -137,7 +141,7 @@ export function PostModal({ isOpen, onClose }: PostModalProps) {
                       onChange={handleChange}
                       placeholder="What's on your mind?"
                       required
-                      className="min-h-[150px]"
+                      className="min-h-[120px] sm:min-h-[150px] mt-1.5 sm:mt-2"
                       disabled={isSubmitting}
                     />
                   </div>
@@ -149,7 +153,7 @@ export function PostModal({ isOpen, onClose }: PostModalProps) {
                     >
                       Attachment
                     </label>
-                    <div className="mt-1 flex items-center gap-4">
+                    <div className="mt-1.5 sm:mt-2 flex items-center gap-3 sm:gap-4">
                       <label className="cursor-pointer">
                         <input
                           type="file"
@@ -160,13 +164,13 @@ export function PostModal({ isOpen, onClose }: PostModalProps) {
                           accept="image/*"
                           disabled={true}
                         />
-                        <div className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-input rounded-md text-muted-foreground">
-                          <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                          <span>Add Image</span>
+                        <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 border-2 border-dashed border-input rounded-md text-muted-foreground">
+                          <ImageIcon className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                          <span className="text-sm">Add Image</span>
                         </div>
                       </label>
                       {previewUrl && (
-                        <div className="relative h-20 w-20">
+                        <div className="relative h-16 w-16 sm:h-20 sm:w-20">
                           <Image
                             src={previewUrl}
                             alt="Preview"
@@ -177,26 +181,31 @@ export function PostModal({ isOpen, onClose }: PostModalProps) {
                             onClick={() => {
                               setPreviewUrl(null);
                             }}
-                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center"
+                            className="absolute -top-2 -right-2 h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center"
                             disabled={isSubmitting}
                           >
-                            <X className="h-4 w-4" />
+                            <X className="h-3 w-3 sm:h-4 sm:w-4" />
                           </button>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="mt-6 flex justify-end space-x-3">
+                  <div className="mt-4 sm:mt-6 flex justify-end space-x-2 sm:space-x-3">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={onClose}
                       disabled={isSubmitting}
+                      className="h-8 sm:h-9 text-sm"
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" disabled={isSubmitting}>
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="h-8 sm:h-9 text-sm"
+                    >
                       {isSubmitting ? "Tokenizing..." : "Tokenize"}
                     </Button>
                   </div>

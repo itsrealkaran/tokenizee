@@ -81,11 +81,11 @@ export function RegisterModal({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-background p-6 text-left align-middle shadow-xl transition-all border border-border">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-background p-4 sm:p-6 text-left align-middle shadow-xl transition-all border border-border">
                 <div className="flex items-center justify-between">
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-medium leading-6 text-foreground"
+                    className="text-base sm:text-lg font-medium leading-6 text-foreground"
                   >
                     {isEditing ? "Edit Profile" : "Create Your Profile"}
                   </Dialog.Title>
@@ -99,7 +99,10 @@ export function RegisterModal({
                   </Button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+                <form
+                  onSubmit={handleSubmit}
+                  className="mt-3 sm:mt-4 space-y-3 sm:space-y-4"
+                >
                   <div>
                     <label
                       htmlFor="username"
@@ -113,7 +116,7 @@ export function RegisterModal({
                       name="newUsername"
                       value={formData.newUsername}
                       onChange={handleChange}
-                      className={inputClassName}
+                      className={inputClassName + " mt-1.5 sm:mt-2 text-sm"}
                       placeholder="Choose a username"
                       required
                     />
@@ -132,7 +135,7 @@ export function RegisterModal({
                       name="displayName"
                       value={formData.displayName}
                       onChange={handleChange}
-                      className={inputClassName}
+                      className={inputClassName + " mt-1.5 sm:mt-2 text-sm"}
                       placeholder="Your display name"
                       required
                     />
@@ -151,7 +154,7 @@ export function RegisterModal({
                       name="bio"
                       value={formData.bio}
                       onChange={handleChange}
-                      className={inputClassName}
+                      className={inputClassName + " mt-1.5 sm:mt-2 text-sm"}
                       placeholder="Your bio"
                       required
                     />
@@ -170,16 +173,21 @@ export function RegisterModal({
                       name="dateOfBirth"
                       value={formData.dateOfBirth}
                       onChange={handleChange}
-                      className={inputClassName}
+                      className={inputClassName + " mt-1.5 sm:mt-2 text-sm"}
                       required
                     />
                   </div>
 
-                  <div className="mt-6 flex justify-end space-x-3">
-                    <Button type="button" variant="outline" onClick={onClose}>
+                  <div className="mt-4 sm:mt-6 flex justify-end space-x-2 sm:space-x-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={onClose}
+                      className="h-8 sm:h-9 text-sm"
+                    >
                       Cancel
                     </Button>
-                    <Button type="submit">
+                    <Button type="submit" className="h-8 sm:h-9 text-sm">
                       {isEditing ? "Save Changes" : "Create Profile"}
                     </Button>
                   </div>
