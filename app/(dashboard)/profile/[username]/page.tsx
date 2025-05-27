@@ -20,22 +20,32 @@ import {
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { CommentCard } from "@/components/comment-card";
+import { UserListModal } from "@/components/user-list-modal";
+import { User, Post } from "@/lib/ao-client";
 
 export default function UserProfilePage() {
   const params = useParams();
   const router = useRouter();
   const {
     user,
-    profileUser,
-    userPosts,
+    profileUser: initialProfileUser,
+    userPosts: initialUserPosts,
     userComments,
     loadProfileData,
     handleFollowUser,
     updateUserProfile,
   } = useGlobal();
+  const [profileUser, setProfileUser] = useState<User | null>(
+    initialProfileUser
+  );
+  const [userPosts, setUserPosts] = useState<Post[]>(initialUserPosts);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<"posts" | "comments">("posts");
   const [isLoading, setIsLoading] = useState(true);
+  const [followStatus, setFollowStatus] = useState(false);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
 
   const fetchProfileData = useCallback(
     async (username: string) => {
@@ -85,6 +95,20 @@ export default function UserProfilePage() {
     }
   };
 
+  const handleFollow = async () => {
+    if (!user || !profileUser) return;
+
+    setIsFollowLoading(true);
+    try {
+      await handleFollowUser(profileUser.username);
+      setFollowStatus(!followStatus);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -106,6 +130,36 @@ export default function UserProfilePage() {
 
   const isCurrentUser = user?.username === profileUser.username;
   const isFollowing = user?.following?.[profileUser.username] || false;
+
+  const followers = Object.keys(profileUser.followers || {}).map(
+    (username) => ({
+      username,
+      displayName: username, // You might want to fetch actual display names
+      followers: {},
+      following: {},
+      score: 0,
+      posts: [],
+      createdAt: 0,
+      dateOfBirth: "",
+      bio: "",
+      wallet: "",
+    })
+  );
+
+  const following = Object.keys(profileUser.following || {}).map(
+    (username) => ({
+      username,
+      displayName: username, // You might want to fetch actual display names
+      followers: {},
+      following: {},
+      score: 0,
+      posts: [],
+      createdAt: 0,
+      dateOfBirth: "",
+      bio: "",
+      wallet: "",
+    })
+  );
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -138,10 +192,17 @@ export default function UserProfilePage() {
               variant={isFollowing ? "outline" : "default"}
               size="sm"
               className="gap-2"
-              onClick={() => handleFollowUser(profileUser.username)}
+              onClick={handleFollow}
+              disabled={isFollowLoading}
             >
               <UserPlus className="h-4 w-4" />
-              {isFollowing ? "Following" : "Follow"}
+              {isFollowLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : isFollowing ? (
+                "Following"
+              ) : (
+                "Follow"
+              )}
             </Button>
           )}
         </div>
@@ -154,18 +215,28 @@ export default function UserProfilePage() {
               Joined {new Date(profileUser.createdAt).toLocaleDateString()}
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2"
+            onClick={() => setShowFollowers(true)}
+          >
             <Users className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">
               {Object.keys(profileUser.followers || {}).length} followers
             </span>
-          </div>
-          <div className="flex items-center gap-2">
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2"
+            onClick={() => setShowFollowing(true)}
+          >
             <Users className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">
               {Object.keys(profileUser.following || {}).length} following
             </span>
-          </div>
+          </Button>
         </div>
 
         {/* Bio */}
@@ -256,6 +327,22 @@ export default function UserProfilePage() {
           }}
         />
       )}
+
+      {/* Modals */}
+      <UserListModal
+        isOpen={showFollowers}
+        onClose={() => setShowFollowers(false)}
+        title="Followers"
+        users={followers}
+        currentUsername={profileUser.username}
+      />
+      <UserListModal
+        isOpen={showFollowing}
+        onClose={() => setShowFollowing(false)}
+        title="Following"
+        users={following}
+        currentUsername={profileUser.username}
+      />
     </div>
   );
 }
