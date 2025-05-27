@@ -66,6 +66,7 @@ export default function UserProfilePage() {
 
     try {
       const success = await updateUserProfile(
+        data.newUsername,
         data.displayName,
         data.dateOfBirth,
         data.bio
@@ -74,8 +75,8 @@ export default function UserProfilePage() {
       if (success) {
         toast.success("Profile updated successfully!");
         setIsEditing(false);
-        if (data.username !== user.username) {
-          router.push(`/profile/${data.username}`);
+        if (data.newUsername !== user.username) {
+          router.push(`/profile/${data.newUsername}`);
         }
       }
     } catch (error) {
@@ -244,10 +245,11 @@ export default function UserProfilePage() {
       {isEditing && (
         <RegisterModal
           isOpen={isEditing}
+          isEditing={true}
           onClose={() => setIsEditing(false)}
           onSubmit={handleEditProfile}
           initialData={{
-            username: profileUser.username,
+            newUsername: profileUser.username,
             displayName: profileUser.displayName,
             dateOfBirth: profileUser.dateOfBirth,
             bio: profileUser.bio,

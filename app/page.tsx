@@ -67,14 +67,14 @@ export default function Home() {
 
   // Handle registration
   const handleRegister = async (data: {
-    username: string;
+    newUsername: string;
     displayName: string;
     dateOfBirth: string;
     bio: string;
   }) => {
     try {
       const success = await registerUser(
-        data.username,
+        data.newUsername,
         data.displayName,
         data.dateOfBirth,
         data.bio
@@ -127,6 +127,7 @@ export default function Home() {
           </Button>
           <RegisterModal
             isOpen={isRegisterModalOpen}
+            isEditing={false}
             onClose={() => setIsRegisterModalOpen(false)}
             onSubmit={handleRegister}
           />

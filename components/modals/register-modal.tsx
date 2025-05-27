@@ -15,7 +15,7 @@ interface RegisterModalProps {
 }
 
 export interface RegisterFormData {
-  username: string;
+  newUsername: string;
   displayName: string;
   dateOfBirth: string;
   bio: string;
@@ -26,10 +26,10 @@ export function RegisterModal({
   onClose,
   onSubmit,
   initialData,
-  isEditing = false,
+  isEditing,
 }: RegisterModalProps) {
   const [formData, setFormData] = useState<RegisterFormData>({
-    username: "",
+    newUsername: "",
     displayName: "",
     dateOfBirth: "",
     bio: "",
@@ -110,8 +110,8 @@ export function RegisterModal({
                     <input
                       type="text"
                       id="username"
-                      name="username"
-                      value={formData.username}
+                      name="newUsername"
+                      value={formData.newUsername}
                       onChange={handleChange}
                       className={inputClassName}
                       placeholder="Choose a username"

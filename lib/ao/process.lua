@@ -96,8 +96,23 @@ end
 
 local json = require("json")
 
+-- Add logging function at the top
+local function log(level, message, data)
+    local timestamp = os.date("%Y-%m-%d %H:%M:%S")
+    local logMessage = string.format("[%s] [%s] %s", timestamp, level, message)
+    if data then
+        logMessage = logMessage .. " Data: " .. json.encode(data)
+    end
+    print(logMessage)
+end
 
 Handlers.add("Register", { Action = "Register" }, function(msg)
+    log("INFO", "Register request received", {
+        username = msg.Tags["Username"],
+        displayName = msg.Tags["DisplayName"],
+        wallet = msg.Tags["Wallet"]
+    })
+
     local username = msg.Tags["Username"]
     local displayName = msg.Tags["DisplayName"]
     local dateOfBirth = msg.Tags["DateOfBirth"]
@@ -107,6 +122,7 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
     -- Check if wallet is already used by any user
     for _, user in pairs(users) do
         if user.wallet == wallet then
+            log("ERROR", "Wallet already exists", { wallet = wallet })
             ao.send({
                 Target = msg.From,
                 Tags = { Action = "RegisterResponse", Status = "Error" },
@@ -117,6 +133,7 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
     end
 
     if not username or not displayName then
+        log("ERROR", "Missing required fields", { username = username, displayName = displayName })
         ao.send({
             Target = msg.From,
             Tags = { Action = "RegisterResponse", Status = "Error" },
@@ -126,6 +143,7 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
     end
 
     if users[username] then
+        log("ERROR", "Username already exists", { username = username })
         ao.send({
             Target = msg.From,
             Tags = { Action = "RegisterResponse", Status = "Error" },
@@ -148,7 +166,7 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
         createdAt = timestamp
     }
 
-    print(username .. " registered")
+    log("INFO", "User registered successfully", { username = username })
     ao.send({
         Target = msg.From,
         Tags = { Action = "RegisterResponse", Status = "Success" },
@@ -161,12 +179,19 @@ end)
 
 --update user
 Handlers.add("UpdateUser", { Action = "UpdateUser" }, function(msg)
+    log("INFO", "Update user request received", {
+        username = msg.Tags["Username"],
+        newUsername = msg.Tags["NewUsername"]
+    })
+
     local username = msg.Tags["Username"]
+    local newUsername = msg.Tags["NewUsername"]
     local displayName = msg.Tags["DisplayName"]
     local dateOfBirth = msg.Tags["DateOfBirth"]
     local bio = msg.Tags["Bio"]
 
     if not users[username] then
+        log("ERROR", "User does not exist", { username = username })
         ao.send({
             Target = msg.From,
             Tags = { Action = "UpdateUserResponse", Status = "Error" },
@@ -175,22 +200,99 @@ Handlers.add("UpdateUser", { Action = "UpdateUser" }, function(msg)
         return
     end
 
-    users[username].displayName = displayName
-    users[username].dateOfBirth = dateOfBirth
-    users[username].wallet = users[username].wallet
-    users[username].bio = bio
+    -- Check if new username is already taken
+    if newUsername ~= username and users[newUsername] then
+        log("ERROR", "New username already exists", { newUsername = newUsername })
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "UpdateUserResponse", Status = "Error" },
+            Data = json.encode({ error = "New username already exists." })
+        })
+        return
+    end
+
+    -- Store the old user data
+    local oldUserData = users[username]
+
+    -- Create new user entry with updated data
+    users[newUsername] = {
+        username = newUsername,
+        displayName = displayName,
+        dateOfBirth = dateOfBirth,
+        bio = bio,
+        wallet = oldUserData.wallet,
+        posts = oldUserData.posts,
+        score = oldUserData.score,
+        followers = oldUserData.followers,
+        following = oldUserData.following,
+        createdAt = oldUserData.createdAt
+    }
+
+    -- Remove old user entry if username changed
+    if newUsername ~= username then
+        users[username] = nil
+    end
+
+    -- Update posts
+    for _, postId in ipairs(users[newUsername].posts) do
+        if posts[postId] and posts[postId].author then
+            posts[postId].author.username = newUsername
+            posts[postId].author.displayName = displayName
+        end
+    end
+
+    -- Update comments
+    for _, postId in ipairs(users[newUsername].posts) do
+        if posts[postId] and posts[postId].comments then
+            for _, commentId in ipairs(posts[postId].comments) do
+                if comments[commentId] and comments[commentId].author then
+                    comments[commentId].author.username = newUsername
+                    comments[commentId].author.displayName = displayName
+                end
+            end
+        end
+    end
+
+    -- Update followers and following references
+    for follower, _ in pairs(users[newUsername].followers) do
+        if users[follower] then
+            users[follower].following[username] = nil
+            users[follower].following[newUsername] = true
+        end
+    end
+
+    for following, _ in pairs(users[newUsername].following) do
+        if users[following] then
+            users[following].followers[username] = nil
+            users[following].followers[newUsername] = true
+        end
+    end
+
+    log("INFO", "User updated successfully", { 
+        oldUsername = username,
+        newUsername = newUsername
+    })
 
     ao.send({
         Target = msg.From,
         Tags = { Action = "UpdateUserResponse", Status = "Success" },
-        Data = json.encode({ message = "User updated successfully." })
+        Data = json.encode({ 
+            message = "User updated successfully.", 
+            user = users[newUsername] 
+        })
     })
 end)
 
 Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
+    log("INFO", "Create post request received", {
+        username = msg.Tags["Username"],
+        title = msg.Tags["Title"]
+    })
+    
     local username = msg.Tags["Username"]
     
     if not users[username] then
+        log("ERROR", "User does not exist", { username = username })
         ao.send({
             Target = msg.From,
             Tags = { Action = "CreatePostResponse", Status = "Error" },
@@ -204,6 +306,7 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
     local content = msg.Tags["Content"]
 
     if not title or not content then
+        log("ERROR", "Invalid post format", { title = title, content = content })
         ao.send({
             Target = msg.From,
             Tags = { Action = "CreatePostResponse", Status = "Error" },
@@ -232,6 +335,11 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
 
     table.insert(users[username].posts, postId)
 
+    log("INFO", "Post created successfully", { 
+        postId = postId,
+        username = username
+    })
+
     ao.send({
         Target = msg.From,
         Tags = { Action = "CreatePostResponse", Status = "Success" },
@@ -244,10 +352,16 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
 end)
 
 Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
+    log("INFO", "Comment post request received", {
+        postId = msg.Tags["PostId"],
+        username = msg.Tags["Username"]
+    })
+
     local postId = msg.Tags["PostId"]
     local username = msg.Tags["Username"]
     
     if not users[username] then
+        log("ERROR", "User does not exist", { username = username })
         ao.send({
             Target = msg.From,
             Tags = { Action = "CommentPostResponse", Status = "Error" },
@@ -257,6 +371,7 @@ Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
     end
 
     if not posts[postId] then
+        log("ERROR", "Post does not exist", { postId = postId })
         ao.send({
             Target = msg.From,
             Tags = { Action = "CommentPostResponse", Status = "Error" },
@@ -269,6 +384,7 @@ Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
     local content = msg.Data
 
     if not content or content == "" then
+        log("ERROR", "Empty comment content", { username = username })
         ao.send({
             Target = msg.From,
             Tags = { Action = "CommentPostResponse", Status = "Error" },
@@ -291,6 +407,12 @@ Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
     }
 
     table.insert(posts[postId].comments, commentId)
+
+    log("INFO", "Comment posted successfully", { 
+        commentId = commentId,
+        postId = postId,
+        username = username
+    })
 
     ao.send({
         Target = msg.From,

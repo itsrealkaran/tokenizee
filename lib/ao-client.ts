@@ -60,7 +60,7 @@ interface AOResponse {
 interface AOClient {
   getUser: (params: { wallet?: string; username?: string }) => Promise<{ user: User }>;
   registerUser: (username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string) => Promise<{ message: string; user: User }>;
-  updateUser: (username: string, displayName: string, dateOfBirth: string, bio: string) => Promise<{ message: string; user: User }>;
+  updateUser: (username: string, newUsername: string, displayName: string, dateOfBirth: string, bio: string) => Promise<{ message: string; user: User }>;
   createPost: (username: string, title: string, content: string) => Promise<{ message: string; postId: string; post: Post }>;
   commentPost: (postId: string, username: string, content: string) => Promise<{ message: string; commentId: string; comment: Comment }>;
   loadComments: (postId: string) => Promise<{ comments: Comment[] }>;
@@ -263,9 +263,10 @@ class AOClientImpl implements AOClient {
     return response;
   }
 
-  async updateUser(username: string, displayName: string, dateOfBirth: string, bio: string): Promise<{ message: string; user: User }> {
+  async updateUser(username: string, newUsername: string, displayName: string, dateOfBirth: string, bio: string): Promise<{ message: string; user: User }> {
     const response = await this.call<{ message: string; user: User }>("UpdateUser", {
       Username: username,
+      NewUsername: newUsername,
       DisplayName: displayName,
       DateOfBirth: dateOfBirth,
       Bio: bio

@@ -23,6 +23,7 @@ interface GlobalContextType {
   setUser: (user: User | null) => void;
   updateUser: (user: User) => void;
   updateUserProfile: (
+    newUsername: string,
     displayName: string,
     dateOfBirth: string,
     bio: string
@@ -171,9 +172,15 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
     setFeedPosts(updatePosts(feedPosts));
     setTrendingPosts(updatePosts(trendingPosts));
+
+    // Update profile user if it's the same user
+    if (profileUser?.username === user?.username) {
+      setProfileUser(updatedUser);
+    }
   };
 
   const updateUserProfile = async (
+    newUsername: string,
     displayName: string,
     dateOfBirth: string,
     bio: string
@@ -185,12 +192,20 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
       const response = await aoClient.updateUser(
         user.username,
+        newUsername,
         displayName,
         dateOfBirth,
         bio
       );
 
+      // Update the user state with the new data
       setUser(response.user);
+
+      // If we're viewing our own profile, update profileUser as well
+      if (profileUser?.username === user.username) {
+        setProfileUser(response.user);
+      }
+
       toast.success(response.message);
       return true;
     } catch (error) {
