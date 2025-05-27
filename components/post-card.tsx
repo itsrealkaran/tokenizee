@@ -118,44 +118,46 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
 
   return (
     <div
-      className="border rounded-lg p-4 space-y-4 cursor-pointer hover:bg-muted/50 transition-colors"
+      className="border rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-4 cursor-pointer hover:bg-muted/50 transition-colors"
       onClick={onViewPost}
     >
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-3 sm:gap-4">
         <div
-          className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-colors"
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-colors"
           onClick={handleProfileClick}
         >
-          <span className="text-lg font-medium text-primary">
+          <span className="text-base sm:text-lg font-medium text-primary">
             {post.author.displayName[0]}
           </span>
         </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             <button
-              className="font-medium hover:underline"
+              className="font-medium hover:underline text-sm sm:text-base"
               onClick={handleProfileClick}
             >
               {post.author.displayName}
             </button>
-            <span className="text-muted-foreground">
+            <span className="text-muted-foreground text-xs sm:text-sm">
               @{post.author.username}
             </span>
           </div>
-          <h2 className="text-lg font-semibold mt-1">{post.title}</h2>
-          <p className="text-muted-foreground mt-1 line-clamp-3">
+          <h2 className="text-base sm:text-lg font-semibold mt-0.5 sm:mt-1">
+            {post.title}
+          </h2>
+          <p className="text-muted-foreground text-sm sm:text-base mt-0.5 sm:mt-1 line-clamp-3">
             {truncatedContent}
           </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+        <div className="flex items-center gap-0.5 sm:gap-1">
           <Button
             variant="ghost"
             size="sm"
             className={cn(
-              "h-8 w-8 p-0",
+              "h-7 w-7 sm:h-8 sm:w-8 p-0",
               voteStatus === "up" && "text-primary hover:text-primary"
             )}
             onClick={(e) => {
@@ -165,12 +167,15 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
             disabled={isVoting}
           >
             <ArrowBigUp
-              className={cn("h-5 w-5", voteStatus === "up" && "fill-current")}
+              className={cn(
+                "h-4 w-4 sm:h-5 sm:w-5",
+                voteStatus === "up" && "fill-current"
+              )}
             />
           </Button>
           <span
             className={cn(
-              "text-sm font-medium min-w-[1.5rem] text-center",
+              "text-xs sm:text-sm font-medium min-w-[1.25rem] sm:min-w-[1.5rem] text-center",
               voteStatus === "up" && "text-primary"
             )}
           >
@@ -180,7 +185,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
             variant="ghost"
             size="sm"
             className={cn(
-              "h-8 w-8 p-0",
+              "h-7 w-7 sm:h-8 sm:w-8 p-0",
               voteStatus === "down" && "text-destructive hover:text-destructive"
             )}
             onClick={(e) => {
@@ -190,12 +195,15 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
             disabled={isVoting}
           >
             <ArrowBigDown
-              className={cn("h-5 w-5", voteStatus === "down" && "fill-current")}
+              className={cn(
+                "h-4 w-4 sm:h-5 sm:w-5",
+                voteStatus === "down" && "fill-current"
+              )}
             />
           </Button>
           <span
             className={cn(
-              "text-sm font-medium min-w-[1.5rem] text-center",
+              "text-xs sm:text-sm font-medium min-w-[1.25rem] sm:min-w-[1.5rem] text-center",
               voteStatus === "down" && "text-destructive"
             )}
           >
@@ -206,28 +214,28 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
         <Button
           variant="ghost"
           size="sm"
-          className="gap-2"
+          className="gap-1.5 sm:gap-2 h-7 sm:h-8 px-2 sm:px-3"
           onClick={(e) => {
             e.stopPropagation();
             handleShare();
           }}
           disabled={isSharing}
         >
-          <Share2 className="h-4 w-4" />
-          <span>{shares}</span>
+          <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <span className="text-xs sm:text-sm">{shares}</span>
         </Button>
 
         <Button
           variant="ghost"
           size="sm"
-          className="gap-2"
+          className="gap-1.5 sm:gap-2 h-7 sm:h-8 px-2 sm:px-3"
           onClick={handleCommentClick}
         >
-          <MessageCircle className="h-4 w-4" />
-          <span>{post.comments.length}</span>
+          <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <span className="text-xs sm:text-sm">{post.comments.length}</span>
         </Button>
 
-        <p className="text-sm text-muted-foreground ml-auto">
+        <p className="text-xs sm:text-sm text-muted-foreground ml-auto">
           {new Date(post.createdAt).toLocaleDateString()}
         </p>
       </div>
