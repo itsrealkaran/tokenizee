@@ -286,7 +286,25 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         user.username,
         content
       );
-      await refreshFeed();
+
+      // Update feed posts to include the new comment
+      setFeedPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? { ...post, comments: [...post.comments, response.commentId] }
+            : post
+        )
+      );
+
+      // Update trending posts if the post exists there
+      setTrendingPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? { ...post, comments: [...post.comments, response.commentId] }
+            : post
+        )
+      );
+
       toast.success(response.message);
       return { commentId: response.commentId, comment: response.comment };
     } catch (error) {
@@ -301,7 +319,11 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   const loadComments = async (postId: string): Promise<Comment[]> => {
     try {
       const response = await aoClient.loadComments(postId);
-      return response.comments;
+      // Sort comments by creation time (newest first)
+      const sortedComments = response.comments.sort(
+        (a, b) => b.createdAt - a.createdAt
+      );
+      return sortedComments;
     } catch (error) {
       console.error("Error loading comments:", error);
       toast.error(

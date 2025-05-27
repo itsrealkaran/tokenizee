@@ -354,11 +354,13 @@ end)
 Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
     log("INFO", "Comment post request received", {
         postId = msg.Tags["PostId"],
-        username = msg.Tags["Username"]
+        username = msg.Tags["Username"],
+        content = msg.Tags["Content"]
     })
 
     local postId = msg.Tags["PostId"]
     local username = msg.Tags["Username"]
+    local content = msg.Tags["Content"]
     
     if not users[username] then
         log("ERROR", "User does not exist", { username = username })
@@ -381,7 +383,6 @@ Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
     end
 
     local displayName = users[username].displayName
-    local content = msg.Data
 
     if not content or content == "" then
         log("ERROR", "Empty comment content", { username = username })
@@ -403,15 +404,18 @@ Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
             displayName = displayName
         },
         content = content,
-        createdAt = timestamp
+        createdAt = timestamp,
+        postId = postId
     }
 
+    -- Add comment to post's comments array
     table.insert(posts[postId].comments, commentId)
 
     log("INFO", "Comment posted successfully", { 
         commentId = commentId,
         postId = postId,
-        username = username
+        username = username,
+        content = content
     })
 
     ao.send({

@@ -152,7 +152,8 @@ export function DetailedPost({ post }: DetailedPostProps) {
       return;
     }
 
-    if (!newComment.trim()) {
+    const trimmedComment = newComment.trim();
+    if (!trimmedComment) {
       toast.error("Comment cannot be empty");
       return;
     }
@@ -161,7 +162,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
     setIsCommenting(true);
 
     try {
-      await commentPost(post.id, newComment);
+      await commentPost(post.id, trimmedComment);
       setNewComment("");
       await loadPostComments();
       toast.success("Comment posted successfully!");
