@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ArrowBigUp, ArrowUp, Clock, Share2, ThumbsUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowBigUp, Clock, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Post } from "@/lib/ao-client";
 import { useRouter } from "next/navigation";
@@ -66,14 +65,19 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
             />
             {/* Overlay for readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+            {post.author && (
+              <span className="absolute top-4 left-4 bg-white/80 text-black text-xs font-semibold px-3 py-1 rounded-full shadow-sm backdrop-blur-sm">
+                {post.author.username}
+              </span>
+            )}
             {/* Title */}
-            <div className="absolute left-0 right-0 bottom-20 sm:bottom-24 px-4 sm:px-8">
+            <div className="absolute left-0 right-0 bottom-16 sm:bottom-18 px-4 sm:px-8">
               <h2 className="text-white text-2xl sm:text-3xl md:text-4xl font-bold leading-tight drop-shadow-md line-clamp-2">
                 {post.title}
               </h2>
             </div>
             {/* Bottom bar: author and actions */}
-            <div className="absolute left-0 right-0 bottom-0 flex items-center justify-between px-4 sm:px-8 py-3 bg-gradient-to-t from-black/60 via-black/30 to-transparent">
+            <div className="absolute left-0 right-0 bottom-2 sm:bottom-4 flex items-center justify-between px-4 sm:px-8 py-3 bg-gradient-to-t from-black/60 via-black/30 to-transparent">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-full bg-white/80 flex items-center justify-center">
                   <span className="text-sm font-semibold text-primary">

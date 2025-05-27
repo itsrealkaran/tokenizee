@@ -86,7 +86,7 @@ export default function DashboardPage() {
                 key={feed.id}
                 onClick={() => setActiveFeed(feed.id)}
                 className={cn(
-                  "py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 whitespace-nowrap",
+                  "pb-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 whitespace-nowrap",
                   activeFeed === feed.id
                     ? "border-primary text-foreground"
                     : "border-transparent text-muted-foreground hover:text-foreground hover:border-primary/50"
