@@ -7,7 +7,6 @@ import {
   MessageCircle,
   Calendar,
   Clock,
-  Eye,
   Bookmark,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

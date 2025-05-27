@@ -57,6 +57,7 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                 ? "opacity-100 scale-100"
                 : "opacity-0 scale-105"
             )}
+            onClick={() => router.push(`/feed/${post.id}`)}
           >
             <img
               src={getImageUrl(post.id)}
