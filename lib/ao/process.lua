@@ -5,6 +5,7 @@ users = users or {
         bio = "Tokenizee | Kapsul",
         wallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
         posts = { "post-1709123456-1234" },
+        bookmarkedPosts = {},
         score = 0,
         followers = {},
         following = {},
@@ -16,6 +17,7 @@ users = users or {
         bio = "BetterIdea",
         wallet = "8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg",
         posts = { "post-1709123456-5678" },
+        bookmarkedPosts = {},
         score = 0,
         followers = {},
         following = {},
@@ -32,6 +34,7 @@ posts = posts or {
         },
         title = "First Test Article",
         content = "Welcome to the network!",
+        topic = { "art", "tech" },
         upvotes = 3,
         downvotes = 0,
         createdAt = os.time() - 500,
@@ -46,6 +49,7 @@ posts = posts or {
         },
         title = "Ankush Test",
         content = "GMAO",
+        topic = {"tech"},
         upvotes = 5,
         downvotes = 1,
         createdAt = os.time() - 400,
@@ -160,6 +164,7 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
         bio = bio,
         wallet = wallet,
         posts = {},
+        bookmarkedPosts = {},
         score = 0,
         followers = {},
         following = {},
@@ -222,6 +227,7 @@ Handlers.add("UpdateUser", { Action = "UpdateUser" }, function(msg)
         bio = bio,
         wallet = oldUserData.wallet,
         posts = oldUserData.posts,
+        bookmarkedPosts = oldUserData.bookmarkedPosts,
         score = oldUserData.score,
         followers = oldUserData.followers,
         following = oldUserData.following,
@@ -304,6 +310,7 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
     local displayName = users[username].displayName
     local title = msg.Tags["Title"]
     local content = msg.Tags["Content"]
+    local topic = msg.Tags["Topic"]
 
     if not title or not content then
         log("ERROR", "Invalid post format", { title = title, content = content })
@@ -326,6 +333,7 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
         },
         title = title,
         content = content,
+        topic = topic,
         upvotes = 0,
         downvotes = 0,
         createdAt = timestamp,
@@ -617,7 +625,6 @@ Handlers.add("GetUser", { Action = "GetUser" }, function(msg)
         followers = foundUser.followers,
         following = foundUser.following,
         score = foundUser.score,
-        posts = foundUser.posts,
         createdAt = foundUser.createdAt
     }
 
@@ -793,5 +800,178 @@ Handlers.add("GetUserComments", { Action = "GetUserComments" }, function(msg)
         Target = msg.From,
         Tags = { Action = "GetUserCommentsResponse", Status = "Success" },
         Data = json.encode({ comments = userComments })
+    })
+end)
+
+Handlers.add("BookmarkPost", { Action = "BookmarkPost" }, function(msg)
+    local username = msg.Tags["Username"]
+    local postId = msg.Tags["PostId"]
+    local action = msg.Tags["Action"] -- "add" or "remove"
+
+    if not users[username] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "BookmarkPostResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
+
+    if not posts[postId] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "BookmarkPostResponse", Status = "Error" },
+            Data = json.encode({ error = "Post does not exist." })
+        })
+        return
+    end
+
+    if action == "add" then
+        -- Check if post is already bookmarked
+        for _, id in ipairs(users[username].bookmarkedPosts) do
+            if id == postId then
+                ao.send({
+                    Target = msg.From,
+                    Tags = { Action = "BookmarkPostResponse", Status = "Error" },
+                    Data = json.encode({ error = "Post already bookmarked." })
+                })
+                return
+            end
+        end
+        table.insert(users[username].bookmarkedPosts, postId)
+    elseif action == "remove" then
+        -- Remove post from bookmarks
+        for i, id in ipairs(users[username].bookmarkedPosts) do
+            if id == postId then
+                table.remove(users[username].bookmarkedPosts, i)
+                break
+            end
+        end
+    else
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "BookmarkPostResponse", Status = "Error" },
+            Data = json.encode({ error = "Invalid action. Use 'add' or 'remove'." })
+        })
+        return
+    end
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "BookmarkPostResponse", Status = "Success" },
+        Data = json.encode({ 
+            message = "Bookmark updated successfully.",
+            bookmarkedPosts = users[username].bookmarkedPosts
+        })
+    })
+end)
+
+Handlers.add("GetPersonalizedFeed", { Action = "GetPersonalizedFeed" }, function(msg)
+    local username = msg.Tags["Username"]
+    
+    if not users[username] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetPersonalizedFeedResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
+
+    local feed = {}
+    local user = users[username]
+
+    -- Get posts from followed users
+    for following, _ in pairs(user.following) do
+        if users[following] then
+            for _, postId in ipairs(users[following].posts) do
+                if posts[postId] then
+                    table.insert(feed, posts[postId])
+                end
+            end
+        end
+    end
+
+    -- Add user's own posts
+    for _, postId in ipairs(user.posts) do
+        if posts[postId] then
+            table.insert(feed, posts[postId])
+        end
+    end
+
+    -- Sort posts by creation time (newest first)
+    table.sort(feed, function(a, b)
+        return a.createdAt > b.createdAt
+    end)
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "GetPersonalizedFeedResponse", Status = "Success" },
+        Data = json.encode({ posts = feed })
+    })
+end)
+
+Handlers.add("GetBookmarkedFeed", { Action = "GetBookmarkedFeed" }, function(msg)
+    local username = msg.Tags["Username"]
+    
+    if not users[username] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetBookmarkedFeedResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
+
+    local feed = {}
+    local user = users[username]
+
+    for _, postId in ipairs(user.bookmarkedPosts) do
+        if posts[postId] then
+            table.insert(feed, posts[postId])
+        end
+    end
+
+    -- Sort posts by creation time (newest first)
+    table.sort(feed, function(a, b)
+        return a.createdAt > b.createdAt
+    end)
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "GetBookmarkedFeedResponse", Status = "Success" },
+        Data = json.encode({ posts = feed })
+    })
+end)
+
+Handlers.add("GetTopicFeed", { Action = "GetTopicFeed" }, function(msg)
+    local topic = msg.Tags["Topic"]
+    
+    if not topic then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetTopicFeedResponse", Status = "Error" },
+            Data = json.encode({ error = "Missing Topic tag." })
+        })
+        return
+    end
+
+    local feed = {}
+
+    for _, post in pairs(posts) do
+        if post.topic == topic then
+            table.insert(feed, post)
+        end
+    end
+
+    -- Sort posts by creation time (newest first)
+    table.sort(feed, function(a, b)
+        return a.createdAt > b.createdAt
+    end)
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "GetTopicFeedResponse", Status = "Success" },
+        Data = json.encode({ posts = feed })
     })
 end)
