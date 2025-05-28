@@ -10,6 +10,11 @@ export function DashboardHeader() {
   const pathname = usePathname();
   const { profileUser } = useGlobal();
 
+  const getTopicName = (path: string) => {
+    const topic = path.split("/").pop() || "";
+    return topic.charAt(0).toUpperCase() + topic.slice(1);
+  };
+
   return (
     <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
       <div className="max-w-2xl mx-auto p-4">
@@ -19,7 +24,13 @@ export function DashboardHeader() {
               <Button variant="ghost" size="sm" onClick={() => router.back()}>
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <span>Article</span>
+              {pathname === "/feed/topic" ? (
+                <span>Topics</span>
+              ) : pathname.startsWith("/feed/topic/") ? (
+                <span>#{getTopicName(pathname)}</span>
+              ) : (
+                <span>Article</span>
+              )}
             </div>
           ) : pathname.startsWith("/profile/") ? (
             <div className="flex items-center gap-2">

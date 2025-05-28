@@ -104,7 +104,7 @@ export default function DashboardPage() {
       <div className="flex-1 overflow-y-auto">
         {/* Featured Posts Carousel */}
         {activeFeed === "top" && featuredPosts.length > 0 && (
-          <div className="px-4 sm:px-6 lg:px-8 py-4">
+          <div className="py-4">
             <FeaturedPosts posts={featuredPosts} />
           </div>
         )}

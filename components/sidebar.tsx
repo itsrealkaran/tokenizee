@@ -65,6 +65,36 @@ export function Sidebar() {
             </Link>
           );
         })}
+
+        {/* Topics Navigation */}
+        <div className="mt-4">
+          <div className="border-t border-border mb-4" />
+          <div className="px-6 pb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Topics
+          </div>
+          <ul className="flex flex-col gap-1 px-2">
+            {["Travel", "Tech", "Art", "Science", "Sports"].map((topic) => {
+              const topicPath = `/feed/topic/${topic.toLowerCase()}`;
+              const isActive = pathname === topicPath;
+              return (
+                <li key={topic}>
+                  <Link
+                    href={topicPath}
+                    className={cn(
+                      "flex items-center gap-2 pl-6 pr-3 py-2 rounded-md text-sm font-medium transition-all border-l-4 border-transparent",
+                      isActive
+                        ? "bg-primary/10 border-primary text-primary"
+                        : "hover:bg-muted/70 hover:border-primary/50 hover:text-primary text-muted-foreground"
+                    )}
+                  >
+                    <span className="font-bold text-base">#</span>
+                    <span>{topic}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </nav>
 
       <div className="p-4 space-y-6">
