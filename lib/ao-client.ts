@@ -16,6 +16,7 @@ export interface User {
   following: Record<string, boolean>;
   score: number;
   posts: string[];
+  bookmarkedPosts: string[];
   createdAt: number;
 }
 
@@ -27,6 +28,7 @@ export interface Post {
   };
   title: string;
   content: string;
+  topic: string[];
   upvotes: number;
   downvotes: number;
   createdAt: number;
@@ -61,7 +63,7 @@ interface AOClient {
   getUser: (params: { wallet?: string; username?: string }) => Promise<{ user: User }>;
   registerUser: (username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string) => Promise<{ message: string; user: User }>;
   updateUser: (username: string, newUsername: string, displayName: string, dateOfBirth: string, bio: string) => Promise<{ message: string; user: User }>;
-  createPost: (username: string, title: string, content: string) => Promise<{ message: string; postId: string; post: Post }>;
+  createPost: (username: string, title: string, content: string, topic: string[]) => Promise<{ message: string; postId: string; post: Post }>;
   commentPost: (postId: string, username: string, content: string) => Promise<{ message: string; commentId: string; comment: Comment }>;
   loadComments: (postId: string) => Promise<{ comments: Comment[] }>;
   upvotePost: (postId: string) => Promise<{ message: string; post: Post }>;
@@ -74,6 +76,10 @@ interface AOClient {
   getLeaderboard: () => Promise<{ users: LeaderboardEntry[] }>;
   getUserPosts: (username: string) => Promise<{ posts: Post[] }>;
   getUserComments: (username: string) => Promise<{ comments: Comment[] }>;
+  bookmarkPost: (username: string, postId: string, action: 'add' | 'remove') => Promise<{ message: string; bookmarkedPosts: string[] }>;
+  getPersonalizedFeed: (username: string) => Promise<{ posts: Post[] }>;
+  getBookmarkedFeed: (username: string) => Promise<{ posts: Post[] }>;
+  getTopicFeed: (topic: string) => Promise<{ posts: Post[] }>;
 }
 
 class AOClientImpl implements AOClient {
@@ -274,11 +280,12 @@ class AOClientImpl implements AOClient {
     return response;
   }
 
-  async createPost(username: string, title: string, content: string): Promise<{ message: string; postId: string; post: Post }> {
+  async createPost(username: string, title: string, content: string, topic: string[]): Promise<{ message: string; postId: string; post: Post }> {
     const response = await this.call<{ message: string; postId: string; post: Post }>("CreatePost", {
       Username: username,
       Title: title,
-      Content: content
+      Content: content,
+      Topic: JSON.stringify(topic)
     });
     return response;
   }
@@ -358,6 +365,36 @@ class AOClientImpl implements AOClient {
     });
     return response;
   }
+
+  async bookmarkPost(username: string, postId: string, action: 'add' | 'remove'): Promise<{ message: string; bookmarkedPosts: string[] }> {
+    const response = await this.call<{ message: string; bookmarkedPosts: string[] }>("BookmarkPost", {
+      Username: username,
+      PostId: postId,
+      Action: action
+    });
+    return response;
+  }
+
+  async getPersonalizedFeed(username: string): Promise<{ posts: Post[] }> {
+    const response = await this.call<{ posts: Post[] }>("GetPersonalizedFeed", {
+      Username: username
+    });
+    return response;
+  }
+
+  async getBookmarkedFeed(username: string): Promise<{ posts: Post[] }> {
+    const response = await this.call<{ posts: Post[] }>("GetBookmarkedFeed", {
+      Username: username
+    });
+    return response;
+  }
+
+  async getTopicFeed(topic: string): Promise<{ posts: Post[] }> {
+    const response = await this.call<{ posts: Post[] }>("GetTopicFeed", {
+      Topic: topic
+    });
+    return response;
+  }
 }
 
 export function getAOClient(processId: string): AOClient {
@@ -371,8 +408,20 @@ const client = getAOClient('YOUR_PROCESS_ID');
 // Register a user
 await client.registerUser('username', 'Display Name', '2000-01-01', 'wallet-address');
 
-// Create a post
-await client.createPost('username', 'Hello, world!');
+// Create a post with topics
+await client.createPost('username', 'Hello, world!', 'Content here', ['tech', 'art']);
+
+// Bookmark a post
+await client.bookmarkPost('username', 'post-id', 'add');
+
+// Get personalized feed
+const personalizedFeed = await client.getPersonalizedFeed('username');
+
+// Get bookmarked feed
+const bookmarkedFeed = await client.getBookmarkedFeed('username');
+
+// Get topic feed
+const topicFeed = await client.getTopicFeed('tech');
 
 // Get feed
 const feed = await client.getFeed();

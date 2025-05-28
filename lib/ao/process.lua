@@ -625,6 +625,7 @@ Handlers.add("GetUser", { Action = "GetUser" }, function(msg)
         followers = foundUser.followers,
         following = foundUser.following,
         score = foundUser.score,
+        posts = foundUser.posts,
         createdAt = foundUser.createdAt
     }
 
