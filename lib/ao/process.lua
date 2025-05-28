@@ -1,92 +1,352 @@
 users = users or {
     itsrealkaran = {
-        displayName = "Karan Singh",
-        dateOfBirth = "2004-06-01",
-        bio = "Tokenizee | Kapsul",
-        wallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
-        posts = { "post-1709123456-1234" },
-        bookmarkedPosts = {},
-        score = 0,
-        followers = {},
-        following = {},
-        createdAt = 1748131914411
-    },
+      displayName = "Karan Singh",
+      bio = "Tokenizee | Kapsul",
+      score = 4,
+      followers = {
+        itsalsokaran = true
+     },
+      createdAt = 1748131914411,
+      following = {  },
+      dateOfBirth = "2004-06-01",
+      posts = { "post-1709123456-1234" },
+      bookmarkedPosts = { "post-1748284698500-2030", "post-1748278304747-9636" },
+      wallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"
+   },
     ankushkun = {
-        displayName = "Ankush Singh",
-        dateOfBirth = "2004-06-15",
-        bio = "BetterIdea",
-        wallet = "8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg",
-        posts = { "post-1709123456-5678" },
-        bookmarkedPosts = {},
-        score = 0,
-        followers = {},
-        following = {},
-        createdAt = 1748131914415
-    }
-}
+      displayName = "Ankush Singh",
+      bio = "BetterIdea",
+      score = 2,
+      followers = {  },
+      createdAt = 1748131914415,
+      following = {  },
+      dateOfBirth = "2004-06-15",
+      posts = { "post-1709123456-5678" },
+      bookmarkedPosts = { "post-1709123456-1234" },
+      wallet = "8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg"
+   },
+    ro_test3 = {
+      displayName = "Rohit",
+      bio = "Clickooor",
+      username = "ro_test3",
+      score = 0,
+      followers = {  },
+      createdAt = 1748319368447,
+      following = {  },
+      dateOfBirth = "2025-04-27",
+      posts = { "post-1748319443108-2503" },
+      bookmarkedPosts = { },
+      wallet = "OVRxaP7mNWwjSihsr450Ah0zQwfd-LsMinVnhuapLFE"
+   },
+    nikoChan256 = {
+      displayName = "nikoChan",
+      bio = "not alive",
+      username = "nikoChan256",
+      score = 0,
+      followers = {  },
+      createdAt = 1748325943130,
+      following = {  },
+      dateOfBirth = "2003-02-14",
+      posts = { "post-1748326194790-8092" },
+      bookmarkedPosts = { },
+      wallet = "3ggyhyhQz68ug_rpNX3hHDZid_EPPjtu0ffuC6g9kL8"
+   },
+    itsalsokaran = {
+      displayName = "Karan Singh",
+      bio = "Ardaas will heal everything!",
+      username = "itsalsokaran",
+      score = 9,
+      followers = {
+        itsalsokaran = true
+     },
+      createdAt = 1748263558795,
+      following = {
+        itsrealkaran = true,
+        itsalsokaran = true
+     },
+      dateOfBirth = "2004-11-03",
+      posts = { "post-1748263593361-1474", "post-1748263888299-9275" },
+      bookmarkedPosts = { "post-1709123456-1234", "post-1748284698500-2030" },
+      wallet = "KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"
+   },
+    ro_test = {
+      displayName = "Rohit",
+      bio = "Opensourcerer",
+      username = "ro_test",
+      score = 3,
+      followers = {  },
+      createdAt = 1748284604702,
+      following = {  },
+      dateOfBirth = "2025-05-25",
+      posts = { "post-1748284698500-2030" },
+      bookmarkedPosts = { "post-1748263888299-9275" },
+      wallet = "qGlQRSiLM5hM2EtiLlsvMsaAj0_OfU3UzUH_1_wS-Nw"
+   },
+    aykansal = {
+      displayName = "Ayush Kansal",
+      bio = "directed to contribute to Web3 and XR",
+      username = "aykansal",
+      score = 1,
+      followers = {  },
+      createdAt = 1748278126742,
+      following = {  },
+      dateOfBirth = "2004-02-28",
+      posts = { "post-1748278304747-9636" },
+      bookmarkedPosts = { },
+      wallet = "WNtWM-CbP4p4__4KmnVrw_k7xUcT35kuVxuXu8BMvx4"
+   },
+    asd = {
+      displayName = "asd",
+      bio = "dsa",
+      username = "asd",
+      score = 0,
+      followers = {  },
+      createdAt = 1748278037487,
+      following = {  },
+      dateOfBirth = "2006-07-21",
+      posts = {  },
+      bookmarkedPosts = { },
+      wallet = "ww5nJTj6dD6Q6oIg-bOm20y2yawWDqDcQbQDcmwGOlI"
+   },
+    shiv = {
+      displayName = "shivam kumar",
+      bio = "hii",
+      username = "shiv",
+      score = 0,
+      followers = {  },
+      createdAt = 1748282989194,
+      following = {  },
+      dateOfBirth = "2003-10-25",
+      posts = {  },
+      bookmarkedPosts = { },
+      wallet = "URgAA8eHJUtJ3198g8EjYrFimnU7zP3tzmrytgg19L8"
+   }
+ }
 
 posts = posts or {
-    ["post-1709123456-1234"] = {
-        id = "post-1709123456-1234",
-        author = {
-            username = "itsrealkaran",
-            displayName = "Karan Singh"
-        },
-        title = "First Test Article",
-        content = "Welcome to the network!",
-        topic = { "art", "tech" },
-        upvotes = 3,
-        downvotes = 0,
-        createdAt = os.time() - 500,
-        shares = 2,
-        comments = { "comment-1709123456-1111", "comment-1709123456-2222" }
-    },
     ["post-1709123456-5678"] = {
-        id = "post-1709123456-5678",
-        author = {
-            username = "ankushkun",
-            displayName = "Ankush Singh"
-        },
-        title = "Ankush Test",
-        content = "GMAO",
-        topic = {"tech"},
-        upvotes = 5,
-        downvotes = 1,
-        createdAt = os.time() - 400,
-        shares = 1,
-        comments = { "comment-1709123456-3333" }
-    }
-}
+      id = "post-1709123456-5678",
+      comments = { "comment-1709123456-3333" },
+      downvotes = 1,
+      title = "Ankush Test",
+      upvotes = 7,
+      author = {
+        username = "ankushkun",
+        displayName = "Ankush Singh"
+     },
+      content = "GMAO",
+      topic = { "tech", "general" },
+      shares = 2,
+      createdAt = 1748263847196
+   },
+    ["post-1748263888299-9275"] = {
+      id = "post-1748263888299-9275",
+      comments = { "comment-1748282436760-8098", "comment-1748282514413-2130" },
+      downvotes = 2,
+      title = "Testing",
+      upvotes = 11,
+      author = {
+        username = "itsalsokaran",
+        displayName = "Karan Singh"
+     },
+      content = "Cutieee",
+      topic = { "art", "general" },
+      shares = 0,
+      createdAt = 1748263888299
+   },
+    ["post-1748326194790-8092"] = {
+      id = "post-1748326194790-8092",
+      comments = {  },
+      downvotes = 0,
+      title = "yo yo yo r2-d2",
+      upvotes = 0,
+      author = {
+        username = "nikoChan256",
+        displayName = "nikoChan"
+     },
+      content = "r2-d2 lives ",
+      topic = { "tech", "ai" },
+      shares = 0,
+      createdAt = 1748326194790
+   },
+    ["post-1748278304747-9636"] = {
+      id = "post-1748278304747-9636",
+      comments = {  },
+      downvotes = 0,
+      title = "GM",
+      upvotes = 1,
+      author = {
+        username = "aykansal",
+        displayName = "Ayush Kansal"
+     },
+      content = "gm gm",
+      topic = { "web3", "general" },
+      shares = 0,
+      createdAt = 1748278304747
+   },
+    ["post-1709123456-1234"] = {
+      id = "post-1709123456-1234",
+      comments = { "comment-1709123456-1111", "comment-1709123456-2222", "comment-1748284640507-9218", "comment-1748312339582-2244", "comment-1748319075017-8483", "comment-1748326256169-1408" },
+      downvotes = 0,
+      title = "First Test Article",
+      upvotes = 7,
+      author = {
+        username = "itsrealkaran",
+        displayName = "Karan Singh"
+     },
+      content = "Welcome to the network!",
+      topic = { "general", "web3" },
+      shares = 2,
+      createdAt = 1748263847096
+   },
+    ["post-1748319443108-2503"] = {
+      id = "post-1748319443108-2503",
+      comments = {  },
+      downvotes = 0,
+      title = "New Test Post",
+      upvotes = 0,
+      author = {
+        username = "ro_test3",
+        displayName = "Rohit"
+     },
+      content = "Some random text",
+      topic = { "general" },
+      shares = 0,
+      createdAt = 1748319443108
+   },
+    ["post-1748284698500-2030"] = {
+      id = "post-1748284698500-2030",
+      comments = { "comment-1748312055996-7550", "comment-1748312376309-1866", "comment-1748319112199-2911", "comment-1748319414889-1376" },
+      downvotes = 0,
+      title = "Vibe Coding with BetterIDEa",
+      upvotes = 3,
+      author = {
+        username = "ro_test",
+        displayName = "Rohit"
+     },
+      content = "Test Post",
+      topic = { "tech", "coding" },
+      shares = 0,
+      createdAt = 1748284698500
+   }
+ }
 
 comments = comments or {
+    ["comment-1748326256169-1408"] = {
+      author = {
+        username = "nikoChan256",
+        displayName = "nikoChan"
+     },
+      id = "comment-1748326256169-1408",
+      postId = "post-1709123456-1234",
+      content = "yokai",
+      createdAt = 1748326256169
+   },
     ["comment-1709123456-1111"] = {
-        id = "comment-1709123456-1111",
-        author = {
-            username = "itsrealkaran",
-            displayName = "Karan Singh"
-        },
-        content = "This is a test comment",
-        createdAt = os.time() - 300
-    },
+      createdAt = 1748263847296,
+      content = "This is a test comment",
+      author = {
+        username = "itsrealkaran",
+        displayName = "Karan Singh"
+     },
+      id = "comment-1709123456-1111"
+   },
+    ["comment-1748312376309-1866"] = {
+      author = {
+        username = "itsalsokaran",
+        displayName = "Karan Singh"
+     },
+      id = "comment-1748312376309-1866",
+      postId = "post-1748284698500-2030",
+      content = "And Vibe Check with Tokenizee ;)",
+      createdAt = 1748312376309
+   },
     ["comment-1709123456-2222"] = {
-        id = "comment-1709123456-2222",
-        author = {
-            username = "ankushkun",
-            displayName = "Ankush Singh"
-        },
-        content = "Great post!",
-        createdAt = os.time() - 250
-    },
+      createdAt = 1748263847346,
+      content = "Great post!",
+      author = {
+        username = "ankushkun",
+        displayName = "Ankush Singh"
+     },
+      id = "comment-1709123456-2222"
+   },
+    ["comment-1748284640507-9218"] = {
+      createdAt = 1748284640507,
+      content = " made it work ",
+      author = {
+        username = "ro_test",
+        displayName = "Rohit"
+     },
+      id = "comment-1748284640507-9218"
+   },
+    ["comment-1748319414889-1376"] = {
+      author = {
+        username = "ro_test3",
+        displayName = "Rohit"
+     },
+      id = "comment-1748319414889-1376",
+      postId = "post-1748284698500-2030",
+      content = "Looking great!",
+      createdAt = 1748319414889
+   },
+    ["comment-1748282514413-2130"] = {
+      createdAt = 1748282514413,
+      content = " testing again ",
+      author = {
+        username = "itsalsokaran",
+        displayName = "Karan Singh"
+     },
+      id = "comment-1748282514413-2130"
+   },
     ["comment-1709123456-3333"] = {
-        id = "comment-1709123456-3333",
-        author = {
-            username = "itsrealkaran",
-            displayName = "Karan Singh"
-        },
-        content = "Nice one!",
-        createdAt = os.time() - 200
-    }
-}
+      createdAt = 1748263847396,
+      content = "Nice one!",
+      author = {
+        username = "itsrealkaran",
+        displayName = "Karan Singh"
+     },
+      id = "comment-1709123456-3333"
+   },
+    ["comment-1748319112199-2911"] = {
+      author = {
+        username = "ro_test",
+        displayName = "Rohit"
+     },
+      id = "comment-1748319112199-2911",
+      postId = "post-1748284698500-2030",
+      content = "tACK",
+      createdAt = 1748319112199
+   },
+    ["comment-1748319075017-8483"] = {
+      author = {
+        username = "ro_test",
+        displayName = "Rohit"
+     },
+      id = "comment-1748319075017-8483",
+      postId = "post-1709123456-1234",
+      content = "This article looks great!",
+      createdAt = 1748319075017
+   },
+    ["comment-1748312339582-2244"] = {
+      author = {
+        username = "itsalsokaran",
+        displayName = "Karan Singh"
+     },
+      id = "comment-1748312339582-2244",
+      postId = "post-1709123456-1234",
+      content = "test",
+      createdAt = 1748312339582
+   },
+    ["comment-1748312055996-7550"] = {
+      createdAt = 1748312055996,
+      content = "mobile test",
+      author = {
+        username = "itsalsokaran",
+        displayName = "Karan Singh"
+     },
+      id = "comment-1748312055996-7550"
+   }
+ }
 
 -- users = users or {}
 -- posts = posts or {}

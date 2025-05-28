@@ -52,6 +52,11 @@ interface GlobalContextType {
   setUserComments: (comments: Comment[]) => void;
   loadProfileData: (username: string) => Promise<void>;
   handleFollowUser: (username: string) => Promise<boolean>;
+  // New state for bookmarked and topic feeds
+  bookmarkedPosts: Post[];
+  setBookmarkedPosts: (posts: Post[]) => void;
+  topicPosts: Post[];
+  setTopicPosts: (posts: Post[]) => void;
   // AO API Methods
   registerUser: (
     username: string,
@@ -61,7 +66,8 @@ interface GlobalContextType {
   ) => Promise<boolean>;
   createPost: (
     title: string,
-    content: string
+    content: string,
+    topics: string[]
   ) => Promise<{ postId: string; post: Post }>;
   commentPost: (
     postId: string,
@@ -80,6 +86,11 @@ interface GlobalContextType {
   refreshLeaderboard: () => Promise<void>;
   getUserPosts: (username: string) => Promise<Post[]>;
   getUserComments: (username: string) => Promise<Comment[]>;
+  // New methods
+  bookmarkPost: (postId: string, action: "add" | "remove") => Promise<boolean>;
+  refreshBookmarkedFeed: () => Promise<void>;
+  refreshTopicFeed: (topic: string) => Promise<void>;
+  getPersonalizedFeed: () => Promise<void>;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -95,6 +106,8 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [userComments, setUserComments] = useState<Comment[]>([]);
+  const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
+  const [topicPosts, setTopicPosts] = useState<Post[]>([]);
 
   // Initialize AO Client
   const aoClient = getAOClient(process.env.NEXT_PUBLIC_AO_PROCESS_ID || "");
@@ -252,14 +265,20 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const createPost = async (
     title: string,
-    content: string
+    content: string,
+    topics: string[]
   ): Promise<{ postId: string; post: Post }> => {
     try {
       if (!user?.username) {
         throw new Error("User not logged in");
       }
 
-      const response = await aoClient.createPost(user.username, title, content);
+      const response = await aoClient.createPost(
+        user.username,
+        title,
+        content,
+        topics
+      );
       await refreshFeed();
       toast.success(response.message);
       return { postId: response.postId, post: response.post };
@@ -524,18 +543,84 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Refresh data periodically
+  const bookmarkPost = async (
+    postId: string,
+    action: "add" | "remove"
+  ): Promise<boolean> => {
+    try {
+      if (!user?.username) {
+        throw new Error("User not logged in");
+      }
+
+      const response = await aoClient.bookmarkPost(
+        user.username,
+        postId,
+        action
+      );
+      await refreshBookmarkedFeed();
+      toast.success(response.message);
+      return true;
+    } catch (error) {
+      console.error("Error bookmarking post:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to bookmark post"
+      );
+      return false;
+    }
+  };
+
+  const refreshBookmarkedFeed = async (): Promise<void> => {
+    try {
+      if (!user?.username) {
+        throw new Error("User not logged in");
+      }
+
+      const response = await aoClient.getBookmarkedFeed(user.username);
+      setBookmarkedPosts(response.posts);
+    } catch (error) {
+      console.error("Error refreshing bookmarked feed:", error);
+      toast.error("Failed to refresh bookmarked feed");
+    }
+  };
+
+  const refreshTopicFeed = async (topic: string): Promise<void> => {
+    try {
+      const response = await aoClient.getTopicFeed(topic);
+      setTopicPosts(response.posts);
+    } catch (error) {
+      console.error("Error refreshing topic feed:", error);
+      toast.error("Failed to refresh topic feed");
+    }
+  };
+
+  const getPersonalizedFeed = async (): Promise<void> => {
+    try {
+      if (!user?.username) {
+        throw new Error("User not logged in");
+      }
+
+      const response = await aoClient.getPersonalizedFeed(user.username);
+      setFeedPosts(response.posts);
+    } catch (error) {
+      console.error("Error getting personalized feed:", error);
+      toast.error("Failed to get personalized feed");
+    }
+  };
+
+  // Update the periodic refresh to include new feeds
   useEffect(() => {
     if (isLoggedIn) {
       refreshFeed();
       refreshTrending();
       refreshLeaderboard();
+      refreshBookmarkedFeed();
 
       const interval = setInterval(() => {
         refreshFeed();
         refreshTrending();
         refreshLeaderboard();
-      }, 30000); // Refresh every 30 seconds
+        refreshBookmarkedFeed();
+      }, 90000); // Refresh every 90 seconds
 
       return () => clearInterval(interval);
     }
@@ -570,6 +655,14 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         setUserComments,
         loadProfileData,
         handleFollowUser,
+        bookmarkedPosts,
+        setBookmarkedPosts,
+        topicPosts,
+        setTopicPosts,
+        bookmarkPost,
+        refreshBookmarkedFeed,
+        refreshTopicFeed,
+        getPersonalizedFeed,
         // AO API Methods
         registerUser,
         createPost,
