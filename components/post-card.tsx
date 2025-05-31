@@ -7,6 +7,7 @@ import {
   Share2,
   MessageCircle,
   Calendar,
+  Bookmark,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -24,13 +25,18 @@ const MAX_CONTENT_LENGTH = 200;
 
 export function PostCard({ post, onViewPost }: PostCardProps) {
   const router = useRouter();
-  const { upvotePost, downvotePost, sharePost } = useGlobal();
-  const [voteStatus, setVoteStatus] = useState<"up" | "down" | null>(null);
+  const { upvotePost, downvotePost, sharePost, bookmarkPost, walletAddress } =
+    useGlobal();
+  const [voteStatus, setVoteStatus] = useState<"up" | "down" | null>(
+    post.hasUpvoted ? "up" : post.hasDownvoted ? "down" : null
+  );
   const [upvotes, setUpvotes] = useState(post.upvotes);
   const [downvotes, setDownvotes] = useState(post.downvotes);
   const [shares, setShares] = useState(post.shares);
+  const [isBookmarked, setIsBookmarked] = useState(post.hasBookmarked);
   const [isVoting, setIsVoting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [isBookmarking, setIsBookmarking] = useState(false);
 
   // Generate a consistent image ID based on post ID
   const imageId =
@@ -41,6 +47,10 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
 
   const handleVote = async (type: "up" | "down") => {
     if (isVoting) return;
+    if (!walletAddress) {
+      toast.error("Please connect your wallet to vote");
+      return;
+    }
     setIsVoting(true);
 
     const previousVote = voteStatus;
@@ -97,6 +107,10 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
 
   const handleShare = async () => {
     if (isSharing) return;
+    if (!walletAddress) {
+      toast.error("Please connect your wallet to share");
+      return;
+    }
     setIsSharing(true);
 
     try {
@@ -111,6 +125,27 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
       toast.error("Failed to share post");
     } finally {
       setIsSharing(false);
+    }
+  };
+
+  const handleBookmark = async () => {
+    if (isBookmarking) return;
+    if (!walletAddress) {
+      toast.error("Please connect your wallet to bookmark");
+      return;
+    }
+    setIsBookmarking(true);
+
+    try {
+      const action = isBookmarked ? "remove" : "add";
+      await bookmarkPost(post.id, action);
+      setIsBookmarked(!isBookmarked);
+      toast.success(action === "add" ? "Post bookmarked" : "Post unbookmarked");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to bookmark post");
+    } finally {
+      setIsBookmarking(false);
     }
   };
 
@@ -141,6 +176,25 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
           alt={post.title}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
+        <div className="absolute top-2 right-2 z-10 items-center sm:hidden flex bg-white/80 backdrop-blur-sm rounded-lg p-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "h-8 w-8 p-0 hover:bg-white/10 text-black hover:text-black/80",
+              isBookmarked && "text-primary hover:text-primary"
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleBookmark();
+            }}
+            disabled={isBookmarking}
+          >
+            <Bookmark
+              className={cn("h-4 w-4", isBookmarked && "fill-current")}
+            />
+          </Button>
+        </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
 
@@ -186,86 +240,140 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
 
         {/* Engagement Section */}
         <div className="flex items-center gap-4 pt-3 border-t">
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "h-8 w-8 p-0 hover:bg-primary/10",
-                voteStatus === "up" && "text-primary hover:text-primary"
-              )}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleVote("up");
-              }}
-              disabled={isVoting}
-            >
-              <ArrowBigUp
-                className={cn("h-4 w-4", voteStatus === "up" && "fill-current")}
-              />
-            </Button>
-            <span
-              className={cn(
-                "text-sm font-medium min-w-[1.5rem] text-center",
-                voteStatus === "up" && "text-primary"
-              )}
-            >
-              {upvotes}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "h-8 w-8 p-0 hover:bg-destructive/10",
-                voteStatus === "down" &&
-                  "text-destructive hover:text-destructive"
-              )}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleVote("down");
-              }}
-              disabled={isVoting}
-            >
-              <ArrowBigDown
+          <div className="flex items-center gap-4">
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                size="sm"
                 className={cn(
-                  "h-4 w-4",
-                  voteStatus === "down" && "fill-current"
+                  "h-8 w-8 p-0 hover:bg-primary/10",
+                  voteStatus === "up" && "text-primary hover:text-primary"
                 )}
-              />
-            </Button>
-            <span
-              className={cn(
-                "text-sm font-medium min-w-[1.5rem] text-center",
-                voteStatus === "down" && "text-destructive"
-              )}
-            >
-              {downvotes}
-            </span>
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleVote("up");
+                }}
+                disabled={isVoting}
+              >
+                <ArrowBigUp
+                  className={cn(
+                    "h-4 w-4",
+                    voteStatus === "up" && "fill-current"
+                  )}
+                />
+              </Button>
+              <span
+                className={cn(
+                  "text-sm font-medium min-w-[1.5rem] text-center",
+                  voteStatus === "up" && "text-primary"
+                )}
+              >
+                {upvotes}
+              </span>
+            </div>
+
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "h-8 w-8 p-0 hover:bg-destructive/10",
+                  voteStatus === "down" &&
+                    "text-destructive hover:text-destructive"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleVote("down");
+                }}
+                disabled={isVoting}
+              >
+                <ArrowBigDown
+                  className={cn(
+                    "h-4 w-4",
+                    voteStatus === "down" && "fill-current"
+                  )}
+                />
+              </Button>
+              <span
+                className={cn(
+                  "text-sm font-medium min-w-[1.5rem] text-center",
+                  voteStatus === "down" && "text-destructive"
+                )}
+              >
+                {downvotes}
+              </span>
+            </div>
+
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "h-8 w-8 p-0 hover:bg-primary/10",
+                  post.hasShared && "text-primary hover:text-primary"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShare();
+                }}
+                disabled={isSharing}
+              >
+                <Share2
+                  className={cn("h-4 w-4", post.hasShared && "fill-current")}
+                />
+              </Button>
+              <span
+                className={cn(
+                  "text-sm font-medium min-w-[1.5rem] text-center",
+                  post.hasShared && "text-primary"
+                )}
+              >
+                {shares}
+              </span>
+            </div>
+
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 hover:bg-primary/10"
+                onClick={handleCommentClick}
+              >
+                <MessageCircle className="h-4 w-4" />
+              </Button>
+              <span className="text-sm font-medium min-w-[1.5rem] text-center">
+                {post.comments.length}
+              </span>
+            </div>
+
+            <div className="flex items-center hidden sm:flex">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "h-8 w-8 p-0 hover:bg-primary/10",
+                  isBookmarked && "text-primary hover:text-primary"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBookmark();
+                }}
+                disabled={isBookmarking}
+              >
+                <Bookmark
+                  className={cn("h-4 w-4", isBookmarked && "fill-current")}
+                />
+              </Button>
+              <span
+                className={cn(
+                  "text-sm font-medium min-w-[1.5rem] text-center",
+                  isBookmarked && "text-primary"
+                )}
+              >
+                {post.bookmarks}
+              </span>
+            </div>
           </div>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-1.5 h-8 px-3 hover:bg-primary/10"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleShare();
-            }}
-            disabled={isSharing}
-          >
-            <Share2 className="h-4 w-4" />
-            <span className="text-sm">{shares}</span>
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-1.5 h-8 px-3 hover:bg-primary/10"
-            onClick={handleCommentClick}
-          >
-            <MessageCircle className="h-4 w-4" />
-            <span className="text-sm">{post.comments.length}</span>
-          </Button>
         </div>
       </div>
     </div>

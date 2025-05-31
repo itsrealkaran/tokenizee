@@ -359,7 +359,7 @@ class AOClientImpl implements AOClient {
     return this.call<{ message: string; bookmarkedPosts: string[]; post: Post }>("BookmarkPost", {
       Wallet: wallet,
       PostId: postId,
-      Action: action
+      BookmarkAction: action
     });
   }
 

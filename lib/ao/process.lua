@@ -408,11 +408,6 @@ local NOTIFICATION_TYPES = {
     MENTION = "mention"
 }
 
-
--- users = users or {}
--- posts = posts or {}
--- comments = comments or {}
-
 local function generateId(prefix)
     local timestamp = os.time()
     local random = math.random(1000, 9999)
@@ -476,10 +471,10 @@ local function formatPostResponse(post, requestingWallet)
         },
         createdAt = post.createdAt,
         comments = post.comments,
-        upvotes = countArrayEntries(post.upvotedBy),
-        downvotes = countArrayEntries(post.downvotedBy),
-        shares = countArrayEntries(post.sharedBy),
-        bookmarks = countArrayEntries(post.bookmarkedBy),
+        upvotes = countTableEntries(post.upvotedBy),
+        downvotes = countTableEntries(post.downvotedBy),
+        shares = countTableEntries(post.sharedBy),
+        bookmarks = countTableEntries(post.bookmarkedBy),
         hasUpvoted = post.upvotedBy[requestingWallet] == true,
         hasDownvoted = post.downvotedBy[requestingWallet] == true,
         hasShared = post.sharedBy[requestingWallet] == true,
@@ -942,8 +937,8 @@ end)
 Handlers.add("BookmarkPost", { Action = "BookmarkPost" }, function(msg)
     local wallet = msg.Tags["Wallet"]
     local postId = msg.Tags["PostId"]
-    local action = msg.Tags["Action"] -- "add" or "remove"
-
+    local action = msg.Tags["BookmarkAction"]
+    
     if not users[wallet] then
         ao.send({
             Target = msg.From,
@@ -1544,9 +1539,9 @@ Handlers.add("GetUserStats", { Action = "GetUserStats" }, function(msg)
     -- Calculate engagement metrics
     for _, postId in ipairs(user.posts) do
         if posts[postId] then
-            stats.engagement.totalUpvotes = stats.engagement.totalUpvotes + countArrayEntries(posts[postId].upvotedBy)
-            stats.engagement.totalDownvotes = stats.engagement.totalDownvotes + countArrayEntries(posts[postId].downvotedBy)
-            stats.engagement.totalShares = stats.engagement.totalShares + countArrayEntries(posts[postId].sharedBy)
+            stats.engagement.totalUpvotes = stats.engagement.totalUpvotes + countTableEntries(posts[postId].upvotedBy)
+            stats.engagement.totalDownvotes = stats.engagement.totalDownvotes + countTableEntries(posts[postId].downvotedBy)
+            stats.engagement.totalShares = stats.engagement.totalShares + countTableEntries(posts[postId].sharedBy)
         end
     end
 
@@ -1632,10 +1627,10 @@ Handlers.add("GetPostStats", { Action = "GetPostStats" }, function(msg)
     local stats = {
         post = formatPostResponse(post, requestingWallet),
         engagement = {
-            upvotes = countArrayEntries(post.upvotedBy),
-            downvotes = countArrayEntries(post.downvotedBy),
-            shares = countArrayEntries(post.sharedBy),
-            bookmarks = countArrayEntries(post.bookmarkedBy),
+            upvotes = countTableEntries(post.upvotedBy),
+            downvotes = countTableEntries(post.downvotedBy),
+            shares = countTableEntries(post.sharedBy),
+            bookmarks = countTableEntries(post.bookmarkedBy),
             comments = countArrayEntries(post.comments)
         },
         recentActivity = {
