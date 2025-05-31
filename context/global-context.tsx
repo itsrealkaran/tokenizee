@@ -117,7 +117,13 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     username?: string;
   }): Promise<boolean> => {
     try {
-      const userData = await aoClient.getUser(params);
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const userData = await aoClient.getUser({
+        wallet: params.wallet || "",
+        requestingWallet: walletAddress,
+      });
       return !!userData;
     } catch (error) {
       console.error("Error checking if user exists:", error);
@@ -137,7 +143,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
             const userExists = await checkUserExists({ wallet: address });
             if (userExists) {
-              const userData = await aoClient.getUser({ wallet: address });
+              const userData = await aoClient.getUser({
+                wallet: address,
+                requestingWallet: address,
+              });
               setUser(userData.user);
               console.log("userData", userData, user);
               setIsLoggedIn(true);
@@ -172,13 +181,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     // Update user info in posts where they are the author
     const updatePosts = (posts: Post[]) =>
       posts.map((post) =>
-        post.author.username === user?.username
+        post.authorWallet === user?.username
           ? {
               ...post,
-              author: {
-                username: updatedUser.username,
-                displayName: updatedUser.displayName,
-              },
+              authorWallet: updatedUser.username,
             }
           : post
       );
@@ -337,7 +343,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const loadComments = async (postId: string): Promise<Comment[]> => {
     try {
-      const response = await aoClient.loadComments(postId);
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.loadComments(postId, walletAddress);
       // Sort comments by creation time (newest first)
       const sortedComments = response.comments.sort(
         (a, b) => b.createdAt - a.createdAt
@@ -354,7 +363,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const upvotePost = async (postId: string): Promise<Post> => {
     try {
-      const response = await aoClient.upvotePost(postId);
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.upvotePost(postId, walletAddress);
       await refreshFeed();
       await refreshTrending();
       toast.success(response.message);
@@ -370,7 +382,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const downvotePost = async (postId: string): Promise<Post> => {
     try {
-      const response = await aoClient.downvotePost(postId);
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.downvotePost(postId, walletAddress);
       await refreshFeed();
       await refreshTrending();
       toast.success(response.message);
@@ -407,15 +422,15 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     following: string
   ): Promise<{ follower: User; following: User }> => {
     try {
-      if (!user?.username) {
+      if (!user?.username || !walletAddress) {
         throw new Error("User not logged in");
       }
 
       const result = await aoClient.followUser(user.username, following);
-      setUser(result.follower);
+      setUser(result.result.follower);
       await refreshFeed();
       toast.success("User followed successfully!");
-      return result;
+      return result.result;
     } catch (error) {
       console.error("Error following user:", error);
       toast.error(
@@ -427,7 +442,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const searchUser = async (searchTerm: string): Promise<User[]> => {
     try {
-      const response = await aoClient.searchUser(searchTerm);
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.searchUser(searchTerm, walletAddress);
       return response.users;
     } catch (error) {
       console.error("Error searching users:", error);
@@ -440,7 +458,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const refreshFeed = async (): Promise<void> => {
     try {
-      const response = await aoClient.getFeed();
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.getFeed(walletAddress);
       setFeedPosts(response.posts);
     } catch (error) {
       console.error("Error refreshing feed:", error);
@@ -450,7 +471,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const refreshTrending = async (): Promise<void> => {
     try {
-      const response = await aoClient.getTrending();
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.getTrending(walletAddress);
       setTrendingPosts(response.posts);
     } catch (error) {
       console.error("Error refreshing trending:", error);
@@ -460,7 +484,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const refreshLeaderboard = async (): Promise<void> => {
     try {
-      const response = await aoClient.getLeaderboard();
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.getLeaderboard(walletAddress);
       setTopCreators(response.users);
     } catch (error) {
       console.error("Error refreshing leaderboard:", error);
@@ -470,7 +497,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const getUserPosts = async (username: string): Promise<Post[]> => {
     try {
-      const response = await aoClient.getUserPosts(username);
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.getUserPosts(username, walletAddress);
       return response.posts;
     } catch (error) {
       console.error("Error getting user posts:", error);
@@ -483,7 +513,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const getUserComments = async (username: string): Promise<Comment[]> => {
     try {
-      const response = await aoClient.getUserComments(username);
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.getUserComments(username, walletAddress);
       return response.comments;
     } catch (error) {
       console.error("Error getting user comments:", error);
@@ -496,10 +529,16 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const loadProfileData = async (username: string) => {
     try {
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
       // Only fetch if the username is different from current profile user
       if (!profileUser || profileUser.username !== username) {
         // Load user data
-        const userData = await aoClient.getUser({ username });
+        const userData = await aoClient.getUser({
+          wallet: username,
+          requestingWallet: walletAddress,
+        });
         setProfileUser(userData.user);
 
         // Load user posts
@@ -519,16 +558,16 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const handleFollowUser = async (username: string): Promise<boolean> => {
     try {
-      if (!user?.username) {
+      if (!user?.username || !walletAddress) {
         throw new Error("User not logged in");
       }
 
       const result = await aoClient.followUser(user.username, username);
-      setUser(result.follower);
+      setUser(result.result.follower);
 
       // Update profile user's followers list if we're viewing their profile
       if (profileUser?.username === username) {
-        setProfileUser(result.following);
+        setProfileUser(result.result.following);
       }
 
       await refreshFeed();
@@ -557,6 +596,16 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         postId,
         action
       );
+
+      // Update the post in feed and trending posts
+      const updatePosts = (posts: Post[]) =>
+        posts.map((post) => (post.id === postId ? response.post : post));
+
+      setFeedPosts(updatePosts(feedPosts));
+      setTrendingPosts(updatePosts(trendingPosts));
+      setBookmarkedPosts(updatePosts(bookmarkedPosts));
+      setTopicPosts(updatePosts(topicPosts));
+
       await refreshBookmarkedFeed();
       toast.success(response.message);
       return true;
@@ -571,11 +620,14 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const refreshBookmarkedFeed = async (): Promise<void> => {
     try {
-      if (!user?.username) {
+      if (!user?.username || !walletAddress) {
         throw new Error("User not logged in");
       }
 
-      const response = await aoClient.getBookmarkedFeed(user.username);
+      const response = await aoClient.getBookmarkedFeed(
+        user.username,
+        walletAddress
+      );
       setBookmarkedPosts(response.posts);
     } catch (error) {
       console.error("Error refreshing bookmarked feed:", error);
@@ -585,7 +637,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const refreshTopicFeed = async (topic: string): Promise<void> => {
     try {
-      const response = await aoClient.getTopicFeed(topic);
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.getTopicFeed(topic, walletAddress);
       setTopicPosts(response.posts);
     } catch (error) {
       console.error("Error refreshing topic feed:", error);
@@ -595,11 +650,14 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const getPersonalizedFeed = async (): Promise<void> => {
     try {
-      if (!user?.username) {
+      if (!user?.username || !walletAddress) {
         throw new Error("User not logged in");
       }
 
-      const response = await aoClient.getPersonalizedFeed(user.username);
+      const response = await aoClient.getPersonalizedFeed(
+        user.username,
+        walletAddress
+      );
       setFeedPosts(response.posts);
     } catch (error) {
       console.error("Error getting personalized feed:", error);

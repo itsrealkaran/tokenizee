@@ -1,352 +1,731 @@
 users = users or {
-    itsrealkaran = {
+    ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = {
+      username = "itsrealkaran",
       displayName = "Karan Singh",
       bio = "Tokenizee | Kapsul",
-      score = 4,
       followers = {
-        itsalsokaran = true
-     },
+        ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
+      },
       createdAt = 1748131914411,
-      following = {  },
+      following = {},
       dateOfBirth = "2004-06-01",
       posts = { "post-1709123456-1234" },
       bookmarkedPosts = { "post-1748284698500-2030", "post-1748278304747-9636" },
-      wallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"
-   },
-    ankushkun = {
+      comments = { "comment-1709123456-1111", "comment-1709123456-3333" }
+    },
+    ["8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg"] = {
+      username = "ankushkun",
       displayName = "Ankush Singh",
       bio = "BetterIdea",
-      score = 2,
-      followers = {  },
+      followers = {},
       createdAt = 1748131914415,
-      following = {  },
+      following = {},
       dateOfBirth = "2004-06-15",
       posts = { "post-1709123456-5678" },
       bookmarkedPosts = { "post-1709123456-1234" },
-      wallet = "8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg"
-   },
-    ro_test3 = {
+      comments = { "comment-1709123456-2222" }
+    },
+    ["OVRxaP7mNWwjSihsr450Ah0zQwfd-LsMinVnhuapLFE"] = {
+      username = "ro_test3",
       displayName = "Rohit",
       bio = "Clickooor",
-      username = "ro_test3",
-      score = 0,
-      followers = {  },
+      followers = {},
       createdAt = 1748319368447,
-      following = {  },
+      following = {},
       dateOfBirth = "2025-04-27",
       posts = { "post-1748319443108-2503" },
-      bookmarkedPosts = { },
-      wallet = "OVRxaP7mNWwjSihsr450Ah0zQwfd-LsMinVnhuapLFE"
-   },
-    nikoChan256 = {
+      bookmarkedPosts = {},
+      comments = { "comment-1748319414889-1376" }
+    },
+    ["3ggyhyhQz68ug_rpNX3hHDZid_EPPjtu0ffuC6g9kL8"] = {
+      username = "nikoChan256",
       displayName = "nikoChan",
       bio = "not alive",
-      username = "nikoChan256",
-      score = 0,
-      followers = {  },
+      followers = {},
       createdAt = 1748325943130,
-      following = {  },
+      following = {},
       dateOfBirth = "2003-02-14",
       posts = { "post-1748326194790-8092" },
-      bookmarkedPosts = { },
-      wallet = "3ggyhyhQz68ug_rpNX3hHDZid_EPPjtu0ffuC6g9kL8"
-   },
-    itsalsokaran = {
+      bookmarkedPosts = {},
+      comments = { "comment-1748326256169-1408" }
+    },
+    ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = {
+      username = "itsalsokaran",
       displayName = "Karan Singh",
       bio = "Ardaas will heal everything!",
-      username = "itsalsokaran",
-      score = 9,
       followers = {
-        itsalsokaran = true
-     },
+        ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
+      },
       createdAt = 1748263558795,
       following = {
-        itsrealkaran = true,
-        itsalsokaran = true
-     },
+        ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true,
+        ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
+      },
       dateOfBirth = "2004-11-03",
       posts = { "post-1748263593361-1474", "post-1748263888299-9275" },
       bookmarkedPosts = { "post-1709123456-1234", "post-1748284698500-2030" },
-      wallet = "KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"
-   },
-    ro_test = {
+      comments = { "comment-1748282514413-2130", "comment-1748312376309-1866", "comment-1748312339582-2244", "comment-1748312055996-7550" }
+    },
+    ["qGlQRSiLM5hM2EtiLlsvMsaAj0_OfU3UzUH_1_wS-Nw"] = {
+      username = "ro_test",
       displayName = "Rohit",
       bio = "Opensourcerer",
-      username = "ro_test",
-      score = 3,
-      followers = {  },
+      followers = {},
       createdAt = 1748284604702,
-      following = {  },
+      following = {},
       dateOfBirth = "2025-05-25",
       posts = { "post-1748284698500-2030" },
       bookmarkedPosts = { "post-1748263888299-9275" },
-      wallet = "qGlQRSiLM5hM2EtiLlsvMsaAj0_OfU3UzUH_1_wS-Nw"
-   },
-    aykansal = {
+      comments = { "comment-1748284640507-9218", "comment-1748319112199-2911", "comment-1748319075017-8483" }
+    },
+    ["WNtWM-CbP4p4__4KmnVrw_k7xUcT35kuVxuXu8BMvx4"] = {
+      username = "aykansal",
       displayName = "Ayush Kansal",
       bio = "directed to contribute to Web3 and XR",
-      username = "aykansal",
-      score = 1,
-      followers = {  },
+      followers = {},
       createdAt = 1748278126742,
-      following = {  },
+      following = {},
       dateOfBirth = "2004-02-28",
       posts = { "post-1748278304747-9636" },
-      bookmarkedPosts = { },
-      wallet = "WNtWM-CbP4p4__4KmnVrw_k7xUcT35kuVxuXu8BMvx4"
-   },
-    asd = {
+      bookmarkedPosts = {},
+      comments = {}
+    },
+    ["ww5nJTj6dD6Q6oIg-bOm20y2yawWDqDcQbQDcmwGOlI"] = {
+      username = "asd",
       displayName = "asd",
       bio = "dsa",
-      username = "asd",
-      score = 0,
-      followers = {  },
+      followers = {},
       createdAt = 1748278037487,
-      following = {  },
+      following = {},
       dateOfBirth = "2006-07-21",
-      posts = {  },
-      bookmarkedPosts = { },
-      wallet = "ww5nJTj6dD6Q6oIg-bOm20y2yawWDqDcQbQDcmwGOlI"
-   },
-    shiv = {
+      posts = {},
+      bookmarkedPosts = {},
+      comments = {}
+    },
+    ["URgAA8eHJUtJ3198g8EjYrFimnU7zP3tzmrytgg19L8"] = {
+      username = "shiv",
       displayName = "shivam kumar",
       bio = "hii",
-      username = "shiv",
-      score = 0,
-      followers = {  },
+      followers = {},
       createdAt = 1748282989194,
-      following = {  },
+      following = {},
       dateOfBirth = "2003-10-25",
-      posts = {  },
-      bookmarkedPosts = { },
-      wallet = "URgAA8eHJUtJ3198g8EjYrFimnU7zP3tzmrytgg19L8"
-   }
- }
+      posts = {},
+      bookmarkedPosts = {},
+      comments = {}
+    }
+}
 
 posts = posts or {
     ["post-1709123456-5678"] = {
       id = "post-1709123456-5678",
       comments = { "comment-1709123456-3333" },
-      downvotes = 1,
+      upvotedBy = {
+        ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
+      },
+      downvotedBy = {
+        ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
+      },
       title = "Ankush Test",
-      upvotes = 7,
-      author = {
-        username = "ankushkun",
-        displayName = "Ankush Singh"
-     },
+      authorWallet = "8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg",
       content = "GMAO",
       topic = { "tech", "general" },
-      shares = 2,
+      sharedBy = {
+        ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true,
+        ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
+      },
+      bookmarkedBy = {},
       createdAt = 1748263847196
-   },
+    },
     ["post-1748263888299-9275"] = {
       id = "post-1748263888299-9275",
       comments = { "comment-1748282436760-8098", "comment-1748282514413-2130" },
-      downvotes = 2,
+      upvotedBy = {
+        ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true,
+        ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
+      },
+      downvotedBy = {
+        ["8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg"] = true,
+        ["qGlQRSiLM5hM2EtiLlsvMsaAj0_OfU3UzUH_1_wS-Nw"] = true
+      },
       title = "Testing",
-      upvotes = 11,
-      author = {
-        username = "itsalsokaran",
-        displayName = "Karan Singh"
-     },
+      authorWallet = "KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
       content = "Cutieee",
       topic = { "art", "general" },
-      shares = 0,
+      sharedBy = {},
+      bookmarkedBy = {
+        ["qGlQRSiLM5hM2EtiLlsvMsaAj0_OfU3UzUH_1_wS-Nw"] = true
+      },
       createdAt = 1748263888299
-   },
+    },
     ["post-1748326194790-8092"] = {
       id = "post-1748326194790-8092",
-      comments = {  },
-      downvotes = 0,
+      comments = {},
+      upvotedBy = {},
+      downvotedBy = {},
       title = "yo yo yo r2-d2",
-      upvotes = 0,
-      author = {
-        username = "nikoChan256",
-        displayName = "nikoChan"
-     },
+      authorWallet = "3ggyhyhQz68ug_rpNX3hHDZid_EPPjtu0ffuC6g9kL8",
       content = "r2-d2 lives ",
       topic = { "tech", "ai" },
-      shares = 0,
+      sharedBy = {},
+      bookmarkedBy = {},
       createdAt = 1748326194790
-   },
+    },
     ["post-1748278304747-9636"] = {
       id = "post-1748278304747-9636",
-      comments = {  },
-      downvotes = 0,
+      comments = {},
+      upvotedBy = {
+        ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
+      },
+      downvotedBy = {},
       title = "GM",
-      upvotes = 1,
-      author = {
-        username = "aykansal",
-        displayName = "Ayush Kansal"
-     },
+      authorWallet = "WNtWM-CbP4p4__4KmnVrw_k7xUcT35kuVxuXu8BMvx4",
       content = "gm gm",
       topic = { "web3", "general" },
-      shares = 0,
+      sharedBy = {},
+      bookmarkedBy = {
+        ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
+      },
       createdAt = 1748278304747
-   },
+    },
     ["post-1709123456-1234"] = {
       id = "post-1709123456-1234",
       comments = { "comment-1709123456-1111", "comment-1709123456-2222", "comment-1748284640507-9218", "comment-1748312339582-2244", "comment-1748319075017-8483", "comment-1748326256169-1408" },
-      downvotes = 0,
+      upvotedBy = {
+        ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true,
+        ["8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg"] = true
+      },
+      downvotedBy = {},
       title = "First Test Article",
-      upvotes = 7,
-      author = {
-        username = "itsrealkaran",
-        displayName = "Karan Singh"
-     },
+      authorWallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
       content = "Welcome to the network!",
       topic = { "general", "web3" },
-      shares = 2,
+      sharedBy = {
+        ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true,
+        ["8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg"] = true
+      },
+      bookmarkedBy = {
+        ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true,
+        ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
+      },
       createdAt = 1748263847096
-   },
+    },
     ["post-1748319443108-2503"] = {
       id = "post-1748319443108-2503",
-      comments = {  },
-      downvotes = 0,
+      comments = {},
+      upvotedBy = {},
+      downvotedBy = {},
       title = "New Test Post",
-      upvotes = 0,
-      author = {
-        username = "ro_test3",
-        displayName = "Rohit"
-     },
+      authorWallet = "OVRxaP7mNWwjSihsr450Ah0zQwfd-LsMinVnhuapLFE",
       content = "Some random text",
       topic = { "general" },
-      shares = 0,
+      sharedBy = {},
+      bookmarkedBy = {},
       createdAt = 1748319443108
-   },
+    },
     ["post-1748284698500-2030"] = {
       id = "post-1748284698500-2030",
       comments = { "comment-1748312055996-7550", "comment-1748312376309-1866", "comment-1748319112199-2911", "comment-1748319414889-1376" },
-      downvotes = 0,
+      upvotedBy = {
+        ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true,
+        ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true,
+        ["qGlQRSiLM5hM2EtiLlsvMsaAj0_OfU3UzUH_1_wS-Nw"] = true
+      },
+      downvotedBy = {},
       title = "Vibe Coding with BetterIDEa",
-      upvotes = 3,
-      author = {
-        username = "ro_test",
-        displayName = "Rohit"
-     },
+      authorWallet = "qGlQRSiLM5hM2EtiLlsvMsaAj0_OfU3UzUH_1_wS-Nw",
       content = "Test Post",
       topic = { "tech", "coding" },
-      shares = 0,
+      sharedBy = {},
+      bookmarkedBy = {
+        ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true,
+        ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
+      },
       createdAt = 1748284698500
-   }
- }
+    }
+}
 
 comments = comments or {
     ["comment-1748326256169-1408"] = {
-      author = {
-        username = "nikoChan256",
-        displayName = "nikoChan"
-     },
+      authorWallet = "3ggyhyhQz68ug_rpNX3hHDZid_EPPjtu0ffuC6g9kL8",
       id = "comment-1748326256169-1408",
       postId = "post-1709123456-1234",
       content = "yokai",
       createdAt = 1748326256169
-   },
+    },
     ["comment-1709123456-1111"] = {
       createdAt = 1748263847296,
       content = "This is a test comment",
-      author = {
-        username = "itsrealkaran",
-        displayName = "Karan Singh"
-     },
+      authorWallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
       id = "comment-1709123456-1111"
-   },
+    },
     ["comment-1748312376309-1866"] = {
-      author = {
-        username = "itsalsokaran",
-        displayName = "Karan Singh"
-     },
+      authorWallet = "KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
       id = "comment-1748312376309-1866",
       postId = "post-1748284698500-2030",
       content = "And Vibe Check with Tokenizee ;)",
       createdAt = 1748312376309
-   },
+    },
     ["comment-1709123456-2222"] = {
       createdAt = 1748263847346,
       content = "Great post!",
-      author = {
-        username = "ankushkun",
-        displayName = "Ankush Singh"
-     },
+      authorWallet = "8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg",
       id = "comment-1709123456-2222"
-   },
+    },
     ["comment-1748284640507-9218"] = {
       createdAt = 1748284640507,
       content = " made it work ",
-      author = {
-        username = "ro_test",
-        displayName = "Rohit"
-     },
+      authorWallet = "qGlQRSiLM5hM2EtiLlsvMsaAj0_OfU3UzUH_1_wS-Nw",
       id = "comment-1748284640507-9218"
-   },
+    },
     ["comment-1748319414889-1376"] = {
-      author = {
-        username = "ro_test3",
-        displayName = "Rohit"
-     },
+      authorWallet = "OVRxaP7mNWwjSihsr450Ah0zQwfd-LsMinVnhuapLFE",
       id = "comment-1748319414889-1376",
       postId = "post-1748284698500-2030",
       content = "Looking great!",
       createdAt = 1748319414889
-   },
+    },
     ["comment-1748282514413-2130"] = {
       createdAt = 1748282514413,
       content = " testing again ",
-      author = {
-        username = "itsalsokaran",
-        displayName = "Karan Singh"
-     },
+      authorWallet = "KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
       id = "comment-1748282514413-2130"
-   },
+    },
     ["comment-1709123456-3333"] = {
       createdAt = 1748263847396,
       content = "Nice one!",
-      author = {
-        username = "itsrealkaran",
-        displayName = "Karan Singh"
-     },
+      authorWallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
       id = "comment-1709123456-3333"
-   },
+    },
     ["comment-1748319112199-2911"] = {
-      author = {
-        username = "ro_test",
-        displayName = "Rohit"
-     },
+      authorWallet = "qGlQRSiLM5hM2EtiLlsvMsaAj0_OfU3UzUH_1_wS-Nw",
       id = "comment-1748319112199-2911",
       postId = "post-1748284698500-2030",
       content = "tACK",
       createdAt = 1748319112199
-   },
+    },
     ["comment-1748319075017-8483"] = {
-      author = {
-        username = "ro_test",
-        displayName = "Rohit"
-     },
+      authorWallet = "qGlQRSiLM5hM2EtiLlsvMsaAj0_OfU3UzUH_1_wS-Nw",
       id = "comment-1748319075017-8483",
       postId = "post-1709123456-1234",
       content = "This article looks great!",
       createdAt = 1748319075017
-   },
+    },
     ["comment-1748312339582-2244"] = {
-      author = {
-        username = "itsalsokaran",
-        displayName = "Karan Singh"
-     },
+      authorWallet = "KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
       id = "comment-1748312339582-2244",
       postId = "post-1709123456-1234",
       content = "test",
       createdAt = 1748312339582
-   },
+    },
     ["comment-1748312055996-7550"] = {
       createdAt = 1748312055996,
       content = "mobile test",
-      author = {
-        username = "itsalsokaran",
-        displayName = "Karan Singh"
-     },
+      authorWallet = "KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
       id = "comment-1748312055996-7550"
-   }
- }
+    }
+}
+
+-- Initialize notifications table
+notifications = notifications or {}
+
+-- Add notification types
+local NOTIFICATION_TYPES = {
+    FOLLOW = "follow",
+    COMMENT = "comment",
+    UPVOTE = "upvote",
+    DOWNVOTE = "downvote",
+    SHARE = "share",
+    MENTION = "mention"
+}
+
+-- Add notification handler
+Handlers.add("GetNotifications", { Action = "GetNotifications" }, function(msg)
+    local wallet = msg.Tags["Wallet"]
+    
+    if not wallet then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetNotificationsResponse", Status = "Error" },
+            Data = json.encode({ error = "Missing Wallet tag." })
+        })
+        return
+    end
+
+    if not users[wallet] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetNotificationsResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
+
+    -- Initialize notifications for user if not exists
+    notifications[wallet] = notifications[wallet] or {
+        items = {},
+        lastRead = os.time()
+    }
+
+    -- Format notifications with user details
+    local formattedNotifications = {}
+    for _, notification in ipairs(notifications[wallet].items) do
+        local formattedNotification = {
+            id = notification.id,
+            type = notification.type,
+            createdAt = notification.createdAt,
+            read = notification.read,
+            data = notification.data
+        }
+
+        -- Add user details for actor
+        if notification.actorWallet and users[notification.actorWallet] then
+            formattedNotification.actor = formatUserResponse(users[notification.actorWallet], wallet)
+        end
+
+        -- Add post details if applicable
+        if notification.postId and posts[notification.postId] then
+            formattedNotification.post = formatPostResponse(posts[notification.postId], wallet)
+        end
+
+        table.insert(formattedNotifications, formattedNotification)
+    end
+
+    -- Sort notifications by creation time (newest first)
+    table.sort(formattedNotifications, function(a, b)
+        return a.createdAt > b.createdAt
+    end)
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "GetNotificationsResponse", Status = "Success" },
+        Data = json.encode({
+            notifications = formattedNotifications,
+            unreadCount = #formattedNotifications - notifications[wallet].lastRead
+        })
+    })
+end)
+
+-- Add mark notifications as read handler
+Handlers.add("MarkNotificationsRead", { Action = "MarkNotificationsRead" }, function(msg)
+    local wallet = msg.Tags["Wallet"]
+    
+    if not wallet then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "MarkNotificationsReadResponse", Status = "Error" },
+            Data = json.encode({ error = "Missing Wallet tag." })
+        })
+        return
+    end
+
+    if not users[wallet] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "MarkNotificationsReadResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
+
+    -- Initialize notifications for user if not exists
+    notifications[wallet] = notifications[wallet] or {
+        items = {},
+        lastRead = os.time()
+    }
+
+    -- Mark all notifications as read
+    for _, notification in ipairs(notifications[wallet].items) do
+        notification.read = true
+    end
+    notifications[wallet].lastRead = os.time()
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "MarkNotificationsReadResponse", Status = "Success" },
+        Data = json.encode({ message = "Notifications marked as read." })
+    })
+end)
+
+-- Add notification creation function
+local function createNotification(recipientWallet, type, actorWallet, postId, data)
+    if not notifications[recipientWallet] then
+        notifications[recipientWallet] = {
+            items = {},
+            lastRead = os.time()
+        }
+    end
+
+    local notificationId = generateId("notification")
+    local notification = {
+        id = notificationId,
+        type = type,
+        actorWallet = actorWallet,
+        postId = postId,
+        data = data,
+        createdAt = os.time(),
+        read = false
+    }
+
+    table.insert(notifications[recipientWallet].items, notification)
+    return notification
+end
+
+-- Update existing handlers to create notifications
+
+-- Update FollowUser handler
+Handlers.add("FollowUser", { Action = "FollowUser" }, function(msg)
+    local followerWallet = msg.Tags["FollowerWallet"]
+    local followingWallet = msg.Tags["FollowingWallet"]
+
+    if not users[followerWallet] or not users[followingWallet] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "FollowUserResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
+
+    users[followerWallet].following[followingWallet] = true
+    users[followingWallet].followers[followerWallet] = true
+
+    -- Create notification for followed user
+    createNotification(
+        followingWallet,
+        NOTIFICATION_TYPES.FOLLOW,
+        followerWallet,
+        nil,
+        { message = "started following you" }
+    )
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "FollowUserResponse", Status = "Success" },
+        Data = json.encode({ 
+            message = "User followed successfully.",
+            result = formatFollowUserResponse(users[followerWallet], users[followingWallet], followerWallet)
+        })
+    })
+end)
+
+-- Update CommentPost handler
+Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
+    local postId = msg.Tags["PostId"]
+    local wallet = msg.Tags["Wallet"]
+    local content = msg.Tags["Content"]
+    
+    if not users[wallet] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "CommentPostResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
+
+    if not posts[postId] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "CommentPostResponse", Status = "Error" },
+            Data = json.encode({ error = "Post does not exist." })
+        })
+        return
+    end
+
+    if not content or content == "" then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "CommentPostResponse", Status = "Error" },
+            Data = json.encode({ error = "Comment content cannot be empty." })
+        })
+        return
+    end
+
+    local commentId = generateId("comment")
+    local timestamp = os.time()
+
+    comments[commentId] = {
+        id = commentId,
+        authorWallet = wallet,
+        content = content,
+        createdAt = timestamp,
+        postId = postId
+    }
+
+    -- Add comment to post's comments array
+    table.insert(posts[postId].comments, commentId)
+    
+    -- Add comment to user's comments array
+    table.insert(users[wallet].comments, commentId)
+
+    -- Create notification for post author
+    if posts[postId].authorWallet ~= wallet then
+        createNotification(
+            posts[postId].authorWallet,
+            NOTIFICATION_TYPES.COMMENT,
+            wallet,
+            postId,
+            { message = "commented on your post" }
+        )
+    end
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "CommentPostResponse", Status = "Success" },
+        Data = json.encode({ 
+            message = "Comment posted successfully.",
+            commentId = commentId,
+            comment = formatCommentResponse(comments[commentId], wallet)
+        })
+    })
+end)
+
+-- Update UpvotePost handler
+Handlers.add("UpvotePost", { Action = "Upvote" }, function(msg)
+    local postId = msg.Tags["PostId"]
+    local wallet = msg.Tags["Wallet"]
+
+    if not posts[postId] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "UpvoteResponse", Status = "Error" },
+            Data = json.encode({ error = "Post does not exist." })
+        })
+        return
+    end
+
+    if not users[wallet] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "UpvoteResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
+
+    -- Remove from downvotedBy if exists
+    posts[postId].downvotedBy[wallet] = nil
+    
+    -- Add to upvotedBy
+    posts[postId].upvotedBy[wallet] = true
+
+    -- Create notification for post author
+    if posts[postId].authorWallet ~= wallet then
+        createNotification(
+            posts[postId].authorWallet,
+            NOTIFICATION_TYPES.UPVOTE,
+            wallet,
+            postId,
+            { message = "upvoted your post" }
+        )
+    end
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "UpvoteResponse", Status = "Success" },
+        Data = json.encode({ 
+            message = "Post upvoted successfully.",
+            post = formatPostResponse(posts[postId], wallet)
+        })
+    })
+end)
+
+-- Update DownvotePost handler
+Handlers.add("DownvotePost", { Action = "Downvote" }, function(msg)
+    local postId = msg.Tags["PostId"]
+    local wallet = msg.Tags["Wallet"]
+
+    if not posts[postId] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "DownvoteResponse", Status = "Error" },
+            Data = json.encode({ error = "Post does not exist." })
+        })
+        return
+    end
+
+    if not users[wallet] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "DownvoteResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
+
+    -- Remove from upvotedBy if exists
+    posts[postId].upvotedBy[wallet] = nil
+    
+    -- Add to downvotedBy
+    posts[postId].downvotedBy[wallet] = true
+
+    -- Create notification for post author
+    if posts[postId].authorWallet ~= wallet then
+        createNotification(
+            posts[postId].authorWallet,
+            NOTIFICATION_TYPES.DOWNVOTE,
+            wallet,
+            postId,
+            { message = "downvoted your post" }
+        )
+    end
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "DownvoteResponse", Status = "Success" },
+        Data = json.encode({ 
+            message = "Post downvoted successfully.",
+            post = formatPostResponse(posts[postId], wallet)
+        })
+    })
+end)
+
+-- Update SharePost handler
+Handlers.add("SharePost", { Action = "SharePost" }, function(msg)
+    local postId = msg.Tags["PostId"]
+    local wallet = msg.Tags["Wallet"]
+
+    if not posts[postId] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "SharePostResponse", Status = "Error" },
+            Data = json.encode({ error = "Post does not exist." })
+        })
+        return
+    end
+
+    if not users[wallet] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "SharePostResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
+
+    posts[postId].sharedBy[wallet] = true
+
+    -- Create notification for post author
+    if posts[postId].authorWallet ~= wallet then
+        createNotification(
+            posts[postId].authorWallet,
+            NOTIFICATION_TYPES.SHARE,
+            wallet,
+            postId,
+            { message = "shared your post" }
+        )
+    end
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "SharePostResponse", Status = "Success" },
+        Data = json.encode({ 
+            message = "Post shared successfully.",
+            post = formatPostResponse(posts[postId], wallet)
+        })
+    })
+end)
 
 -- users = users or {}
 -- posts = posts or {}
@@ -370,6 +749,99 @@ local function log(level, message, data)
     print(logMessage)
 end
 
+-- Utility Functions
+local function countTableEntries(tbl)
+    local count = 0
+    for _ in pairs(tbl) do
+        count = count + 1
+    end
+    return count
+end
+
+local function countArrayEntries(arr)
+    local count = 0
+    for _ in ipairs(arr) do
+        count = count + 1
+    end
+    return count
+end
+
+local function getAuthorDetails(wallet)
+    if not users[wallet] then
+        return nil
+    end
+    return {
+        username = users[wallet].username,
+        displayName = users[wallet].displayName
+    }
+end
+
+local function formatPostResponse(post, requestingWallet)
+    if not post then return nil end
+    
+    local author = getAuthorDetails(post.authorWallet)
+    if not author then return nil end
+
+    return {
+        id = post.id,
+        title = post.title,
+        content = post.content,
+        topic = post.topic,
+        author = author,
+        createdAt = post.createdAt,
+        comments = post.comments,
+        upvotes = countArrayEntries(post.upvotedBy),
+        downvotes = countArrayEntries(post.downvotedBy),
+        shares = countArrayEntries(post.sharedBy),
+        bookmarks = countArrayEntries(post.bookmarkedBy),
+        hasUpvoted = post.upvotedBy[requestingWallet] == true,
+        hasDownvoted = post.downvotedBy[requestingWallet] == true,
+        hasShared = post.sharedBy[requestingWallet] == true,
+        hasBookmarked = post.bookmarkedBy[requestingWallet] == true
+    }
+end
+
+local function formatCommentResponse(comment, requestingWallet)
+    if not comment then return nil end
+    
+    local author = getAuthorDetails(comment.authorWallet)
+    if not author then return nil end
+
+    return {
+        id = comment.id,
+        postId = comment.postId,
+        content = comment.content,
+        author = author,
+        createdAt = comment.createdAt
+    }
+end
+
+local function formatUserResponse(user, requestingWallet)
+    if not user then return nil end
+
+    return {
+        username = user.username,
+        displayName = user.displayName,
+        bio = user.bio,
+        dateOfBirth = user.dateOfBirth,
+        createdAt = user.createdAt,
+        followers = countTableEntries(user.followers),
+        following = countTableEntries(user.following),
+        posts = countArrayEntries(user.posts),
+        comments = countArrayEntries(user.comments),
+        isFollowing = user.followers[requestingWallet] == true
+    }
+end
+
+local function formatFollowUserResponse(follower, following, requestingWallet)
+    if not follower or not following then return nil end
+
+    return {
+        follower = formatUserResponse(follower, requestingWallet),
+        following = formatUserResponse(following, requestingWallet)
+    }
+end
+
 Handlers.add("Register", { Action = "Register" }, function(msg)
     log("INFO", "Register request received", {
         username = msg.Tags["Username"],
@@ -384,13 +856,24 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
     local wallet = msg.Tags["Wallet"]
 
     -- Check if wallet is already used by any user
+    if users[wallet] then
+        log("ERROR", "Wallet already exists", { wallet = wallet })
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "RegisterResponse", Status = "Error" },
+            Data = json.encode({ error = "Wallet already exists." })
+        })
+        return
+    end
+
+    -- Check if username is already taken
     for _, user in pairs(users) do
-        if user.wallet == wallet then
-            log("ERROR", "Wallet already exists", { wallet = wallet })
+        if user.username == username then
+            log("ERROR", "Username already exists", { username = username })
             ao.send({
                 Target = msg.From,
                 Tags = { Action = "RegisterResponse", Status = "Error" },
-                Data = json.encode({ error = "Wallet already exists." })
+                Data = json.encode({ error = "Username already exists." })
             })
             return
         end
@@ -406,26 +889,15 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
         return
     end
 
-    if users[username] then
-        log("ERROR", "Username already exists", { username = username })
-        ao.send({
-            Target = msg.From,
-            Tags = { Action = "RegisterResponse", Status = "Error" },
-            Data = json.encode({ error = "Username already exists." })
-        })
-        return
-    end
-
     local timestamp = os.time()
-    users[username] = {
+    users[wallet] = {
         username = username,
         displayName = displayName,
         dateOfBirth = dateOfBirth,
         bio = bio,
-        wallet = wallet,
         posts = {},
         bookmarkedPosts = {},
-        score = 0,
+        comments = {},
         followers = {},
         following = {},
         createdAt = timestamp
@@ -437,7 +909,7 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
         Tags = { Action = "RegisterResponse", Status = "Success" },
         Data = json.encode({ 
             message = "User registered successfully.",
-            user = users[username]
+            user = formatUserResponse(users[wallet], wallet)
         })
     })
 end)
@@ -445,18 +917,18 @@ end)
 --update user
 Handlers.add("UpdateUser", { Action = "UpdateUser" }, function(msg)
     log("INFO", "Update user request received", {
-        username = msg.Tags["Username"],
+        wallet = msg.Tags["Wallet"],
         newUsername = msg.Tags["NewUsername"]
     })
 
-    local username = msg.Tags["Username"]
+    local wallet = msg.Tags["Wallet"]
     local newUsername = msg.Tags["NewUsername"]
     local displayName = msg.Tags["DisplayName"]
     local dateOfBirth = msg.Tags["DateOfBirth"]
     local bio = msg.Tags["Bio"]
 
-    if not users[username] then
-        log("ERROR", "User does not exist", { username = username })
+    if not users[wallet] then
+        log("ERROR", "User does not exist", { wallet = wallet })
         ao.send({
             Target = msg.From,
             Tags = { Action = "UpdateUserResponse", Status = "Error" },
@@ -466,76 +938,28 @@ Handlers.add("UpdateUser", { Action = "UpdateUser" }, function(msg)
     end
 
     -- Check if new username is already taken
-    if newUsername ~= username and users[newUsername] then
-        log("ERROR", "New username already exists", { newUsername = newUsername })
-        ao.send({
-            Target = msg.From,
-            Tags = { Action = "UpdateUserResponse", Status = "Error" },
-            Data = json.encode({ error = "New username already exists." })
-        })
-        return
-    end
-
-    -- Store the old user data
-    local oldUserData = users[username]
-
-    -- Create new user entry with updated data
-    users[newUsername] = {
-        username = newUsername,
-        displayName = displayName,
-        dateOfBirth = dateOfBirth,
-        bio = bio,
-        wallet = oldUserData.wallet,
-        posts = oldUserData.posts,
-        bookmarkedPosts = oldUserData.bookmarkedPosts,
-        score = oldUserData.score,
-        followers = oldUserData.followers,
-        following = oldUserData.following,
-        createdAt = oldUserData.createdAt
-    }
-
-    -- Remove old user entry if username changed
-    if newUsername ~= username then
-        users[username] = nil
-    end
-
-    -- Update posts
-    for _, postId in ipairs(users[newUsername].posts) do
-        if posts[postId] and posts[postId].author then
-            posts[postId].author.username = newUsername
-            posts[postId].author.displayName = displayName
-        end
-    end
-
-    -- Update comments
-    for _, postId in ipairs(users[newUsername].posts) do
-        if posts[postId] and posts[postId].comments then
-            for _, commentId in ipairs(posts[postId].comments) do
-                if comments[commentId] and comments[commentId].author then
-                    comments[commentId].author.username = newUsername
-                    comments[commentId].author.displayName = displayName
-                end
+    if newUsername ~= users[wallet].username then
+        for _, user in pairs(users) do
+            if user.username == newUsername then
+                log("ERROR", "New username already exists", { newUsername = newUsername })
+                ao.send({
+                    Target = msg.From,
+                    Tags = { Action = "UpdateUserResponse", Status = "Error" },
+                    Data = json.encode({ error = "New username already exists." })
+                })
+                return
             end
         end
     end
 
-    -- Update followers and following references
-    for follower, _ in pairs(users[newUsername].followers) do
-        if users[follower] then
-            users[follower].following[username] = nil
-            users[follower].following[newUsername] = true
-        end
-    end
-
-    for following, _ in pairs(users[newUsername].following) do
-        if users[following] then
-            users[following].followers[username] = nil
-            users[following].followers[newUsername] = true
-        end
-    end
+    -- Update user data
+    users[wallet].username = newUsername
+    users[wallet].displayName = displayName
+    users[wallet].dateOfBirth = dateOfBirth
+    users[wallet].bio = bio
 
     log("INFO", "User updated successfully", { 
-        oldUsername = username,
+        wallet = wallet,
         newUsername = newUsername
     })
 
@@ -544,21 +968,21 @@ Handlers.add("UpdateUser", { Action = "UpdateUser" }, function(msg)
         Tags = { Action = "UpdateUserResponse", Status = "Success" },
         Data = json.encode({ 
             message = "User updated successfully.", 
-            user = users[newUsername] 
+            user = formatUserResponse(users[wallet], wallet)
         })
     })
 end)
 
 Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
     log("INFO", "Create post request received", {
-        username = msg.Tags["Username"],
+        wallet = msg.Tags["Wallet"],
         title = msg.Tags["Title"]
     })
     
-    local username = msg.Tags["Username"]
+    local wallet = msg.Tags["Wallet"]
     
-    if not users[username] then
-        log("ERROR", "User does not exist", { username = username })
+    if not users[wallet] then
+        log("ERROR", "User does not exist", { wallet = wallet })
         ao.send({
             Target = msg.From,
             Tags = { Action = "CreatePostResponse", Status = "Error" },
@@ -567,7 +991,6 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
         return
     end
 
-    local displayName = users[username].displayName
     local title = msg.Tags["Title"]
     local content = msg.Tags["Content"]
     local topic = msg.Tags["Topic"]
@@ -587,25 +1010,23 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
 
     posts[postId] = {
         id = postId,
-        author = {
-            username = username,
-            displayName = displayName
-        },
+        authorWallet = wallet,
         title = title,
         content = content,
         topic = topic,
-        upvotes = 0,
-        downvotes = 0,
+        upvotedBy = {},
+        downvotedBy = {},
+        sharedBy = {},
+        bookmarkedBy = {},
         createdAt = timestamp,
-        shares = 0,
         comments = {}
     }
 
-    table.insert(users[username].posts, postId)
+    table.insert(users[wallet].posts, postId)
 
     log("INFO", "Post created successfully", { 
         postId = postId,
-        username = username
+        wallet = wallet
     })
 
     ao.send({
@@ -614,85 +1035,7 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
         Data = json.encode({ 
             message = "Post created successfully.",
             postId = postId,
-            post = posts[postId]
-        })
-    })
-end)
-
-Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
-    log("INFO", "Comment post request received", {
-        postId = msg.Tags["PostId"],
-        username = msg.Tags["Username"],
-        content = msg.Tags["Content"]
-    })
-
-    local postId = msg.Tags["PostId"]
-    local username = msg.Tags["Username"]
-    local content = msg.Tags["Content"]
-    
-    if not users[username] then
-        log("ERROR", "User does not exist", { username = username })
-        ao.send({
-            Target = msg.From,
-            Tags = { Action = "CommentPostResponse", Status = "Error" },
-            Data = json.encode({ error = "User does not exist." })
-        })
-        return
-    end
-
-    if not posts[postId] then
-        log("ERROR", "Post does not exist", { postId = postId })
-        ao.send({
-            Target = msg.From,
-            Tags = { Action = "CommentPostResponse", Status = "Error" },
-            Data = json.encode({ error = "Post does not exist." })
-        })
-        return
-    end
-
-    local displayName = users[username].displayName
-
-    if not content or content == "" then
-        log("ERROR", "Empty comment content", { username = username })
-        ao.send({
-            Target = msg.From,
-            Tags = { Action = "CommentPostResponse", Status = "Error" },
-            Data = json.encode({ error = "Comment content cannot be empty." })
-        })
-        return
-    end
-
-    local commentId = generateId("comment")
-    local timestamp = os.time()
-
-    comments[commentId] = {
-        id = commentId,
-        author = {
-            username = username,
-            displayName = displayName
-        },
-        content = content,
-        createdAt = timestamp,
-        postId = postId
-    }
-
-    -- Add comment to post's comments array
-    table.insert(posts[postId].comments, commentId)
-
-    log("INFO", "Comment posted successfully", { 
-        commentId = commentId,
-        postId = postId,
-        username = username,
-        content = content
-    })
-
-    ao.send({
-        Target = msg.From,
-        Tags = { Action = "CommentPostResponse", Status = "Success" },
-        Data = json.encode({ 
-            message = "Comment posted successfully.",
-            commentId = commentId,
-            comment = comments[commentId]
+            post = formatPostResponse(posts[postId], wallet)
         })
     })
 end)
@@ -739,191 +1082,12 @@ Handlers.add("LoadComments", { Action = "LoadComments" }, function(msg)
     })
 end)
 
-Handlers.add("UpvotePost", { Action = "Upvote" }, function(msg)
-    local postId = msg.Tags["PostId"]
-
-    if not posts[postId] then
-        ao.send({
-            Target = msg.From,
-            Tags = { Action = "UpvoteResponse", Status = "Error" },
-            Data = json.encode({ error = "Post does not exist." })
-        })
-        return
-    end
-
-    posts[postId].upvotes = posts[postId].upvotes + 1
-    local username = posts[postId].author.username
-    users[username].score = users[username].score + 1
-
-    ao.send({
-        Target = msg.From,
-        Tags = { Action = "UpvoteResponse", Status = "Success" },
-        Data = json.encode({ 
-            message = "Post upvoted successfully.",
-            post = posts[postId]
-        })
-    })
-end)
-
-Handlers.add("DownvotePost", { Action = "Downvote" }, function(msg)
-    local postId = msg.Tags["PostId"]
-
-    if not posts[postId] then
-        ao.send({
-            Target = msg.From,
-            Tags = { Action = "DownvoteResponse", Status = "Error" },
-            Data = json.encode({ error = "Post does not exist." })
-        })
-        return
-    end
-
-    posts[postId].downvotes = posts[postId].downvotes + 1
-    local username = posts[postId].author.username
-    users[username].score = users[username].score - 1
-
-    ao.send({
-        Target = msg.From,
-        Tags = { Action = "DownvoteResponse", Status = "Success" },
-        Data = json.encode({ 
-            message = "Post downvoted successfully.",
-            post = posts[postId]
-        })
-    })
-end)
-
-Handlers.add("SharePost", { Action = "SharePost" }, function(msg)
-    local postId = msg.Tags["PostId"]
-    local username = msg.Tags["Username"]
-
-    if not posts[postId] then
-        ao.send({
-            Target = msg.From,
-            Tags = { Action = "SharePostResponse", Status = "Error" },
-            Data = json.encode({ error = "Post does not exist." })
-        })
-        return
-    end
-
-    posts[postId].shares = posts[postId].shares + 1
-
-    ao.send({
-        Target = msg.From,
-        Tags = { Action = "SharePostResponse", Status = "Success" },
-        Data = json.encode({ 
-            message = "Post shared successfully.",
-            post = posts[postId]
-        })
-    })
-end)
-
-Handlers.add("FollowUser", { Action = "FollowUser" }, function(msg)
-    local follower = msg.Tags["Follower"]
-    local following = msg.Tags["Following"]
-
-    if not users[follower] or not users[following] then
-        ao.send({
-            Target = msg.From,
-            Tags = { Action = "FollowUserResponse", Status = "Error" },
-            Data = json.encode({ error = "User does not exist." })
-        })
-        return
-    end
-
-    users[follower].following[following] = true
-    users[following].followers[follower] = true
-
-    ao.send({
-        Target = msg.From,
-        Tags = { Action = "FollowUserResponse", Status = "Success" },
-        Data = json.encode({ 
-            message = "User followed successfully.",
-            follower = users[follower],
-            following = users[following]
-        })
-    })
-end)
-
--- get user by wallet address and username
-Handlers.add("GetUser", { Action = "GetUser" }, function(msg)
-    local wallet = msg.Tags["Wallet"]
-    local username = msg.Tags["Username"]
-    if not wallet and not username then
-        ao.send({
-            Target = msg.From,
-            Tags = { Action = "GetUserResponse", Status = "Error" },
-            Data = json.encode({ error = "Missing Wallet or Username tag." })
-        })
-        return
-    end
-
-    local foundUser = nil
-    local foundUsername = nil
-
-    for uname, user in pairs(users) do
-        if user.wallet == wallet or uname == username then
-            foundUser = user
-            foundUsername = uname
-            break
-        end
-    end
-
-    if not foundUser then
-        ao.send({
-            Target = msg.From,
-            Tags = { Action = "GetUserResponse", Status = "Error" },
-            Data = json.encode({ error = "User not found." })
-        })
-        return
-    end
-
-    local userInfo = {
-        username = foundUsername,
-        displayName = foundUser.displayName,
-        dateOfBirth = foundUser.dateOfBirth,
-        bio = foundUser.bio,
-        wallet = foundUser.wallet,
-        followers = foundUser.followers,
-        following = foundUser.following,
-        score = foundUser.score,
-        posts = foundUser.posts,
-        createdAt = foundUser.createdAt
-    }
-
-    ao.send({
-        Target = msg.From,
-        Tags = { Action = "GetUserResponse", Status = "Success" },
-        Data = json.encode({ user = userInfo })
-    })
-end)
-
-Handlers.add("SearchUser", { Action = "SearchUser" }, function(msg)
-    local searchTerm = msg.Tags["SearchTerm"]
-    local results = {}
-
-    for username, user in pairs(users) do
-        if string.find(username, searchTerm) or string.find(user.wallet, searchTerm) or string.find(user.displayName, searchTerm) then
-            table.insert(results, {
-                username = username,
-                displayName = user.displayName,
-                bio = user.bio,
-                followers = user.followers,
-                following = user.following
-            })
-        end
-    end
-
-    ao.send({
-        Target = msg.From,
-        Tags = { Action = "SearchUserResponse", Status = "Success" },
-        Data = json.encode({ users = results })
-    })
-end)
-
 Handlers.add("GetFeed", { Action = "GetFeed" }, function(msg)
+    local requestingWallet = msg.Tags["RequestingWallet"]
     local feed = {}
 
     for postId, post in pairs(posts) do
-        table.insert(feed, post)
+        table.insert(feed, formatPostResponse(post, requestingWallet))
     end
 
     -- Sort posts by creation time (newest first)
@@ -939,11 +1103,14 @@ Handlers.add("GetFeed", { Action = "GetFeed" }, function(msg)
 end)
 
 Handlers.add("GetTrending", { Action = "GetTrending" }, function(msg)
+    local requestingWallet = msg.Tags["RequestingWallet"]
     local trending = {}
 
     for postId, post in pairs(posts) do
-        post.netScore = post.upvotes - post.downvotes
-        table.insert(trending, post)
+        local netScore = countArrayEntries(post.upvotedBy) - countArrayEntries(post.downvotedBy)
+        local formattedPost = formatPostResponse(post, requestingWallet)
+        formattedPost.netScore = netScore
+        table.insert(trending, formattedPost)
     end
 
     -- Sort posts by net score (highest first)
@@ -959,13 +1126,14 @@ Handlers.add("GetTrending", { Action = "GetTrending" }, function(msg)
 end)
 
 Handlers.add("GetLeaderboard", { Action = "GetLeaderboard" }, function(msg)
+    local requestingWallet = msg.Tags["RequestingWallet"]
     local leaderboard = {}
 
-    for username, user in pairs(users) do
+    for wallet, user in pairs(users) do
+        local score = countArrayEntries(user.posts) + countArrayEntries(user.comments)
         table.insert(leaderboard, {
-            username = username,
-            displayName = user.displayName,
-            score = user.score
+            user = formatUserResponse(user, requestingWallet),
+            score = score
         })
     end
 
@@ -981,10 +1149,10 @@ Handlers.add("GetLeaderboard", { Action = "GetLeaderboard" }, function(msg)
 end)
 
 Handlers.add("GetUserPosts", { Action = "GetUserPosts" }, function(msg)
-    local username = msg.Tags["Username"]
-    local user = users[username]
+    local wallet = msg.Tags["Wallet"]
+    local requestingWallet = msg.Tags["RequestingWallet"]
 
-    if not user then
+    if not users[wallet] then
         ao.send({
             Target = msg.From,
             Tags = { Action = "GetUserPostsResponse", Status = "Error" },
@@ -994,9 +1162,9 @@ Handlers.add("GetUserPosts", { Action = "GetUserPosts" }, function(msg)
     end
 
     local userPosts = {}
-    for _, postId in ipairs(user.posts) do
+    for _, postId in ipairs(users[wallet].posts) do
         if posts[postId] then
-            table.insert(userPosts, posts[postId])
+            table.insert(userPosts, formatPostResponse(posts[postId], requestingWallet))
         end
     end
 
@@ -1012,19 +1180,19 @@ Handlers.add("GetUserPosts", { Action = "GetUserPosts" }, function(msg)
 end)
 
 Handlers.add("GetUserComments", { Action = "GetUserComments" }, function(msg)
-    local username = msg.Tags["Username"]
+    local wallet = msg.Tags["Wallet"]
+    local requestingWallet = msg.Tags["RequestingWallet"]
     
-    if not username then
+    if not wallet then
         ao.send({
             Target = msg.From,
             Tags = { Action = "GetUserCommentsResponse", Status = "Error" },
-            Data = json.encode({ error = "Missing Username tag." })
+            Data = json.encode({ error = "Missing Wallet tag." })
         })
         return
     end
 
-    local user = users[username]
-    if not user then
+    if not users[wallet] then
         ao.send({
             Target = msg.From,
             Tags = { Action = "GetUserCommentsResponse", Status = "Error" },
@@ -1034,19 +1202,13 @@ Handlers.add("GetUserComments", { Action = "GetUserComments" }, function(msg)
     end
 
     local userComments = {}
-    -- Search through all posts to find comments by this user
-    for _, post in pairs(posts) do
-        for _, commentId in ipairs(post.comments) do
-            if comments[commentId] and comments[commentId].author.username == username then
-                -- Create a new table with all comment data plus post info
-                local commentWithPost = {
-                    id = comments[commentId].id,
-                    author = comments[commentId].author,
-                    content = comments[commentId].content,
-                    createdAt = comments[commentId].createdAt,
-                    postId = post.id,
-                    postTitle = post.title
-                }
+    for _, commentId in ipairs(users[wallet].comments) do
+        if comments[commentId] then
+            local comment = comments[commentId]
+            local post = posts[comment.postId]
+            if post then
+                local commentWithPost = formatCommentResponse(comment, requestingWallet)
+                commentWithPost.postTitle = post.title
                 table.insert(userComments, commentWithPost)
             end
         end
@@ -1065,11 +1227,11 @@ Handlers.add("GetUserComments", { Action = "GetUserComments" }, function(msg)
 end)
 
 Handlers.add("BookmarkPost", { Action = "BookmarkPost" }, function(msg)
-    local username = msg.Tags["Username"]
+    local wallet = msg.Tags["Wallet"]
     local postId = msg.Tags["PostId"]
     local action = msg.Tags["Action"] -- "add" or "remove"
 
-    if not users[username] then
+    if not users[wallet] then
         ao.send({
             Target = msg.From,
             Tags = { Action = "BookmarkPostResponse", Status = "Error" },
@@ -1089,22 +1251,28 @@ Handlers.add("BookmarkPost", { Action = "BookmarkPost" }, function(msg)
 
     if action == "add" then
         -- Check if post is already bookmarked
-        for _, id in ipairs(users[username].bookmarkedPosts) do
-            if id == postId then
-                ao.send({
-                    Target = msg.From,
-                    Tags = { Action = "BookmarkPostResponse", Status = "Error" },
-                    Data = json.encode({ error = "Post already bookmarked." })
-                })
-                return
-            end
+        if posts[postId].bookmarkedBy[wallet] then
+            ao.send({
+                Target = msg.From,
+                Tags = { Action = "BookmarkPostResponse", Status = "Error" },
+                Data = json.encode({ error = "Post already bookmarked." })
+            })
+            return
         end
-        table.insert(users[username].bookmarkedPosts, postId)
+        
+        -- Add to bookmarkedBy
+        posts[postId].bookmarkedBy[wallet] = true
+        
+        -- Add to user's bookmarkedPosts
+        table.insert(users[wallet].bookmarkedPosts, postId)
     elseif action == "remove" then
-        -- Remove post from bookmarks
-        for i, id in ipairs(users[username].bookmarkedPosts) do
+        -- Remove from bookmarkedBy
+        posts[postId].bookmarkedBy[wallet] = nil
+        
+        -- Remove from user's bookmarkedPosts
+        for i, id in ipairs(users[wallet].bookmarkedPosts) do
             if id == postId then
-                table.remove(users[username].bookmarkedPosts, i)
+                table.remove(users[wallet].bookmarkedPosts, i)
                 break
             end
         end
@@ -1122,15 +1290,26 @@ Handlers.add("BookmarkPost", { Action = "BookmarkPost" }, function(msg)
         Tags = { Action = "BookmarkPostResponse", Status = "Success" },
         Data = json.encode({ 
             message = "Bookmark updated successfully.",
-            bookmarkedPosts = users[username].bookmarkedPosts
+            bookmarkedPosts = users[wallet].bookmarkedPosts,
+            post = formatPostResponse(posts[postId], wallet)
         })
     })
 end)
 
 Handlers.add("GetPersonalizedFeed", { Action = "GetPersonalizedFeed" }, function(msg)
-    local username = msg.Tags["Username"]
+    local wallet = msg.Tags["Wallet"]
+    local requestingWallet = msg.Tags["RequestingWallet"]
     
-    if not users[username] then
+    if not wallet then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetPersonalizedFeedResponse", Status = "Error" },
+            Data = json.encode({ error = "Missing Wallet tag." })
+        })
+        return
+    end
+
+    if not users[wallet] then
         ao.send({
             Target = msg.From,
             Tags = { Action = "GetPersonalizedFeedResponse", Status = "Error" },
@@ -1140,14 +1319,14 @@ Handlers.add("GetPersonalizedFeed", { Action = "GetPersonalizedFeed" }, function
     end
 
     local feed = {}
-    local user = users[username]
+    local user = users[wallet]
 
     -- Get posts from followed users
     for following, _ in pairs(user.following) do
         if users[following] then
             for _, postId in ipairs(users[following].posts) do
                 if posts[postId] then
-                    table.insert(feed, posts[postId])
+                    table.insert(feed, formatPostResponse(posts[postId], requestingWallet))
                 end
             end
         end
@@ -1156,7 +1335,7 @@ Handlers.add("GetPersonalizedFeed", { Action = "GetPersonalizedFeed" }, function
     -- Add user's own posts
     for _, postId in ipairs(user.posts) do
         if posts[postId] then
-            table.insert(feed, posts[postId])
+            table.insert(feed, formatPostResponse(posts[postId], requestingWallet))
         end
     end
 
@@ -1173,9 +1352,19 @@ Handlers.add("GetPersonalizedFeed", { Action = "GetPersonalizedFeed" }, function
 end)
 
 Handlers.add("GetBookmarkedFeed", { Action = "GetBookmarkedFeed" }, function(msg)
-    local username = msg.Tags["Username"]
+    local wallet = msg.Tags["Wallet"]
+    local requestingWallet = msg.Tags["RequestingWallet"]
     
-    if not users[username] then
+    if not wallet then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetBookmarkedFeedResponse", Status = "Error" },
+            Data = json.encode({ error = "Missing Wallet tag." })
+        })
+        return
+    end
+
+    if not users[wallet] then
         ao.send({
             Target = msg.From,
             Tags = { Action = "GetBookmarkedFeedResponse", Status = "Error" },
@@ -1185,11 +1374,11 @@ Handlers.add("GetBookmarkedFeed", { Action = "GetBookmarkedFeed" }, function(msg
     end
 
     local feed = {}
-    local user = users[username]
+    local user = users[wallet]
 
     for _, postId in ipairs(user.bookmarkedPosts) do
         if posts[postId] then
-            table.insert(feed, posts[postId])
+            table.insert(feed, formatPostResponse(posts[postId], requestingWallet))
         end
     end
 
@@ -1207,6 +1396,7 @@ end)
 
 Handlers.add("GetTopicFeed", { Action = "GetTopicFeed" }, function(msg)
     local topic = msg.Tags["Topic"]
+    local requestingWallet = msg.Tags["RequestingWallet"]
     
     if not topic then
         ao.send({
@@ -1221,7 +1411,7 @@ Handlers.add("GetTopicFeed", { Action = "GetTopicFeed" }, function(msg)
 
     for _, post in pairs(posts) do
         if post.topic == topic then
-            table.insert(feed, post)
+            table.insert(feed, formatPostResponse(post, requestingWallet))
         end
     end
 
@@ -1234,5 +1424,213 @@ Handlers.add("GetTopicFeed", { Action = "GetTopicFeed" }, function(msg)
         Target = msg.From,
         Tags = { Action = "GetTopicFeedResponse", Status = "Success" },
         Data = json.encode({ posts = feed })
+    })
+end)
+
+Handlers.add("GetUserStats", { Action = "GetUserStats" }, function(msg)
+    local wallet = msg.Tags["Wallet"]
+    local requestingWallet = msg.Tags["RequestingWallet"]
+    
+    if not wallet then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetUserStatsResponse", Status = "Error" },
+            Data = json.encode({ error = "Missing Wallet tag." })
+        })
+        return
+    end
+
+    if not users[wallet] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetUserStatsResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
+
+    local user = users[wallet]
+    local stats = {
+        user = formatUserResponse(user, requestingWallet),
+        activity = {
+            totalPosts = countArrayEntries(user.posts),
+            totalComments = countArrayEntries(user.comments),
+            totalBookmarks = countArrayEntries(user.bookmarkedPosts),
+            totalFollowers = countTableEntries(user.followers),
+            totalFollowing = countTableEntries(user.following)
+        },
+        engagement = {
+            totalUpvotes = 0,
+            totalDownvotes = 0,
+            totalShares = 0
+        }
+    }
+
+    -- Calculate engagement metrics
+    for _, postId in ipairs(user.posts) do
+        if posts[postId] then
+            stats.engagement.totalUpvotes = stats.engagement.totalUpvotes + countArrayEntries(posts[postId].upvotedBy)
+            stats.engagement.totalDownvotes = stats.engagement.totalDownvotes + countArrayEntries(posts[postId].downvotedBy)
+            stats.engagement.totalShares = stats.engagement.totalShares + countArrayEntries(posts[postId].sharedBy)
+        end
+    end
+
+    -- Add recent activity
+    stats.recentActivity = {
+        posts = {},
+        comments = {},
+        bookmarks = {}
+    }
+
+    -- Get 5 most recent posts
+    local recentPosts = {}
+    for _, postId in ipairs(user.posts) do
+        if posts[postId] then
+            table.insert(recentPosts, formatPostResponse(posts[postId], requestingWallet))
+        end
+    end
+    table.sort(recentPosts, function(a, b) return a.createdAt > b.createdAt end)
+    for i = 1, math.min(5, #recentPosts) do
+        table.insert(stats.recentActivity.posts, recentPosts[i])
+    end
+
+    -- Get 5 most recent comments
+    local recentComments = {}
+    for _, commentId in ipairs(user.comments) do
+        if comments[commentId] then
+            local comment = comments[commentId]
+            local post = posts[comment.postId]
+            if post then
+                local formattedComment = formatCommentResponse(comment, requestingWallet)
+                formattedComment.postTitle = post.title
+                table.insert(recentComments, formattedComment)
+            end
+        end
+    end
+    table.sort(recentComments, function(a, b) return a.createdAt > b.createdAt end)
+    for i = 1, math.min(5, #recentComments) do
+        table.insert(stats.recentActivity.comments, recentComments[i])
+    end
+
+    -- Get 5 most recent bookmarks
+    local recentBookmarks = {}
+    for _, postId in ipairs(user.bookmarkedPosts) do
+        if posts[postId] then
+            table.insert(recentBookmarks, formatPostResponse(posts[postId], requestingWallet))
+        end
+    end
+    table.sort(recentBookmarks, function(a, b) return a.createdAt > b.createdAt end)
+    for i = 1, math.min(5, #recentBookmarks) do
+        table.insert(stats.recentActivity.bookmarks, recentBookmarks[i])
+    end
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "GetUserStatsResponse", Status = "Success" },
+        Data = json.encode(stats)
+    })
+end)
+
+Handlers.add("GetPostStats", { Action = "GetPostStats" }, function(msg)
+    local postId = msg.Tags["PostId"]
+    local requestingWallet = msg.Tags["RequestingWallet"]
+    
+    if not postId then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetPostStatsResponse", Status = "Error" },
+            Data = json.encode({ error = "Missing PostId tag." })
+        })
+        return
+    end
+
+    if not posts[postId] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetPostStatsResponse", Status = "Error" },
+            Data = json.encode({ error = "Post does not exist." })
+        })
+        return
+    end
+
+    local post = posts[postId]
+    local stats = {
+        post = formatPostResponse(post, requestingWallet),
+        engagement = {
+            upvotes = countArrayEntries(post.upvotedBy),
+            downvotes = countArrayEntries(post.downvotedBy),
+            shares = countArrayEntries(post.sharedBy),
+            bookmarks = countArrayEntries(post.bookmarkedBy),
+            comments = countArrayEntries(post.comments)
+        },
+        recentActivity = {
+            comments = {},
+            upvoters = {},
+            downvoters = {},
+            sharers = {},
+            bookmarkers = {}
+        }
+    }
+
+    -- Get recent comments with author details
+    local recentComments = {}
+    for _, commentId in ipairs(post.comments) do
+        if comments[commentId] then
+            table.insert(recentComments, formatCommentResponse(comments[commentId], requestingWallet))
+        end
+    end
+    table.sort(recentComments, function(a, b) return a.createdAt > b.createdAt end)
+    for i = 1, math.min(5, #recentComments) do
+        table.insert(stats.recentActivity.comments, recentComments[i])
+    end
+
+    -- Get recent upvoters
+    local upvoters = {}
+    for wallet, _ in pairs(post.upvotedBy) do
+        if users[wallet] then
+            table.insert(upvoters, formatUserResponse(users[wallet], requestingWallet))
+        end
+    end
+    for i = 1, math.min(5, #upvoters) do
+        table.insert(stats.recentActivity.upvoters, upvoters[i])
+    end
+
+    -- Get recent downvoters
+    local downvoters = {}
+    for wallet, _ in pairs(post.downvotedBy) do
+        if users[wallet] then
+            table.insert(downvoters, formatUserResponse(users[wallet], requestingWallet))
+        end
+    end
+    for i = 1, math.min(5, #downvoters) do
+        table.insert(stats.recentActivity.downvoters, downvoters[i])
+    end
+
+    -- Get recent sharers
+    local sharers = {}
+    for wallet, _ in pairs(post.sharedBy) do
+        if users[wallet] then
+            table.insert(sharers, formatUserResponse(users[wallet], requestingWallet))
+        end
+    end
+    for i = 1, math.min(5, #sharers) do
+        table.insert(stats.recentActivity.sharers, sharers[i])
+    end
+
+    -- Get recent bookmarkers
+    local bookmarkers = {}
+    for wallet, _ in pairs(post.bookmarkedBy) do
+        if users[wallet] then
+            table.insert(bookmarkers, formatUserResponse(users[wallet], requestingWallet))
+        end
+    end
+    for i = 1, math.min(5, #bookmarkers) do
+        table.insert(stats.recentActivity.bookmarkers, bookmarkers[i])
+    end
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "GetPostStatsResponse", Status = "Success" },
+        Data = json.encode(stats)
     })
 end)

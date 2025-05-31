@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ArrowBigUp, Clock, Share2 } from "lucide-react";
+import { Bookmark, Clock, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Post } from "@/lib/ao-client";
 import { useRouter } from "next/navigation";
@@ -98,8 +98,8 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                   <span className="text-xs">{post.shares}</span>
                 </button>
                 <button className="flex items-center gap-1 text-white/80 hover:text-white transition-colors">
-                  <ArrowBigUp className="h-4 w-4" />
-                  <span className="text-xs">{post.upvotes}</span>
+                  <Bookmark className="h-4 w-4" />
+                  <span className="text-xs">{post.bookmarkCount}</span>
                 </button>
               </div>
             </div>
