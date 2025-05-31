@@ -7,35 +7,48 @@ const { dryrun, message, result } = connect({
 
 // Types
 export interface User {
+  wallet: string;
   username: string;
   displayName: string;
-  dateOfBirth: string;
   bio: string;
-  followers: Record<string, boolean>;
-  following: Record<string, boolean>;
-  posts: string[];
-  bookmarkedPosts: string[];
-  comments: string[];
+  dateOfBirth: string;
   createdAt: number;
+  followers: number;
+  following: number;
+  posts: number;
+  comments: number;
+  isFollowing: boolean;
 }
 
 export interface Post {
   id: string;
-  authorWallet: string;
+  author: {
+    wallet: string;
+    username: string;
+    displayName: string;
+  };
   title: string;
   content: string;
   topic: string[];
-  upvotedBy: Record<string, boolean>;
-  downvotedBy: Record<string, boolean>;
-  sharedBy: Record<string, boolean>;
-  bookmarkedBy: Record<string, boolean>;
+  upvotes: number;
+  downvotes: number;
+  shares: number;
+  bookmarks: number;
   createdAt: number;
   comments: string[];
+  hasUpvoted: boolean;
+  hasDownvoted: boolean;
+  hasShared: boolean;
+  hasBookmarked: boolean;
 }
 
 export interface Comment {
   id: string;
-  authorWallet: string;
+  author: {
+    wallet: string;
+    username: string;
+    displayName: string;
+  };
   content: string;
   createdAt: number;
   postId?: string;
@@ -50,13 +63,13 @@ export interface LeaderboardEntry {
 export interface Notification {
   id: string;
   type: 'follow' | 'comment' | 'upvote' | 'downvote' | 'share' | 'mention';
-  actorWallet?: string;
-  postId?: string;
+  createdAt: number;
+  read: boolean;
   data: {
     message: string;
   };
-  createdAt: number;
-  read: boolean;
+  actor?: User;
+  post?: Post;
 }
 
 export interface UserStats {
@@ -104,28 +117,28 @@ interface AOResponse {
 }
 
 interface AOClient {
-  getUser: (params: { wallet: string; requestingWallet: string }) => Promise<{ user: User }>;
+  getUser: (params: { wallet?: string; username?: string }) => Promise<{ user: User }>;
   registerUser: (username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string) => Promise<{ message: string; user: User }>;
-  updateUser: (wallet: string, newUsername: string, displayName: string, dateOfBirth: string, bio: string) => Promise<{ message: string; user: User }>;
-  createPost: (wallet: string, title: string, content: string, topic: string[]) => Promise<{ message: string; postId: string; post: Post }>;
-  commentPost: (postId: string, wallet: string, content: string) => Promise<{ message: string; commentId: string; comment: Comment }>;
-  loadComments: (postId: string, requestingWallet: string) => Promise<{ comments: Comment[] }>;
+  updateUser: (username: string, newUsername: string, displayName: string, dateOfBirth: string, bio: string) => Promise<{ message: string; user: User }>;
+  createPost: (username: string, title: string, content: string, topic: string[]) => Promise<{ message: string; postId: string; post: Post }>;
+  commentPost: (postId: string, username: string, content: string) => Promise<{ message: string; commentId: string; comment: Comment }>;
+  loadComments: (postId: string) => Promise<{ comments: Comment[] }>;
   upvotePost: (postId: string, wallet: string) => Promise<{ message: string; post: Post }>;
   downvotePost: (postId: string, wallet: string) => Promise<{ message: string; post: Post }>;
   sharePost: (postId: string, wallet: string) => Promise<{ message: string; post: Post }>;
   followUser: (followerWallet: string, followingWallet: string) => Promise<{ message: string; result: { follower: User; following: User } }>;
-  searchUser: (searchTerm: string, requestingWallet: string) => Promise<{ users: User[] }>;
+  searchUser: (searchTerm: string) => Promise<{ users: User[] }>;
   getFeed: (requestingWallet: string) => Promise<{ posts: Post[] }>;
   getTrending: (requestingWallet: string) => Promise<{ posts: Post[] }>;
   getLeaderboard: (requestingWallet: string) => Promise<{ users: LeaderboardEntry[] }>;
   getUserPosts: (wallet: string, requestingWallet: string) => Promise<{ posts: Post[] }>;
   getUserComments: (wallet: string, requestingWallet: string) => Promise<{ comments: Comment[] }>;
+  getNotifications: (wallet: string) => Promise<{ notifications: Notification[]; unreadCount: number }>;
+  markNotificationsRead: (wallet: string) => Promise<{ message: string }>;
   bookmarkPost: (wallet: string, postId: string, action: 'add' | 'remove') => Promise<{ message: string; bookmarkedPosts: string[]; post: Post }>;
   getPersonalizedFeed: (wallet: string, requestingWallet: string) => Promise<{ posts: Post[] }>;
   getBookmarkedFeed: (wallet: string, requestingWallet: string) => Promise<{ posts: Post[] }>;
   getTopicFeed: (topic: string, requestingWallet: string) => Promise<{ posts: Post[] }>;
-  getNotifications: (wallet: string) => Promise<{ notifications: Notification[]; unreadCount: number }>;
-  markNotificationsRead: (wallet: string) => Promise<{ message: string }>;
   getUserStats: (wallet: string, requestingWallet: string) => Promise<UserStats>;
   getPostStats: (postId: string, requestingWallet: string) => Promise<PostStats>;
 }
@@ -187,108 +200,6 @@ class AOClientImpl implements AOClient {
         throw new Error(parsedData.error);
       }
 
-      // For responses that have a specific structure like { message: string, user: User }
-      if (action === "Register" || action === "UpdateUser") {
-        return {
-          message: parsedData.message,
-          user: parsedData.user
-        } as T;
-      }
-
-      // For responses that have a specific structure like { message: string, post: Post }
-      if (action === "CreatePost") {
-        return {
-          message: parsedData.message,
-          postId: parsedData.postId,
-          post: parsedData.post
-        } as T;
-      }
-
-      // For responses that have a specific structure like { message: string, comment: Comment }
-      if (action === "CommentPost") {
-        return {
-          message: parsedData.message,
-          commentId: parsedData.commentId,
-          comment: parsedData.comment
-        } as T;
-      }
-
-      // For responses that have a specific structure like { message: string, post: Post }
-      if (action === "Upvote" || action === "Downvote" || action === "SharePost") {
-        return {
-          message: parsedData.message,
-          post: parsedData.post
-        } as T;
-      }
-
-      // For responses that have a specific structure like { message: string, follower: User, following: User }
-      if (action === "FollowUser") {
-        return {
-          message: parsedData.message,
-          result: parsedData.result
-        } as T;
-      }
-
-      // For responses that have a specific structure like { users: User[] }
-      if (action === "SearchUser") {
-        return {
-          users: parsedData.users
-        } as T;
-      }
-
-      // For responses that have a specific structure like { posts: Post[] }
-      if (action === "GetFeed" || action === "GetTrending" || action === "GetUserPosts" || 
-          action === "GetPersonalizedFeed" || action === "GetBookmarkedFeed" || action === "GetTopicFeed") {
-        return {
-          posts: parsedData.posts
-        } as T;
-      }
-
-      // For responses that have a specific structure like { users: LeaderboardEntry[] }
-      if (action === "GetLeaderboard") {
-        return {
-          users: parsedData.users
-        } as T;
-      }
-
-      // For responses that have a specific structure like { comments: Comment[] }
-      if (action === "GetUserComments" || action === "LoadComments") {
-        return {
-          comments: parsedData.comments
-        } as T;
-      }
-
-      // For responses that have a specific structure like { notifications: Notification[], unreadCount: number }
-      if (action === "GetNotifications") {
-        return {
-          notifications: parsedData.notifications,
-          unreadCount: parsedData.unreadCount
-        } as T;
-      }
-
-      // For responses that have a specific structure like { message: string }
-      if (action === "MarkNotificationsRead") {
-        return {
-          message: parsedData.message
-        } as T;
-      }
-
-      // For responses that have a specific structure like { user: User }
-      if (action === "GetUser") {
-        return parsedData as T;
-      }
-
-      // For responses that have a specific structure like UserStats
-      if (action === "GetUserStats") {
-        return parsedData as T;
-      }
-
-      // For responses that have a specific structure like PostStats
-      if (action === "GetPostStats") {
-        return parsedData as T;
-      }
-
-      // If no specific structure is matched, return the parsed data as is
       return parsedData as T;
     } catch (error) {
       // If it's already an Error object (from our error check above), re-throw it
@@ -313,11 +224,16 @@ class AOClientImpl implements AOClient {
     throw new Error("Unexpected response format");
   }
 
-  async getUser(params: { wallet: string; requestingWallet: string }): Promise<{ user: User }> {
-    return this.call<{ user: User }>("GetUser", {
-      Wallet: params.wallet,
-      RequestingWallet: params.requestingWallet
-    });
+  async getUser(params: { wallet?: string; username?: string }): Promise<{ user: User }> {
+    if (!params.wallet && !params.username) {
+      throw new Error("Either wallet or username must be provided");
+    }
+
+    const tags: Record<string, string> = {};
+    if (params.wallet) tags.Wallet = params.wallet;
+    if (params.username) tags.Username = params.username;
+
+    return this.call<{ user: User }>("GetUser", tags);
   }
 
   async registerUser(username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string): Promise<{ message: string; user: User }> {
@@ -330,9 +246,9 @@ class AOClientImpl implements AOClient {
     });
   }
 
-  async updateUser(wallet: string, newUsername: string, displayName: string, dateOfBirth: string, bio: string): Promise<{ message: string; user: User }> {
+  async updateUser(username: string, newUsername: string, displayName: string, dateOfBirth: string, bio: string): Promise<{ message: string; user: User }> {
     return this.call<{ message: string; user: User }>("UpdateUser", {
-      Wallet: wallet,
+      Username: username,
       NewUsername: newUsername,
       DisplayName: displayName,
       DateOfBirth: dateOfBirth,
@@ -340,39 +256,36 @@ class AOClientImpl implements AOClient {
     });
   }
 
-  async createPost(wallet: string, title: string, content: string, topic: string[]): Promise<{ message: string; postId: string; post: Post }> {
+  async createPost(username: string, title: string, content: string, topic: string[]): Promise<{ message: string; postId: string; post: Post }> {
     return this.call<{ message: string; postId: string; post: Post }>("CreatePost", {
-      Wallet: wallet,
+      Username: username,
       Title: title,
       Content: content,
       Topic: JSON.stringify(topic)
     });
   }
 
-  async commentPost(postId: string, wallet: string, content: string): Promise<{ message: string; commentId: string; comment: Comment }> {
+  async commentPost(postId: string, username: string, content: string): Promise<{ message: string; commentId: string; comment: Comment }> {
     return this.call<{ message: string; commentId: string; comment: Comment }>("CommentPost", {
       PostId: postId,
-      Wallet: wallet,
+      Username: username,
       Content: content
     });
   }
 
-  async loadComments(postId: string, requestingWallet: string): Promise<{ comments: Comment[] }> {
-    return this.call<{ comments: Comment[] }>("LoadComments", {
-      PostId: postId,
-      RequestingWallet: requestingWallet
-    });
+  async loadComments(postId: string): Promise<{ comments: Comment[] }> {
+    return this.call<{ comments: Comment[] }>("LoadComments", { PostId: postId });
   }
 
   async upvotePost(postId: string, wallet: string): Promise<{ message: string; post: Post }> {
-    return this.call<{ message: string; post: Post }>("Upvote", {
+    return this.call<{ message: string; post: Post }>("Upvote", { 
       PostId: postId,
       Wallet: wallet
     });
   }
 
   async downvotePost(postId: string, wallet: string): Promise<{ message: string; post: Post }> {
-    return this.call<{ message: string; post: Post }>("Downvote", {
+    return this.call<{ message: string; post: Post }>("Downvote", { 
       PostId: postId,
       Wallet: wallet
     });
@@ -392,10 +305,9 @@ class AOClientImpl implements AOClient {
     });
   }
 
-  async searchUser(searchTerm: string, requestingWallet: string): Promise<{ users: User[] }> {
+  async searchUser(searchTerm: string): Promise<{ users: User[] }> {
     return this.call<{ users: User[] }>("SearchUser", {
-      SearchTerm: searchTerm,
-      RequestingWallet: requestingWallet
+      SearchTerm: searchTerm
     });
   }
 
@@ -431,6 +343,18 @@ class AOClientImpl implements AOClient {
     });
   }
 
+  async getNotifications(wallet: string): Promise<{ notifications: Notification[]; unreadCount: number }> {
+    return this.call<{ notifications: Notification[]; unreadCount: number }>("GetNotifications", {
+      Wallet: wallet
+    });
+  }
+
+  async markNotificationsRead(wallet: string): Promise<{ message: string }> {
+    return this.call<{ message: string }>("MarkNotificationsRead", {
+      Wallet: wallet
+    });
+  }
+
   async bookmarkPost(wallet: string, postId: string, action: 'add' | 'remove'): Promise<{ message: string; bookmarkedPosts: string[]; post: Post }> {
     return this.call<{ message: string; bookmarkedPosts: string[]; post: Post }>("BookmarkPost", {
       Wallet: wallet,
@@ -460,18 +384,6 @@ class AOClientImpl implements AOClient {
     });
   }
 
-  async getNotifications(wallet: string): Promise<{ notifications: Notification[]; unreadCount: number }> {
-    return this.call<{ notifications: Notification[]; unreadCount: number }>("GetNotifications", {
-      Wallet: wallet
-    });
-  }
-
-  async markNotificationsRead(wallet: string): Promise<{ message: string }> {
-    return this.call<{ message: string }>("MarkNotificationsRead", {
-      Wallet: wallet
-    });
-  }
-
   async getUserStats(wallet: string, requestingWallet: string): Promise<UserStats> {
     return this.call<UserStats>("GetUserStats", {
       Wallet: wallet,
@@ -498,20 +410,8 @@ const client = getAOClient('YOUR_PROCESS_ID');
 // Register a user
 await client.registerUser('username', 'Display Name', '2000-01-01', 'wallet-address');
 
-// Create a post with topics
-await client.createPost('username', 'Hello, world!', 'Content here', ['tech', 'art']);
-
-// Bookmark a post
-await client.bookmarkPost('username', 'post-id', 'add');
-
-// Get personalized feed
-const personalizedFeed = await client.getPersonalizedFeed('username');
-
-// Get bookmarked feed
-const bookmarkedFeed = await client.getBookmarkedFeed('username');
-
-// Get topic feed
-const topicFeed = await client.getTopicFeed('tech');
+// Create a post
+await client.createPost('username', 'Hello, world!');
 
 // Get feed
 const feed = await client.getFeed();

@@ -13,6 +13,9 @@ import {
   Post,
   Comment,
   LeaderboardEntry,
+  Notification,
+  UserStats,
+  PostStats,
 } from "@/lib/ao-client";
 import { toast } from "react-hot-toast";
 
@@ -52,11 +55,6 @@ interface GlobalContextType {
   setUserComments: (comments: Comment[]) => void;
   loadProfileData: (username: string) => Promise<void>;
   handleFollowUser: (username: string) => Promise<boolean>;
-  // New state for bookmarked and topic feeds
-  bookmarkedPosts: Post[];
-  setBookmarkedPosts: (posts: Post[]) => void;
-  topicPosts: Post[];
-  setTopicPosts: (posts: Post[]) => void;
   // AO API Methods
   registerUser: (
     username: string,
@@ -84,13 +82,23 @@ interface GlobalContextType {
   refreshFeed: () => Promise<void>;
   refreshTrending: () => Promise<void>;
   refreshLeaderboard: () => Promise<void>;
-  getUserPosts: (username: string) => Promise<Post[]>;
-  getUserComments: (username: string) => Promise<Comment[]>;
-  // New methods
-  bookmarkPost: (postId: string, action: "add" | "remove") => Promise<boolean>;
-  refreshBookmarkedFeed: () => Promise<void>;
-  refreshTopicFeed: (topic: string) => Promise<void>;
-  getPersonalizedFeed: () => Promise<void>;
+  getUserPosts: (wallet: string) => Promise<Post[]>;
+  getUserComments: (wallet: string) => Promise<Comment[]>;
+  // New handlers
+  getNotifications: () => Promise<{
+    notifications: Notification[];
+    unreadCount: number;
+  }>;
+  markNotificationsRead: () => Promise<{ message: string }>;
+  bookmarkPost: (
+    postId: string,
+    action: "add" | "remove"
+  ) => Promise<{ message: string; bookmarkedPosts: string[]; post: Post }>;
+  getPersonalizedFeed: () => Promise<Post[]>;
+  getBookmarkedFeed: () => Promise<Post[]>;
+  getTopicFeed: (topic: string) => Promise<Post[]>;
+  getUserStats: (wallet: string) => Promise<UserStats>;
+  getPostStats: (postId: string) => Promise<PostStats>;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -106,8 +114,6 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [userComments, setUserComments] = useState<Comment[]>([]);
-  const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
-  const [topicPosts, setTopicPosts] = useState<Post[]>([]);
 
   // Initialize AO Client
   const aoClient = getAOClient(process.env.NEXT_PUBLIC_AO_PROCESS_ID || "");
@@ -117,13 +123,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     username?: string;
   }): Promise<boolean> => {
     try {
-      if (!walletAddress) {
-        throw new Error("Wallet not connected");
-      }
-      const userData = await aoClient.getUser({
-        wallet: params.wallet || "",
-        requestingWallet: walletAddress,
-      });
+      const userData = await aoClient.getUser(params);
       return !!userData;
     } catch (error) {
       console.error("Error checking if user exists:", error);
@@ -143,10 +143,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
             const userExists = await checkUserExists({ wallet: address });
             if (userExists) {
-              const userData = await aoClient.getUser({
-                wallet: address,
-                requestingWallet: address,
-              });
+              const userData = await aoClient.getUser({ wallet: address });
               setUser(userData.user);
               console.log("userData", userData, user);
               setIsLoggedIn(true);
@@ -181,10 +178,14 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     // Update user info in posts where they are the author
     const updatePosts = (posts: Post[]) =>
       posts.map((post) =>
-        post.authorWallet === user?.username
+        post.author.username === user?.username
           ? {
               ...post,
-              authorWallet: updatedUser.username,
+              author: {
+                wallet: updatedUser.wallet,
+                username: updatedUser.username,
+                displayName: updatedUser.displayName,
+              },
             }
           : post
       );
@@ -343,10 +344,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const loadComments = async (postId: string): Promise<Comment[]> => {
     try {
-      if (!walletAddress) {
-        throw new Error("Wallet not connected");
-      }
-      const response = await aoClient.loadComments(postId, walletAddress);
+      const response = await aoClient.loadComments(postId);
       // Sort comments by creation time (newest first)
       const sortedComments = response.comments.sort(
         (a, b) => b.createdAt - a.createdAt
@@ -401,11 +399,11 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const sharePost = async (postId: string): Promise<Post> => {
     try {
-      if (!user?.username) {
-        throw new Error("User not logged in");
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
       }
 
-      const response = await aoClient.sharePost(postId, user.username);
+      const response = await aoClient.sharePost(postId, walletAddress);
       await refreshFeed();
       toast.success(response.message);
       return response.post;
@@ -422,11 +420,16 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     following: string
   ): Promise<{ follower: User; following: User }> => {
     try {
-      if (!user?.username || !walletAddress) {
-        throw new Error("User not logged in");
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
       }
 
-      const result = await aoClient.followUser(user.username, following);
+      // First get the following user's wallet address
+      const followingUserData = await aoClient.getUser({ username: following });
+      const result = await aoClient.followUser(
+        walletAddress,
+        followingUserData.user.wallet
+      );
       setUser(result.result.follower);
       await refreshFeed();
       toast.success("User followed successfully!");
@@ -442,10 +445,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const searchUser = async (searchTerm: string): Promise<User[]> => {
     try {
-      if (!walletAddress) {
-        throw new Error("Wallet not connected");
-      }
-      const response = await aoClient.searchUser(searchTerm, walletAddress);
+      const response = await aoClient.searchUser(searchTerm);
       return response.users;
     } catch (error) {
       console.error("Error searching users:", error);
@@ -495,12 +495,12 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getUserPosts = async (username: string): Promise<Post[]> => {
+  const getUserPosts = async (wallet: string): Promise<Post[]> => {
     try {
       if (!walletAddress) {
         throw new Error("Wallet not connected");
       }
-      const response = await aoClient.getUserPosts(username, walletAddress);
+      const response = await aoClient.getUserPosts(wallet, walletAddress);
       return response.posts;
     } catch (error) {
       console.error("Error getting user posts:", error);
@@ -511,12 +511,12 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getUserComments = async (username: string): Promise<Comment[]> => {
+  const getUserComments = async (wallet: string): Promise<Comment[]> => {
     try {
       if (!walletAddress) {
         throw new Error("Wallet not connected");
       }
-      const response = await aoClient.getUserComments(username, walletAddress);
+      const response = await aoClient.getUserComments(wallet, walletAddress);
       return response.comments;
     } catch (error) {
       console.error("Error getting user comments:", error);
@@ -529,25 +529,32 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const loadProfileData = async (username: string) => {
     try {
-      if (!walletAddress) {
-        throw new Error("Wallet not connected");
-      }
       // Only fetch if the username is different from current profile user
       if (!profileUser || profileUser.username !== username) {
         // Load user data
-        const userData = await aoClient.getUser({
-          wallet: username,
-          requestingWallet: walletAddress,
-        });
+        const userData = await aoClient.getUser({ username });
         setProfileUser(userData.user);
 
-        // Load user posts
-        const posts = await getUserPosts(username);
-        setUserPosts(posts);
+        // Load user posts using the wallet from userData
+        const posts = await aoClient.getUserPosts(
+          userData.user.wallet,
+          walletAddress || ""
+        );
+        setUserPosts(posts.posts);
 
-        // Load user comments
-        const comments = await getUserComments(username);
-        setUserComments(comments);
+        // Load user comments using the wallet from userData
+        const comments = await aoClient.getUserComments(
+          userData.user.wallet,
+          walletAddress || ""
+        );
+        setUserComments(comments.comments);
+
+        // Load user stats using the wallet from userData
+        const stats = await aoClient.getUserStats(
+          userData.user.wallet,
+          walletAddress || ""
+        );
+        // You might want to store stats in state if needed
       }
     } catch (error) {
       console.error("Error loading profile data:", error);
@@ -558,11 +565,17 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const handleFollowUser = async (username: string): Promise<boolean> => {
     try {
-      if (!user?.username || !walletAddress) {
-        throw new Error("User not logged in");
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
       }
 
-      const result = await aoClient.followUser(user.username, username);
+      // Use wallet from profileUser if available
+      const followingWallet = profileUser?.wallet;
+      if (!followingWallet) {
+        throw new Error("User wallet not found");
+      }
+
+      const result = await aoClient.followUser(walletAddress, followingWallet);
       setUser(result.result.follower);
 
       // Update profile user's followers list if we're viewing their profile
@@ -582,107 +595,173 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const bookmarkPost = async (
-    postId: string,
-    action: "add" | "remove"
-  ): Promise<boolean> => {
-    try {
-      if (!user?.username) {
-        throw new Error("User not logged in");
-      }
-
-      const response = await aoClient.bookmarkPost(
-        user.username,
-        postId,
-        action
-      );
-
-      // Update the post in feed and trending posts
-      const updatePosts = (posts: Post[]) =>
-        posts.map((post) => (post.id === postId ? response.post : post));
-
-      setFeedPosts(updatePosts(feedPosts));
-      setTrendingPosts(updatePosts(trendingPosts));
-      setBookmarkedPosts(updatePosts(bookmarkedPosts));
-      setTopicPosts(updatePosts(topicPosts));
-
-      await refreshBookmarkedFeed();
-      toast.success(response.message);
-      return true;
-    } catch (error) {
-      console.error("Error bookmarking post:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to bookmark post"
-      );
-      return false;
-    }
-  };
-
-  const refreshBookmarkedFeed = async (): Promise<void> => {
-    try {
-      if (!user?.username || !walletAddress) {
-        throw new Error("User not logged in");
-      }
-
-      const response = await aoClient.getBookmarkedFeed(
-        user.username,
-        walletAddress
-      );
-      setBookmarkedPosts(response.posts);
-    } catch (error) {
-      console.error("Error refreshing bookmarked feed:", error);
-      toast.error("Failed to refresh bookmarked feed");
-    }
-  };
-
-  const refreshTopicFeed = async (topic: string): Promise<void> => {
-    try {
-      if (!walletAddress) {
-        throw new Error("Wallet not connected");
-      }
-      const response = await aoClient.getTopicFeed(topic, walletAddress);
-      setTopicPosts(response.posts);
-    } catch (error) {
-      console.error("Error refreshing topic feed:", error);
-      toast.error("Failed to refresh topic feed");
-    }
-  };
-
-  const getPersonalizedFeed = async (): Promise<void> => {
-    try {
-      if (!user?.username || !walletAddress) {
-        throw new Error("User not logged in");
-      }
-
-      const response = await aoClient.getPersonalizedFeed(
-        user.username,
-        walletAddress
-      );
-      setFeedPosts(response.posts);
-    } catch (error) {
-      console.error("Error getting personalized feed:", error);
-      toast.error("Failed to get personalized feed");
-    }
-  };
-
-  // Update the periodic refresh to include new feeds
+  // Refresh data periodically
   useEffect(() => {
     if (isLoggedIn) {
       refreshFeed();
       refreshTrending();
       refreshLeaderboard();
-      refreshBookmarkedFeed();
 
       const interval = setInterval(() => {
         refreshFeed();
         refreshTrending();
         refreshLeaderboard();
-        refreshBookmarkedFeed();
-      }, 90000); // Refresh every 90 seconds
+      }, 30000); // Refresh every 30 seconds
 
       return () => clearInterval(interval);
     }
   }, [isLoggedIn]);
+
+  // Add new handler implementations
+  const getNotifications = async (): Promise<{
+    notifications: Notification[];
+    unreadCount: number;
+  }> => {
+    try {
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.getNotifications(walletAddress);
+      return response;
+    } catch (error) {
+      console.error("Error getting notifications:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to get notifications"
+      );
+      throw error;
+    }
+  };
+
+  const markNotificationsRead = async (): Promise<{ message: string }> => {
+    try {
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.markNotificationsRead(walletAddress);
+      toast.success(response.message);
+      return response;
+    } catch (error) {
+      console.error("Error marking notifications as read:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to mark notifications as read"
+      );
+      throw error;
+    }
+  };
+
+  const bookmarkPost = async (
+    postId: string,
+    action: "add" | "remove"
+  ): Promise<{ message: string; bookmarkedPosts: string[]; post: Post }> => {
+    try {
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.bookmarkPost(
+        walletAddress,
+        postId,
+        action
+      );
+      toast.success(response.message);
+      return response;
+    } catch (error) {
+      console.error("Error bookmarking post:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to bookmark post"
+      );
+      throw error;
+    }
+  };
+
+  const getPersonalizedFeed = async (): Promise<Post[]> => {
+    try {
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.getPersonalizedFeed(
+        walletAddress,
+        walletAddress
+      );
+      return response.posts;
+    } catch (error) {
+      console.error("Error getting personalized feed:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to get personalized feed"
+      );
+      return [];
+    }
+  };
+
+  const getBookmarkedFeed = async (): Promise<Post[]> => {
+    try {
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.getBookmarkedFeed(
+        walletAddress,
+        walletAddress
+      );
+      return response.posts;
+    } catch (error) {
+      console.error("Error getting bookmarked feed:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to get bookmarked feed"
+      );
+      return [];
+    }
+  };
+
+  const getTopicFeed = async (topic: string): Promise<Post[]> => {
+    try {
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.getTopicFeed(topic, walletAddress);
+      return response.posts;
+    } catch (error) {
+      console.error("Error getting topic feed:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to get topic feed"
+      );
+      return [];
+    }
+  };
+
+  const getUserStats = async (wallet: string): Promise<UserStats> => {
+    try {
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.getUserStats(wallet, walletAddress);
+      return response;
+    } catch (error) {
+      console.error("Error getting user stats:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to get user stats"
+      );
+      throw error;
+    }
+  };
+
+  const getPostStats = async (postId: string): Promise<PostStats> => {
+    try {
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.getPostStats(postId, walletAddress);
+      return response;
+    } catch (error) {
+      console.error("Error getting post stats:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to get post stats"
+      );
+      throw error;
+    }
+  };
 
   return (
     <GlobalContext.Provider
@@ -713,14 +792,6 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         setUserComments,
         loadProfileData,
         handleFollowUser,
-        bookmarkedPosts,
-        setBookmarkedPosts,
-        topicPosts,
-        setTopicPosts,
-        bookmarkPost,
-        refreshBookmarkedFeed,
-        refreshTopicFeed,
-        getPersonalizedFeed,
         // AO API Methods
         registerUser,
         createPost,
@@ -736,6 +807,15 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         refreshLeaderboard,
         getUserPosts,
         getUserComments,
+        // New handlers
+        getNotifications,
+        markNotificationsRead,
+        bookmarkPost,
+        getPersonalizedFeed,
+        getBookmarkedFeed,
+        getTopicFeed,
+        getUserStats,
+        getPostStats,
       }}
     >
       {children}
