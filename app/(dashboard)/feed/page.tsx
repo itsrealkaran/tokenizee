@@ -20,7 +20,11 @@ export default function DashboardPage() {
     getBookmarkedFeed,
     walletAddress,
   } = useGlobal();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<Record<FeedType, boolean>>({
+    top: false,
+    "for-you": false,
+    bookmarked: false,
+  });
   const [activeFeed, setActiveFeed] = useState<FeedType>("top");
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
@@ -28,11 +32,11 @@ export default function DashboardPage() {
   useEffect(() => {
     const loadFeed = async () => {
       try {
-        setLoading(true);
+        setLoading((prev) => ({ ...prev, [activeFeed]: true }));
         switch (activeFeed) {
           case "top":
             // Use trending posts for top stories
-            setFilteredPosts(featuredPosts);
+            setFilteredPosts(trendingPosts);
             setFeaturedPosts(trendingPosts.slice(0, 3));
             break;
           case "for-you":
@@ -53,7 +57,7 @@ export default function DashboardPage() {
       } catch (error) {
         console.error("Error loading feed:", error);
       } finally {
-        setLoading(false);
+        setLoading((prev) => ({ ...prev, [activeFeed]: false }));
       }
     };
 
@@ -83,14 +87,6 @@ export default function DashboardPage() {
       icon: <Bookmark className="h-4 w-4" />,
     },
   ];
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col h-full">
@@ -128,7 +124,11 @@ export default function DashboardPage() {
 
         {/* Regular Posts */}
         <div className="px-4 sm:px-6 lg:px-8 py-4">
-          {filteredPosts.length === 0 ? (
+          {loading[activeFeed] ? (
+            <div className="flex items-center justify-center min-h-[200px]">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : filteredPosts.length === 0 ? (
             <div className="text-center py-8 bg-muted/50 rounded-lg">
               <div className="flex flex-col items-center gap-3">
                 {activeFeed === "bookmarked" ? (
