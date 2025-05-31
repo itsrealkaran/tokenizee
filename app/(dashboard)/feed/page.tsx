@@ -13,41 +13,58 @@ type FeedType = "top" | "for-you" | "bookmarked";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { feedPosts } = useGlobal();
+  const {
+    feedPosts,
+    trendingPosts,
+    getPersonalizedFeed,
+    getBookmarkedFeed,
+    walletAddress,
+  } = useGlobal();
   const [loading, setLoading] = useState(true);
   const [activeFeed, setActiveFeed] = useState<FeedType>("top");
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
 
   useEffect(() => {
-    // TODO: Fetch posts from Lua table
-    setLoading(false);
-  }, []);
+    const loadFeed = async () => {
+      try {
+        setLoading(true);
+        switch (activeFeed) {
+          case "top":
+            // Use trending posts for top stories
+            setFilteredPosts(featuredPosts);
+            setFeaturedPosts(trendingPosts.slice(0, 3));
+            break;
+          case "for-you":
+            if (walletAddress) {
+              const personalizedPosts = await getPersonalizedFeed();
+              setFilteredPosts(personalizedPosts);
+              setFeaturedPosts([]);
+            }
+            break;
+          case "bookmarked":
+            if (walletAddress) {
+              const bookmarkedPosts = await getBookmarkedFeed();
+              setFilteredPosts(bookmarkedPosts);
+              setFeaturedPosts([]);
+            }
+            break;
+        }
+      } catch (error) {
+        console.error("Error loading feed:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  useEffect(() => {
-    // Filter posts based on active feed type
-    switch (activeFeed) {
-      case "top":
-        // Sort by upvotes + shares
-        const sortedPosts = [...feedPosts].sort(
-          (a, b) => b.upvotes + b.shares - (a.upvotes + a.shares)
-        );
-        setFilteredPosts(sortedPosts);
-        // Set top 3 posts as featured
-        setFeaturedPosts(sortedPosts.slice(0, 3));
-        break;
-      case "for-you":
-        // TODO: Implement personalized feed algorithm
-        setFilteredPosts(feedPosts);
-        setFeaturedPosts([]);
-        break;
-      case "bookmarked":
-        // TODO: Implement bookmarked posts filtering
-        setFilteredPosts(feedPosts);
-        setFeaturedPosts([]);
-        break;
-    }
-  }, [activeFeed, feedPosts]);
+    loadFeed();
+  }, [
+    activeFeed,
+    trendingPosts,
+    getPersonalizedFeed,
+    getBookmarkedFeed,
+    walletAddress,
+  ]);
 
   const handleViewPost = (postId: string) => {
     router.push(`/feed/${postId}`);
