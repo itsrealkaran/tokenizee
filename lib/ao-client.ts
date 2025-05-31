@@ -51,7 +51,7 @@ export interface Comment {
   };
   content: string;
   createdAt: number;
-  postId?: string;
+  postId: string;
   postTitle?: string;
 }
 
@@ -121,7 +121,7 @@ interface AOClient {
   registerUser: (username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string) => Promise<{ message: string; user: User }>;
   updateUser: (username: string, newUsername: string, displayName: string, dateOfBirth: string, bio: string) => Promise<{ message: string; user: User }>;
   createPost: (username: string, title: string, content: string, topic: string[]) => Promise<{ message: string; postId: string; post: Post }>;
-  commentPost: (postId: string, username: string, content: string) => Promise<{ message: string; commentId: string; comment: Comment }>;
+  commentPost: (postId: string, wallet: string, content: string) => Promise<{ message: string; commentId: string; comment: Comment }>;
   loadComments: (postId: string) => Promise<{ comments: Comment[] }>;
   upvotePost: (postId: string, wallet: string) => Promise<{ message: string; post: Post }>;
   downvotePost: (postId: string, wallet: string) => Promise<{ message: string; post: Post }>;
@@ -265,10 +265,10 @@ class AOClientImpl implements AOClient {
     });
   }
 
-  async commentPost(postId: string, username: string, content: string): Promise<{ message: string; commentId: string; comment: Comment }> {
+  async commentPost(postId: string, wallet: string, content: string): Promise<{ message: string; commentId: string; comment: Comment }> {
     return this.call<{ message: string; commentId: string; comment: Comment }>("CommentPost", {
       PostId: postId,
-      Username: username,
+      Wallet: wallet,
       Content: content
     });
   }

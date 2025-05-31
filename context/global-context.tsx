@@ -303,13 +303,13 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     content: string
   ): Promise<{ commentId: string; comment: Comment }> => {
     try {
-      if (!user?.username) {
-        throw new Error("User not logged in");
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
       }
 
       const response = await aoClient.commentPost(
         postId,
-        user.username,
+        walletAddress,
         content
       );
 

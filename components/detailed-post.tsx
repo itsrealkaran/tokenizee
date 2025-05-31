@@ -32,12 +32,14 @@ export function DetailedPost({ post }: DetailedPostProps) {
     sharePost,
     loadComments,
     commentPost,
+    bookmarkPost,
     user,
   } = useGlobal();
   const [voteStatus, setVoteStatus] = useState<"up" | "down" | null>(null);
   const [upvotes, setUpvotes] = useState(post.upvotes);
   const [downvotes, setDownvotes] = useState(post.downvotes);
   const [shares, setShares] = useState(post.shares);
+  const [isBookmarked, setIsBookmarked] = useState(post.hasBookmarked);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [isVoting, setIsVoting] = useState(false);
@@ -55,6 +57,23 @@ export function DetailedPost({ post }: DetailedPostProps) {
       post.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
     ) % 1000;
   const imageUrl = `https://picsum.photos/seed/${imageId}/1200/675`;
+
+  // Initialize vote status based on post data
+  useEffect(() => {
+    if (post.hasUpvoted) {
+      setVoteStatus("up");
+    } else if (post.hasDownvoted) {
+      setVoteStatus("down");
+    }
+  }, [post.hasUpvoted, post.hasDownvoted]);
+
+  // Update interaction counts when post data changes
+  useEffect(() => {
+    setUpvotes(post.upvotes);
+    setDownvotes(post.downvotes);
+    setShares(post.shares);
+    setIsBookmarked(post.hasBookmarked);
+  }, [post.upvotes, post.downvotes, post.shares, post.hasBookmarked]);
 
   useEffect(() => {
     loadPostComments();
@@ -75,7 +94,11 @@ export function DetailedPost({ post }: DetailedPostProps) {
     setIsLoadingComments(true);
     try {
       const postComments = await loadComments(post.id);
-      setComments(postComments);
+      // Sort comments by creation time (newest first)
+      const sortedComments = postComments.sort(
+        (a, b) => b.createdAt - a.createdAt
+      );
+      setComments(sortedComments);
     } catch (error) {
       toast.error("Failed to load comments");
       console.error(error);
@@ -175,15 +198,37 @@ export function DetailedPost({ post }: DetailedPostProps) {
     setIsCommenting(true);
 
     try {
-      await commentPost(post.id, trimmedComment);
+      const { comment } = await commentPost(post.id, trimmedComment);
       setNewComment("");
-      await loadPostComments();
+      // Add the new comment to the beginning of the comments list
+      setComments((prevComments) => [comment, ...prevComments]);
       toast.success("Comment posted successfully!");
     } catch (error) {
-      toast.error("Failed to post comment");
       console.error(error);
+      toast.error("Failed to post comment");
     } finally {
       setIsCommenting(false);
+    }
+  };
+
+  const handleBookmark = async () => {
+    if (!user) {
+      toast.error("Please login to bookmark posts");
+      return;
+    }
+
+    try {
+      const action = isBookmarked ? "remove" : "add";
+      await bookmarkPost(post.id, action);
+      setIsBookmarked(!isBookmarked);
+      toast.success(
+        isBookmarked
+          ? "Post removed from bookmarks"
+          : "Post bookmarked successfully"
+      );
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to bookmark post");
     }
   };
 
@@ -207,8 +252,8 @@ export function DetailedPost({ post }: DetailedPostProps) {
               <span>{readingTime} min read</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Share2 className="h-4 w-4" />
-              <span className="text-sm">{shares} Shares</span>
+              <Bookmark className="h-4 w-4" />
+              <span className="text-sm">{post.bookmarks} Bookmarks</span>
             </div>
           </div>
         </div>
@@ -240,10 +285,15 @@ export function DetailedPost({ post }: DetailedPostProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="h-9 gap-2 hover:bg-primary/10"
+            className={cn(
+              "p-2 gap-2 hover:bg-primary/10",
+              isBookmarked && "text-primary hover:text-primary"
+            )}
+            onClick={handleBookmark}
           >
-            <Bookmark className="h-4 w-4" />
-            <span className="text-sm">Bookmark</span>
+            <Bookmark
+              className={cn("h-6 w-6", isBookmarked && "fill-current")}
+            />
           </Button>
         </div>
 

@@ -562,9 +562,8 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
     local bio = msg.Tags["Bio"]
     local wallet = msg.Tags["Wallet"]
 
-    -- Check if wallet is already used by any user
     if users[wallet] then
-        log("ERROR", "Wallet already exists", { wallet = wallet })
+        log("ERROR", "Register failed - Wallet already exists", { wallet = wallet })
         ao.send({
             Target = msg.From,
             Tags = { Action = "RegisterResponse", Status = "Error" },
@@ -573,10 +572,9 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
         return
     end
 
-    -- Check if username is already taken
     for _, user in pairs(users) do
         if user.username == username then
-            log("ERROR", "Username already exists", { username = username })
+            log("ERROR", "Register failed - Username already exists", { username = username })
             ao.send({
                 Target = msg.From,
                 Tags = { Action = "RegisterResponse", Status = "Error" },
@@ -587,7 +585,10 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
     end
 
     if not username or not displayName then
-        log("ERROR", "Missing required fields", { username = username, displayName = displayName })
+        log("ERROR", "Register failed - Missing required fields", { 
+            username = username, 
+            displayName = displayName 
+        })
         ao.send({
             Target = msg.From,
             Tags = { Action = "RegisterResponse", Status = "Error" },
@@ -611,7 +612,11 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
         createdAt = timestamp
     }
 
-    log("INFO", "User registered successfully", { username = username })
+    log("INFO", "User registered successfully", { 
+        username = username,
+        wallet = wallet
+    })
+
     ao.send({
         Target = msg.From,
         Tags = { Action = "RegisterResponse", Status = "Success" },
@@ -636,7 +641,7 @@ Handlers.add("UpdateUser", { Action = "UpdateUser" }, function(msg)
     local bio = msg.Tags["Bio"]
 
     if not users[wallet] then
-        log("ERROR", "User does not exist", { wallet = wallet })
+        log("ERROR", "Update failed - User does not exist", { wallet = wallet })
         ao.send({
             Target = msg.From,
             Tags = { Action = "UpdateUserResponse", Status = "Error" },
@@ -645,11 +650,12 @@ Handlers.add("UpdateUser", { Action = "UpdateUser" }, function(msg)
         return
     end
 
-    -- Check if new username is already taken
     if newUsername ~= users[wallet].username then
         for _, user in pairs(users) do
             if user.username == newUsername then
-                log("ERROR", "New username already exists", { newUsername = newUsername })
+                log("ERROR", "Update failed - New username already exists", { 
+                    newUsername = newUsername 
+                })
                 ao.send({
                     Target = msg.From,
                     Tags = { Action = "UpdateUserResponse", Status = "Error" },
@@ -660,7 +666,6 @@ Handlers.add("UpdateUser", { Action = "UpdateUser" }, function(msg)
         end
     end
 
-    -- Update user data
     users[wallet].username = newUsername
     users[wallet].displayName = displayName
     users[wallet].dateOfBirth = dateOfBirth
@@ -690,7 +695,7 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
     local wallet = msg.Tags["Wallet"]
     
     if not users[wallet] then
-        log("ERROR", "User does not exist", { wallet = wallet })
+        log("ERROR", "Create post failed - User does not exist", { wallet = wallet })
         ao.send({
             Target = msg.From,
             Tags = { Action = "CreatePostResponse", Status = "Error" },
@@ -704,7 +709,10 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
     local topic = msg.Tags["Topic"]
 
     if not title or not content then
-        log("ERROR", "Invalid post format", { title = title, content = content })
+        log("ERROR", "Create post failed - Invalid post format", { 
+            title = title, 
+            content = content 
+        })
         ao.send({
             Target = msg.From,
             Tags = { Action = "CreatePostResponse", Status = "Error" },
@@ -935,11 +943,18 @@ Handlers.add("GetUserComments", { Action = "GetUserComments" }, function(msg)
 end)
 
 Handlers.add("BookmarkPost", { Action = "BookmarkPost" }, function(msg)
+    log("INFO", "Bookmark post request received", {
+        wallet = msg.Tags["Wallet"],
+        postId = msg.Tags["PostId"],
+        action = msg.Tags["BookmarkAction"]
+    })
+
     local wallet = msg.Tags["Wallet"]
     local postId = msg.Tags["PostId"]
     local action = msg.Tags["BookmarkAction"]
     
     if not users[wallet] then
+        log("ERROR", "Bookmark failed - User does not exist", { wallet = wallet })
         ao.send({
             Target = msg.From,
             Tags = { Action = "BookmarkPostResponse", Status = "Error" },
@@ -949,6 +964,7 @@ Handlers.add("BookmarkPost", { Action = "BookmarkPost" }, function(msg)
     end
 
     if not posts[postId] then
+        log("ERROR", "Bookmark failed - Post does not exist", { postId = postId })
         ao.send({
             Target = msg.From,
             Tags = { Action = "BookmarkPostResponse", Status = "Error" },
@@ -958,8 +974,11 @@ Handlers.add("BookmarkPost", { Action = "BookmarkPost" }, function(msg)
     end
 
     if action == "add" then
-        -- Check if post is already bookmarked
         if posts[postId].bookmarkedBy[wallet] then
+            log("ERROR", "Bookmark failed - Post already bookmarked", { 
+                wallet = wallet,
+                postId = postId 
+            })
             ao.send({
                 Target = msg.From,
                 Tags = { Action = "BookmarkPostResponse", Status = "Error" },
@@ -968,23 +987,30 @@ Handlers.add("BookmarkPost", { Action = "BookmarkPost" }, function(msg)
             return
         end
         
-        -- Add to bookmarkedBy
         posts[postId].bookmarkedBy[wallet] = true
-        
-        -- Add to user's bookmarkedPosts
         table.insert(users[wallet].bookmarkedPosts, postId)
+        log("INFO", "Post bookmarked successfully", {
+            wallet = wallet,
+            postId = postId
+        })
     elseif action == "remove" then
-        -- Remove from bookmarkedBy
         posts[postId].bookmarkedBy[wallet] = nil
-        
-        -- Remove from user's bookmarkedPosts
         for i, id in ipairs(users[wallet].bookmarkedPosts) do
             if id == postId then
                 table.remove(users[wallet].bookmarkedPosts, i)
                 break
             end
         end
+        log("INFO", "Post bookmark removed successfully", {
+            wallet = wallet,
+            postId = postId
+        })
     else
+        log("ERROR", "Bookmark failed - Invalid action", { 
+            action = action,
+            wallet = wallet,
+            postId = postId 
+        })
         ao.send({
             Target = msg.From,
             Tags = { Action = "BookmarkPostResponse", Status = "Error" },
@@ -1204,9 +1230,14 @@ end)
 
 -- Add mark notifications as read handler
 Handlers.add("MarkNotificationsRead", { Action = "MarkNotificationsRead" }, function(msg)
+    log("INFO", "Mark notifications read request received", {
+        wallet = msg.Tags["Wallet"]
+    })
+
     local wallet = msg.Tags["Wallet"]
     
     if not wallet then
+        log("ERROR", "Mark notifications read failed - Missing wallet", {})
         ao.send({
             Target = msg.From,
             Tags = { Action = "MarkNotificationsReadResponse", Status = "Error" },
@@ -1216,6 +1247,9 @@ Handlers.add("MarkNotificationsRead", { Action = "MarkNotificationsRead" }, func
     end
 
     if not users[wallet] then
+        log("ERROR", "Mark notifications read failed - User does not exist", { 
+            wallet = wallet 
+        })
         ao.send({
             Target = msg.From,
             Tags = { Action = "MarkNotificationsReadResponse", Status = "Error" },
@@ -1236,6 +1270,11 @@ Handlers.add("MarkNotificationsRead", { Action = "MarkNotificationsRead" }, func
     end
     notifications[wallet].lastRead = os.time()
 
+    log("INFO", "Notifications marked as read", {
+        wallet = wallet,
+        count = #notifications[wallet].items
+    })
+
     ao.send({
         Target = msg.From,
         Tags = { Action = "MarkNotificationsReadResponse", Status = "Success" },
@@ -1245,10 +1284,19 @@ end)
 
 -- Update FollowUser handler
 Handlers.add("FollowUser", { Action = "FollowUser" }, function(msg)
+    log("INFO", "Follow user request received", {
+        followerWallet = msg.Tags["FollowerWallet"],
+        followingWallet = msg.Tags["FollowingWallet"]
+    })
+
     local followerWallet = msg.Tags["FollowerWallet"]
     local followingWallet = msg.Tags["FollowingWallet"]
 
     if not users[followerWallet] or not users[followingWallet] then
+        log("ERROR", "Follow failed - User does not exist", { 
+            followerWallet = followerWallet,
+            followingWallet = followingWallet
+        })
         ao.send({
             Target = msg.From,
             Tags = { Action = "FollowUserResponse", Status = "Error" },
@@ -1260,7 +1308,11 @@ Handlers.add("FollowUser", { Action = "FollowUser" }, function(msg)
     users[followerWallet].following[followingWallet] = true
     users[followingWallet].followers[followerWallet] = true
 
-    -- Create notification for followed user
+    log("INFO", "User followed successfully", {
+        followerWallet = followerWallet,
+        followingWallet = followingWallet
+    })
+
     createNotification(
         followingWallet,
         NOTIFICATION_TYPES.FOLLOW,
@@ -1268,6 +1320,10 @@ Handlers.add("FollowUser", { Action = "FollowUser" }, function(msg)
         nil,
         { message = "started following you" }
     )
+    log("INFO", "Follow notification created", {
+        recipient = followingWallet,
+        actor = followerWallet
+    })
 
     ao.send({
         Target = msg.From,
@@ -1281,11 +1337,18 @@ end)
 
 -- Update CommentPost handler
 Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
+    log("INFO", "Comment post request received", {
+        wallet = msg.Tags["Wallet"],
+        postId = msg.Tags["PostId"],
+        content = msg.Tags["Content"]
+    })
+
     local postId = msg.Tags["PostId"]
     local wallet = msg.Tags["Wallet"]
     local content = msg.Tags["Content"]
     
     if not users[wallet] then
+        log("ERROR", "Comment failed - User does not exist", { wallet = wallet })
         ao.send({
             Target = msg.From,
             Tags = { Action = "CommentPostResponse", Status = "Error" },
@@ -1295,6 +1358,7 @@ Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
     end
 
     if not posts[postId] then
+        log("ERROR", "Comment failed - Post does not exist", { postId = postId })
         ao.send({
             Target = msg.From,
             Tags = { Action = "CommentPostResponse", Status = "Error" },
@@ -1304,6 +1368,10 @@ Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
     end
 
     if not content or content == "" then
+        log("ERROR", "Comment failed - Empty content", { 
+            wallet = wallet,
+            postId = postId 
+        })
         ao.send({
             Target = msg.From,
             Tags = { Action = "CommentPostResponse", Status = "Error" },
@@ -1323,13 +1391,15 @@ Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
         postId = postId
     }
 
-    -- Add comment to post's comments array
     table.insert(posts[postId].comments, commentId)
-    
-    -- Add comment to user's comments array
     table.insert(users[wallet].comments, commentId)
 
-    -- Create notification for post author
+    log("INFO", "Comment posted successfully", {
+        commentId = commentId,
+        wallet = wallet,
+        postId = postId
+    })
+
     if posts[postId].authorWallet ~= wallet then
         createNotification(
             posts[postId].authorWallet,
@@ -1338,6 +1408,11 @@ Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
             postId,
             { message = "commented on your post" }
         )
+        log("INFO", "Comment notification created", {
+            recipient = posts[postId].authorWallet,
+            actor = wallet,
+            postId = postId
+        })
     end
 
     ao.send({
@@ -1353,10 +1428,16 @@ end)
 
 -- Update UpvotePost handler
 Handlers.add("UpvotePost", { Action = "Upvote" }, function(msg)
+    log("INFO", "Upvote post request received", {
+        wallet = msg.Tags["Wallet"],
+        postId = msg.Tags["PostId"]
+    })
+
     local postId = msg.Tags["PostId"]
     local wallet = msg.Tags["Wallet"]
 
     if not posts[postId] then
+        log("ERROR", "Upvote failed - Post does not exist", { postId = postId })
         ao.send({
             Target = msg.From,
             Tags = { Action = "UpvoteResponse", Status = "Error" },
@@ -1366,6 +1447,7 @@ Handlers.add("UpvotePost", { Action = "Upvote" }, function(msg)
     end
 
     if not users[wallet] then
+        log("ERROR", "Upvote failed - User does not exist", { wallet = wallet })
         ao.send({
             Target = msg.From,
             Tags = { Action = "UpvoteResponse", Status = "Error" },
@@ -1374,13 +1456,14 @@ Handlers.add("UpvotePost", { Action = "Upvote" }, function(msg)
         return
     end
 
-    -- Remove from downvotedBy if exists
     posts[postId].downvotedBy[wallet] = nil
-    
-    -- Add to upvotedBy
     posts[postId].upvotedBy[wallet] = true
 
-    -- Create notification for post author
+    log("INFO", "Post upvoted successfully", {
+        wallet = wallet,
+        postId = postId
+    })
+
     if posts[postId].authorWallet ~= wallet then
         createNotification(
             posts[postId].authorWallet,
@@ -1389,6 +1472,11 @@ Handlers.add("UpvotePost", { Action = "Upvote" }, function(msg)
             postId,
             { message = "upvoted your post" }
         )
+        log("INFO", "Upvote notification created", {
+            recipient = posts[postId].authorWallet,
+            actor = wallet,
+            postId = postId
+        })
     end
 
     ao.send({
@@ -1403,10 +1491,16 @@ end)
 
 -- Update DownvotePost handler
 Handlers.add("DownvotePost", { Action = "Downvote" }, function(msg)
+    log("INFO", "Downvote post request received", {
+        wallet = msg.Tags["Wallet"],
+        postId = msg.Tags["PostId"]
+    })
+
     local postId = msg.Tags["PostId"]
     local wallet = msg.Tags["Wallet"]
 
     if not posts[postId] then
+        log("ERROR", "Downvote failed - Post does not exist", { postId = postId })
         ao.send({
             Target = msg.From,
             Tags = { Action = "DownvoteResponse", Status = "Error" },
@@ -1416,6 +1510,7 @@ Handlers.add("DownvotePost", { Action = "Downvote" }, function(msg)
     end
 
     if not users[wallet] then
+        log("ERROR", "Downvote failed - User does not exist", { wallet = wallet })
         ao.send({
             Target = msg.From,
             Tags = { Action = "DownvoteResponse", Status = "Error" },
@@ -1424,13 +1519,14 @@ Handlers.add("DownvotePost", { Action = "Downvote" }, function(msg)
         return
     end
 
-    -- Remove from upvotedBy if exists
     posts[postId].upvotedBy[wallet] = nil
-    
-    -- Add to downvotedBy
     posts[postId].downvotedBy[wallet] = true
 
-    -- Create notification for post author
+    log("INFO", "Post downvoted successfully", {
+        wallet = wallet,
+        postId = postId
+    })
+
     if posts[postId].authorWallet ~= wallet then
         createNotification(
             posts[postId].authorWallet,
@@ -1439,6 +1535,11 @@ Handlers.add("DownvotePost", { Action = "Downvote" }, function(msg)
             postId,
             { message = "downvoted your post" }
         )
+        log("INFO", "Downvote notification created", {
+            recipient = posts[postId].authorWallet,
+            actor = wallet,
+            postId = postId
+        })
     end
 
     ao.send({
@@ -1453,10 +1554,16 @@ end)
 
 -- Update SharePost handler
 Handlers.add("SharePost", { Action = "SharePost" }, function(msg)
+    log("INFO", "Share post request received", {
+        wallet = msg.Tags["Wallet"],
+        postId = msg.Tags["PostId"]
+    })
+
     local postId = msg.Tags["PostId"]
     local wallet = msg.Tags["Wallet"]
 
     if not posts[postId] then
+        log("ERROR", "Share failed - Post does not exist", { postId = postId })
         ao.send({
             Target = msg.From,
             Tags = { Action = "SharePostResponse", Status = "Error" },
@@ -1466,6 +1573,7 @@ Handlers.add("SharePost", { Action = "SharePost" }, function(msg)
     end
 
     if not users[wallet] then
+        log("ERROR", "Share failed - User does not exist", { wallet = wallet })
         ao.send({
             Target = msg.From,
             Tags = { Action = "SharePostResponse", Status = "Error" },
@@ -1476,7 +1584,11 @@ Handlers.add("SharePost", { Action = "SharePost" }, function(msg)
 
     posts[postId].sharedBy[wallet] = true
 
-    -- Create notification for post author
+    log("INFO", "Post shared successfully", {
+        wallet = wallet,
+        postId = postId
+    })
+
     if posts[postId].authorWallet ~= wallet then
         createNotification(
             posts[postId].authorWallet,
@@ -1485,6 +1597,11 @@ Handlers.add("SharePost", { Action = "SharePost" }, function(msg)
             postId,
             { message = "shared your post" }
         )
+        log("INFO", "Share notification created", {
+            recipient = posts[postId].authorWallet,
+            actor = wallet,
+            postId = postId
+        })
     end
 
     ao.send({
