@@ -83,7 +83,7 @@ export interface AOClient {
   getUser: (params: { wallet?: string; username?: string }, requestingWallet: string) => Promise<{ user: User }>;
   registerUser: (username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string) => Promise<{ message: string; user: User }>;
   updateUser: (wallet: string, username: string, newUsername: string, displayName: string, dateOfBirth: string, bio: string) => Promise<{ message: string; user: User }>;
-  createPost: (username: string, title: string, content: string, topic: string[]) => Promise<{ message: string; postId: string; post: Post }>;
+  createPost: (wallet: string, title: string, content: string, topic: string[]) => Promise<{ message: string; postId: string; post: Post }>;
   commentPost: (postId: string, wallet: string, content: string) => Promise<{ message: string; commentId: string; comment: Comment }>;
   loadComments: (postId: string) => Promise<{ comments: Comment[] }>;
   upvotePost: (postId: string, wallet: string) => Promise<{ message: string; post: Post }>;
@@ -223,9 +223,9 @@ export class AOClientImpl implements AOClient {
     });
   }
 
-  async createPost(username: string, title: string, content: string, topic: string[]): Promise<{ message: string; postId: string; post: Post }> {
+  async createPost(wallet: string, title: string, content: string, topic: string[]): Promise<{ message: string; postId: string; post: Post }> {
     return this.call<{ message: string; postId: string; post: Post }>("CreatePost", {
-      Username: username,
+      Wallet: wallet,
       Title: title,
       Content: content,
       Topic: JSON.stringify(topic)

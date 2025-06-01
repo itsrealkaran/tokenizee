@@ -357,12 +357,12 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     topics: string[]
   ): Promise<{ postId: string; post: Post }> => {
     try {
-      if (!user?.username) {
-        throw new Error("User not logged in");
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
       }
 
       const response = await aoClient.createPost(
-        user.username,
+        walletAddress,
         title,
         content,
         topics

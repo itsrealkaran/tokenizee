@@ -643,7 +643,7 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
 
     local title = msg.Tags["Title"]
     local content = msg.Tags["Content"]
-    local topic = msg.Tags["Topic"]
+    local topicJson = msg.Tags["Topic"]
 
     if not title or not content then
         log("ERROR", "Create post failed - Invalid post format", { 
@@ -654,6 +654,21 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
             Target = msg.From,
             Tags = { Action = "CreatePostResponse", Status = "Error" },
             Data = json.encode({ error = "Invalid post format. Expected 'title: content'" })
+        })
+        return
+    end
+
+    -- Parse the JSON topic string into a Lua table
+    local topic = {}
+    local success, parsedTopic = pcall(json.decode, topicJson)
+    if success and type(parsedTopic) == "table" then
+        topic = parsedTopic
+    else
+        log("ERROR", "Create post failed - Invalid topic format", { topicJson = topicJson })
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "CreatePostResponse", Status = "Error" },
+            Data = json.encode({ error = "Invalid topic format" })
         })
         return
     end
