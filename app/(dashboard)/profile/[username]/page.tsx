@@ -164,7 +164,7 @@ export default function UserProfilePage() {
   const isCurrentUser = user?.username === profileUser.username;
 
   return (
-    <div className="max-w-2xl mx-auto px-2 py-2 sm:px-6">
+    <div className="max-w-2xl mx-auto pb-2 sm:px-6">
       {/* Profile Header */}
       <div className="space-y-4 sm:space-y-6">
         {/* Cover Image Placeholder */}

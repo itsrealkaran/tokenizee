@@ -188,7 +188,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
             variant="ghost"
             size="sm"
             className={cn(
-              "h-8 w-8 p-0 hover:bg-white/10 text-black hover:text-black/80",
+              "h-5 w-5 p-0 hover:bg-white/10 text-black hover:text-black/80",
               isBookmarked && "text-primary hover:text-primary"
             )}
             onClick={(e) => {
@@ -206,29 +206,29 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
       </div>
 
       {/* Content Section */}
-      <div className="p-5 space-y-4">
+      <div className="p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4">
         {/* Author and Date */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div
-              className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-colors ring-2 ring-primary/20"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-colors ring-2 ring-primary/20"
               onClick={handleProfileClick}
             >
-              <span className="text-base font-medium text-primary">
+              <span className="text-sm sm:text-base font-medium text-primary">
                 {post.author.displayName[0]}
               </span>
             </div>
             <div className="flex flex-col">
               <button
-                className="font-medium hover:underline text-sm text-left"
+                className="font-medium hover:underline text-xs sm:text-sm text-left"
                 onClick={handleProfileClick}
               >
                 {post.author.displayName}
               </button>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
                 <span>@{post.author.username}</span>
                 <span>•</span>
-                <Calendar className="w-4 h-4" />
+                <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span>{new Date(post.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
@@ -236,19 +236,19 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
         </div>
 
         {/* Title and Content */}
-        <div className="space-y-2">
-          <h2 className="text-xl font-semibold line-clamp-2 group-hover:text-primary transition-colors">
+        <div className="space-y-1.5 sm:space-y-2">
+          <h2 className="text-base sm:text-lg md:text-xl font-semibold line-clamp-2 group-hover:text-primary transition-colors">
             {post.title}
           </h2>
-          <p className="text-muted-foreground text-sm line-clamp-2">
+          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
             {truncatedContent}
           </p>
           {/* Topics */}
-          <div className="flex flex-wrap gap-2 pt-1">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1">
             {post.topic.map((topic) => (
               <span
                 key={topic}
-                className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   router.push(`/feed/topic/${topic}`);
@@ -261,14 +261,14 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
         </div>
 
         {/* Engagement Section */}
-        <div className="flex items-center gap-4 pt-3 border-t">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 pt-2 sm:pt-3 border-t">
+          <div className="flex items-center gap-2 sm:gap-4">
             <div className="flex items-center">
               <Button
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  "h-8 w-8 p-0 hover:bg-primary/10",
+                  "h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-primary/10",
                   voteStatus === "up" && "text-primary hover:text-primary"
                 )}
                 onClick={(e) => {
@@ -279,14 +279,14 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
               >
                 <ArrowBigUp
                   className={cn(
-                    "h-4 w-4",
+                    "h-3.5 w-3.5 sm:h-4 sm:w-4",
                     voteStatus === "up" && "fill-current"
                   )}
                 />
               </Button>
               <span
                 className={cn(
-                  "text-sm font-medium min-w-[1.5rem] text-center",
+                  "text-xs sm:text-sm font-medium min-w-[1.25rem] sm:min-w-[1.5rem] text-center",
                   voteStatus === "up" && "text-primary"
                 )}
               >
@@ -299,7 +299,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  "h-8 w-8 p-0 hover:bg-destructive/10",
+                  "h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-destructive/10",
                   voteStatus === "down" &&
                     "text-destructive hover:text-destructive"
                 )}
@@ -311,14 +311,14 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
               >
                 <ArrowBigDown
                   className={cn(
-                    "h-4 w-4",
+                    "h-3.5 w-3.5 sm:h-4 sm:w-4",
                     voteStatus === "down" && "fill-current"
                   )}
                 />
               </Button>
               <span
                 className={cn(
-                  "text-sm font-medium min-w-[1.5rem] text-center",
+                  "text-xs sm:text-sm font-medium min-w-[1.25rem] sm:min-w-[1.5rem] text-center",
                   voteStatus === "down" && "text-destructive"
                 )}
               >
@@ -331,7 +331,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  "h-8 w-8 p-0 hover:bg-primary/10",
+                  "h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-primary/10",
                   post.hasShared && "text-primary hover:text-primary"
                 )}
                 onClick={(e) => {
@@ -341,12 +341,15 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
                 disabled={isSharing}
               >
                 <Share2
-                  className={cn("h-4 w-4", post.hasShared && "fill-current")}
+                  className={cn(
+                    "h-3.5 w-3.5 sm:h-4 sm:w-4",
+                    post.hasShared && "fill-current"
+                  )}
                 />
               </Button>
               <span
                 className={cn(
-                  "text-sm font-medium min-w-[1.5rem] text-center",
+                  "text-xs sm:text-sm font-medium min-w-[1.25rem] sm:min-w-[1.5rem] text-center",
                   post.hasShared && "text-primary"
                 )}
               >
@@ -358,12 +361,12 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 hover:bg-primary/10"
+                className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-primary/10"
                 onClick={handleCommentClick}
               >
-                <MessageCircle className="h-4 w-4" />
+                <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
-              <span className="text-sm font-medium min-w-[1.5rem] text-center">
+              <span className="text-xs sm:text-sm font-medium min-w-[1.25rem] sm:min-w-[1.5rem] text-center">
                 {post.comments.length}
               </span>
             </div>
