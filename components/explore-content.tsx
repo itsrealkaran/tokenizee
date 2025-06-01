@@ -34,26 +34,26 @@ export default function ExploreContent() {
   return (
     <div className="flex flex-col h-full">
       {/* Fixed Header Section */}
-      <div className="flex-none space-y-2 pb-4">
+      <div className="flex-none space-y-2 pb-2 sm:pb-4">
         <div>
           <form onSubmit={handleSearch} className="relative">
-            <Search className="absolute z-10 left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Search className="absolute z-10 left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <Input
               type="text"
               placeholder="Search users, posts, or topics..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-8 sm:pl-10 h-9 sm:h-10 text-sm sm:text-base"
             />
           </form>
         </div>
 
         <div className="border-b">
-          <nav className="flex space-x-8" aria-label="Tabs">
+          <nav className="flex space-x-4 sm:space-x-8" aria-label="Tabs">
             <button
               onClick={() => setActiveTab("trending")}
               className={cn(
-                "py-4 px-1 border-b-2 font-medium text-sm transition-colors",
+                "py-2.5 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap",
                 activeTab === "trending"
                   ? "border-primary text-foreground"
                   : "border-transparent text-muted-foreground hover:text-foreground hover:border-primary/50"
@@ -64,7 +64,7 @@ export default function ExploreContent() {
             <button
               onClick={() => setActiveTab("creators")}
               className={cn(
-                "py-4 px-1 border-b-2 font-medium text-sm transition-colors",
+                "py-2.5 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap",
                 activeTab === "creators"
                   ? "border-primary text-foreground"
                   : "border-transparent text-muted-foreground hover:text-foreground hover:border-primary/50"
@@ -77,9 +77,9 @@ export default function ExploreContent() {
       </div>
 
       {/* Scrollable Content Section */}
-      <div className="flex-1 overflow-y-auto pr-2">
+      <div className="flex-1 overflow-y-auto pr-1 sm:pr-2">
         {activeTab === "trending" ? (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {trendingPosts.map((post) => (
               <PostCard
                 key={post.id}
@@ -89,31 +89,32 @@ export default function ExploreContent() {
             ))}
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {topCreators.map((creator, index) => (
               <div
                 key={creator.user.username}
-                className="flex items-center cursor-pointer justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                className="flex items-center cursor-pointer justify-between p-3 sm:p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
                 onClick={() => router.push(`/profile/${creator.user.username}`)}
               >
-                <div className="flex items-center space-x-4">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-lg font-medium text-primary">
+                <div className="flex items-center space-x-3 sm:space-x-4">
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-base sm:text-lg font-medium text-primary">
                       {creator.user.displayName[0]}
                     </span>
                   </div>
                   <div>
-                    <h3 className="font-medium">{creator.user.displayName}</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <h3 className="font-medium text-sm sm:text-base line-clamp-1">
+                      {creator.user.displayName}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       @{creator.user.username}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  {/* <p className="font-medium text-primary">
-                    {creator.score} pts
-                  </p> */}
-                  <p className="text-lg text-muted-foreground">#{index + 1}</p>
+                  <p className="text-base sm:text-lg text-muted-foreground">
+                    #{index + 1}
+                  </p>
                 </div>
               </div>
             ))}
