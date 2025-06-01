@@ -249,7 +249,12 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         throw new Error("User not logged in");
       }
 
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+
       const response = await aoClient.updateUser(
+        walletAddress,
         user.username,
         newUsername,
         displayName,
