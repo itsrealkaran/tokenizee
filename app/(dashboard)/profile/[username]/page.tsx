@@ -34,6 +34,8 @@ export default function UserProfilePage() {
     loadProfileData,
     handleFollowUser,
     updateUserProfile,
+    getFollowersList,
+    getFollowingList,
   } = useGlobal();
   const [profileUser, setProfileUser] = useState<User | null>(
     initialProfileUser
@@ -42,10 +44,12 @@ export default function UserProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<"posts" | "comments">("posts");
   const [isLoading, setIsLoading] = useState(true);
-  const [followStatus, setFollowStatus] = useState(false);
   const [isFollowLoading, setIsFollowLoading] = useState(false);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
+  const [followersList, setFollowersList] = useState<User[]>([]);
+  const [followingList, setFollowingList] = useState<User[]>([]);
+  const [isLoadingLists, setIsLoadingLists] = useState(false);
 
   // Sync local state with global state
   useEffect(() => {
@@ -65,7 +69,7 @@ export default function UserProfilePage() {
         setIsLoading(false);
       }
     },
-    [loadProfileData]
+    [loadProfileData, initialProfileUser]
   );
 
   useEffect(() => {
@@ -106,13 +110,32 @@ export default function UserProfilePage() {
 
     setIsFollowLoading(true);
     try {
-      await handleFollowUser(profileUser.username);
-      setFollowStatus(!followStatus);
+      const success = await handleFollowUser(profileUser.username);
+      if (success) {
+        toast.success(
+          profileUser.isFollowing
+            ? "Unfollowed successfully"
+            : "Followed successfully"
+        );
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Error following/unfollowing:", error);
+      toast.error("Failed to update follow status");
     } finally {
       setIsFollowLoading(false);
     }
+  };
+
+  const handleShowFollowers = async () => {
+    if (!profileUser) return;
+    setFollowersList(profileUser.followersList || []);
+    setShowFollowers(true);
+  };
+
+  const handleShowFollowing = async () => {
+    if (!profileUser) return;
+    setFollowingList(profileUser.followingList || []);
+    setShowFollowing(true);
   };
 
   if (isLoading) {
@@ -135,37 +158,6 @@ export default function UserProfilePage() {
   }
 
   const isCurrentUser = user?.username === profileUser.username;
-  const isFollowing = user?.following?.[profileUser.username] || false;
-
-  const followers = Object.keys(profileUser.followers || {}).map(
-    (username) => ({
-      username,
-      displayName: username, // You might want to fetch actual display names
-      followers: {},
-      following: {},
-      score: 0,
-      posts: [],
-      createdAt: 0,
-      dateOfBirth: "",
-      bio: "",
-      wallet: "",
-    })
-  );
-
-  const following = Object.keys(profileUser.following || {}).map(
-    (username) => ({
-      username,
-      displayName: username, // You might want to fetch actual display names
-      followers: {},
-      following: {},
-      score: 0,
-      posts: [],
-      createdAt: 0,
-      dateOfBirth: "",
-      bio: "",
-      wallet: "",
-    })
-  );
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6">
@@ -193,6 +185,11 @@ export default function UserProfilePage() {
               <p className="text-sm sm:text-base text-muted-foreground">
                 @{profileUser.username}
               </p>
+              {profileUser.bio && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {profileUser.bio}
+                </p>
+              )}
             </div>
           </div>
           <div className="mt-3 sm:mt-0">
@@ -207,7 +204,7 @@ export default function UserProfilePage() {
               </Button>
             ) : (
               <Button
-                variant={isFollowing ? "outline" : "default"}
+                variant={profileUser.isFollowing ? "outline" : "default"}
                 size="sm"
                 className="gap-2 w-full sm:w-auto"
                 onClick={handleFollow}
@@ -216,7 +213,7 @@ export default function UserProfilePage() {
                 <UserPlus className="h-4 w-4" />
                 {isFollowLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
-                ) : isFollowing ? (
+                ) : profileUser.isFollowing ? (
                   "Following"
                 ) : (
                   "Follow"
@@ -238,110 +235,104 @@ export default function UserProfilePage() {
             variant="ghost"
             size="sm"
             className="gap-2"
-            onClick={() => setShowFollowers(true)}
+            onClick={handleShowFollowers}
+            disabled={isLoadingLists}
           >
             <Users className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">
-              {Object.keys(profileUser.followers || {}).length} followers
+              {profileUser.followers} followers
             </span>
           </Button>
           <Button
             variant="ghost"
             size="sm"
             className="gap-2"
-            onClick={() => setShowFollowing(true)}
+            onClick={handleShowFollowing}
+            disabled={isLoadingLists}
           >
             <Users className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">
-              {Object.keys(profileUser.following || {}).length} following
+              {profileUser.following} following
             </span>
           </Button>
         </div>
 
-        {/* Bio */}
-        {profileUser.bio && (
-          <div className="px-2 sm:px-4">
-            <p className="text-sm sm:text-base text-muted-foreground">
-              {profileUser.bio}
-            </p>
-          </div>
-        )}
-      </div>
+        {/* User List Modals */}
+        <UserListModal
+          isOpen={showFollowers}
+          onClose={() => setShowFollowers(false)}
+          title="Followers"
+          users={followersList}
+          currentUsername={profileUser.username}
+        />
+        <UserListModal
+          isOpen={showFollowing}
+          onClose={() => setShowFollowing(false)}
+          title="Following"
+          users={followingList}
+          currentUsername={profileUser.username}
+        />
 
-      {/* Profile Tabs */}
-      <div className="border-b mt-4 sm:mt-6">
-        <nav className="flex space-x-4 sm:space-x-8" aria-label="Tabs">
+        {/* Tabs */}
+        <div className="flex border-b">
           <button
-            onClick={() => setActiveTab("posts")}
             className={cn(
-              "py-3 sm:py-4 px-1 border-b-2 font-medium text-sm transition-colors",
+              "px-4 py-2 text-sm font-medium",
               activeTab === "posts"
-                ? "border-primary text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground hover:border-primary/50"
+                ? "border-b-2 border-primary text-primary"
+                : "text-muted-foreground hover:text-foreground"
             )}
+            onClick={() => setActiveTab("posts")}
           >
-            Posts
+            {`Posts (${profileUser.posts})`}
           </button>
           <button
-            onClick={() => setActiveTab("comments")}
             className={cn(
-              "py-3 sm:py-4 px-1 border-b-2 font-medium text-sm transition-colors",
+              "px-4 py-2 text-sm font-medium",
               activeTab === "comments"
-                ? "border-primary text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground hover:border-primary/50"
+                ? "border-b-2 border-primary text-primary"
+                : "text-muted-foreground hover:text-foreground"
             )}
+            onClick={() => setActiveTab("comments")}
           >
-            Comments
+            {`Comments (${profileUser.comments})`}
           </button>
-        </nav>
-      </div>
+        </div>
 
-      {/* Tab Content */}
-      <div className="mt-4 sm:mt-6">
-        {activeTab === "posts" ? (
-          userPosts.length === 0 ? (
-            <div className="text-center py-8 sm:py-12">
-              <PenSquare className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground/50 mx-auto mb-3 sm:mb-4" />
-              <p className="text-sm sm:text-base text-muted-foreground">
-                No posts yet.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4 sm:space-y-6">
-              {userPosts.map((post) => (
+        {/* Content */}
+        <div className="space-y-4">
+          {activeTab === "posts" ? (
+            userPosts.length > 0 ? (
+              userPosts.map((post) => (
                 <PostCard
                   key={post.id}
                   post={post}
                   onViewPost={() => router.push(`/feed/${post.id}`)}
                 />
-              ))}
-            </div>
-          )
-        ) : (
-          <div className="space-y-3 sm:space-y-4">
-            {userComments.length === 0 ? (
-              <div className="text-center py-8 sm:py-12">
-                <MessageCircle className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground/50 mx-auto mb-3 sm:mb-4" />
-                <p className="text-sm sm:text-base text-muted-foreground">
-                  No comments yet.
-                </p>
-              </div>
-            ) : (
-              userComments.map((comment) => (
-                <div key={comment.id} className="cursor-pointer">
-                  <CommentCard comment={comment} />
-                </div>
               ))
-            )}
-          </div>
-        )}
+            ) : (
+              <div className="text-center py-8">
+                <PenSquare className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+                <p className="text-muted-foreground">No posts yet</p>
+              </div>
+            )
+          ) : userComments.length > 0 ? (
+            userComments.map((comment) => (
+              <CommentCard key={comment.id} comment={comment} />
+            ))
+          ) : (
+            <div className="text-center py-8">
+              <MessageCircle className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+              <p className="text-muted-foreground">No comments yet</p>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Edit Profile Modal */}
+      {/* Modals */}
       {isEditing && (
         <RegisterModal
           isOpen={isEditing}
-          isEditing={true}
           onClose={() => setIsEditing(false)}
           onSubmit={handleEditProfile}
           initialData={{
@@ -352,22 +343,6 @@ export default function UserProfilePage() {
           }}
         />
       )}
-
-      {/* Modals */}
-      <UserListModal
-        isOpen={showFollowers}
-        onClose={() => setShowFollowers(false)}
-        title="Followers"
-        users={followers}
-        currentUsername={profileUser.username}
-      />
-      <UserListModal
-        isOpen={showFollowing}
-        onClose={() => setShowFollowing(false)}
-        title="Following"
-        users={following}
-        currentUsername={profileUser.username}
-      />
     </div>
   );
 }

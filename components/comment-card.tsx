@@ -10,6 +10,7 @@ interface CommentCardProps {
 
 export function CommentCard({ comment }: CommentCardProps) {
   const router = useRouter();
+  console.log(comment);
 
   const handleProfileClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -50,7 +51,10 @@ export function CommentCard({ comment }: CommentCardProps) {
               {comment.content}
             </p>
             {comment.postTitle && (
-              <div className="flex hover:underline items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground" onClick={() => router.push(`/feed/${comment.postId}`)}>
+              <div
+                className="flex hover:underline items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground"
+                onClick={() => router.push(`/feed/${comment.postId}`)}
+              >
                 <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span>On post: {comment.postTitle}</span>
               </div>

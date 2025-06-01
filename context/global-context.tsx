@@ -97,8 +97,9 @@ interface GlobalContextType {
   getPersonalizedFeed: () => Promise<Post[]>;
   getBookmarkedFeed: () => Promise<Post[]>;
   getTopicFeed: (topic: string) => Promise<Post[]>;
-  getUserStats: (wallet: string) => Promise<UserStats>;
   getPostStats: (postId: string) => Promise<PostStats>;
+  getFollowersList: (wallet: string) => Promise<User[]>;
+  getFollowingList: (wallet: string) => Promise<User[]>;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -516,7 +517,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
       if (!walletAddress) {
         throw new Error("Wallet not connected");
       }
-      const response = await aoClient.getUserComments(wallet, walletAddress);
+      const response = await aoClient.getUserComments(wallet);
       return response.comments;
     } catch (error) {
       console.error("Error getting user comments:", error);
@@ -543,18 +544,24 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         setUserPosts(posts.posts);
 
         // Load user comments using the wallet from userData
-        const comments = await aoClient.getUserComments(
-          userData.user.wallet,
-          walletAddress || ""
-        );
+        const comments = await aoClient.getUserComments(userData.user.wallet);
         setUserComments(comments.comments);
 
-        // Load user stats using the wallet from userData
-        const stats = await aoClient.getUserStats(
-          userData.user.wallet,
-          walletAddress || ""
-        );
-        // You might want to store stats in state if needed
+        // Load followers and following lists
+        const [followers, following] = await Promise.all([
+          aoClient.getFollowersList(userData.user.wallet),
+          aoClient.getFollowingList(userData.user.wallet),
+        ]);
+
+        // Update the profile user with the lists
+        setProfileUser((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            followersList: followers.users,
+            followingList: following.users,
+          };
+        });
       }
     } catch (error) {
       console.error("Error loading profile data:", error);
@@ -731,22 +738,6 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getUserStats = async (wallet: string): Promise<UserStats> => {
-    try {
-      if (!walletAddress) {
-        throw new Error("Wallet not connected");
-      }
-      const response = await aoClient.getUserStats(wallet, walletAddress);
-      return response;
-    } catch (error) {
-      console.error("Error getting user stats:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to get user stats"
-      );
-      throw error;
-    }
-  };
-
   const getPostStats = async (postId: string): Promise<PostStats> => {
     try {
       if (!walletAddress) {
@@ -760,6 +751,38 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         error instanceof Error ? error.message : "Failed to get post stats"
       );
       throw error;
+    }
+  };
+
+  const getFollowersList = async (wallet: string): Promise<User[]> => {
+    try {
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.getFollowersList(wallet);
+      return response.users;
+    } catch (error) {
+      console.error("Error getting followers list:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to get followers list"
+      );
+      return [];
+    }
+  };
+
+  const getFollowingList = async (wallet: string): Promise<User[]> => {
+    try {
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.getFollowingList(wallet);
+      return response.users;
+    } catch (error) {
+      console.error("Error getting following list:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to get following list"
+      );
+      return [];
     }
   };
 
@@ -814,8 +837,9 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         getPersonalizedFeed,
         getBookmarkedFeed,
         getTopicFeed,
-        getUserStats,
         getPostStats,
+        getFollowersList,
+        getFollowingList,
       }}
     >
       {children}

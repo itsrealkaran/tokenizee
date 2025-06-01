@@ -18,6 +18,8 @@ export interface User {
   posts: number;
   comments: number;
   isFollowing: boolean;
+  followersList?: User[];
+  followingList?: User[];
 }
 
 export interface Post {
@@ -116,7 +118,7 @@ interface AOResponse {
   Tags: Array<{ name: string; value: string }>;
 }
 
-interface AOClient {
+export interface AOClient {
   getUser: (params: { wallet?: string; username?: string }) => Promise<{ user: User }>;
   registerUser: (username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string) => Promise<{ message: string; user: User }>;
   updateUser: (username: string, newUsername: string, displayName: string, dateOfBirth: string, bio: string) => Promise<{ message: string; user: User }>;
@@ -132,18 +134,19 @@ interface AOClient {
   getTrending: (requestingWallet: string) => Promise<{ posts: Post[] }>;
   getLeaderboard: (requestingWallet: string) => Promise<{ users: LeaderboardEntry[] }>;
   getUserPosts: (wallet: string, requestingWallet: string) => Promise<{ posts: Post[] }>;
-  getUserComments: (wallet: string, requestingWallet: string) => Promise<{ comments: Comment[] }>;
+  getUserComments: (wallet: string) => Promise<{ comments: Comment[] }>;
   getNotifications: (wallet: string) => Promise<{ notifications: Notification[]; unreadCount: number }>;
   markNotificationsRead: (wallet: string) => Promise<{ message: string }>;
   bookmarkPost: (wallet: string, postId: string, action: 'add' | 'remove') => Promise<{ message: string; bookmarkedPosts: string[]; post: Post }>;
   getPersonalizedFeed: (wallet: string, requestingWallet: string) => Promise<{ posts: Post[] }>;
   getBookmarkedFeed: (wallet: string, requestingWallet: string) => Promise<{ posts: Post[] }>;
   getTopicFeed: (topic: string, requestingWallet: string) => Promise<{ posts: Post[] }>;
-  getUserStats: (wallet: string, requestingWallet: string) => Promise<UserStats>;
   getPostStats: (postId: string, requestingWallet: string) => Promise<PostStats>;
+  getFollowersList: (wallet: string) => Promise<{ users: User[] }>;
+  getFollowingList: (wallet: string) => Promise<{ users: User[] }>;
 }
 
-class AOClientImpl implements AOClient {
+export class AOClientImpl implements AOClient {
   private processId: string;
 
   constructor(processId: string) {
@@ -336,10 +339,9 @@ class AOClientImpl implements AOClient {
     });
   }
 
-  async getUserComments(wallet: string, requestingWallet: string): Promise<{ comments: Comment[] }> {
+  async getUserComments(wallet: string): Promise<{ comments: Comment[] }> {
     return this.call<{ comments: Comment[] }>("GetUserComments", {
-      Wallet: wallet,
-      RequestingWallet: requestingWallet
+      Wallet: wallet
     });
   }
 
@@ -384,18 +386,25 @@ class AOClientImpl implements AOClient {
     });
   }
 
-  async getUserStats(wallet: string, requestingWallet: string): Promise<UserStats> {
-    return this.call<UserStats>("GetUserStats", {
-      Wallet: wallet,
-      RequestingWallet: requestingWallet
-    });
-  }
-
   async getPostStats(postId: string, requestingWallet: string): Promise<PostStats> {
     return this.call<PostStats>("GetPostStats", {
       PostId: postId,
       RequestingWallet: requestingWallet
     });
+  }
+
+  async getFollowersList(wallet: string): Promise<{ users: User[] }> {
+    const response = await this.call<{ users: User[] }>("GetFollowersList", {
+      Wallet: wallet
+    });
+    return response;
+  }
+
+  async getFollowingList(wallet: string): Promise<{ users: User[] }> {
+    const response = await this.call<{ users: User[] }>("GetFollowingList", {
+      Wallet: wallet
+    });
+    return response;
   }
 }
 

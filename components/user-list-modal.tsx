@@ -37,10 +37,10 @@ export function UserListModal({
     const following: Record<string, boolean> = {};
     users.forEach((u) => {
       // Check if the current user is following this user
-      following[u.username] = user?.following?.[u.username] || false;
+      following[u.username] = u.isFollowing || false;
     });
     setFollowingMap(following);
-  }, [users, user?.following]);
+  }, [users]);
 
   const handleFollow = async (targetUsername: string) => {
     if (!user) {
