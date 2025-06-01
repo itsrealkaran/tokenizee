@@ -14,8 +14,6 @@ import {
   Comment,
   LeaderboardEntry,
   Notification,
-  UserStats,
-  PostStats,
 } from "@/lib/ao-client";
 import { toast } from "react-hot-toast";
 
@@ -55,6 +53,7 @@ interface GlobalContextType {
   setUserComments: (comments: Comment[]) => void;
   loadProfileData: (username: string) => Promise<void>;
   handleFollowUser: (username: string) => Promise<boolean>;
+  topic: string[];
   // AO API Methods
   registerUser: (
     username: string,
@@ -98,7 +97,6 @@ interface GlobalContextType {
   getPersonalizedFeed: () => Promise<Post[]>;
   getBookmarkedFeed: () => Promise<Post[]>;
   getTopicFeed: (topic: string) => Promise<Post[]>;
-  getPostStats: (postId: string) => Promise<PostStats>;
   getFollowersList: (wallet: string) => Promise<User[]>;
   getFollowingList: (wallet: string) => Promise<User[]>;
 }
@@ -116,6 +114,44 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [userComments, setUserComments] = useState<Comment[]>([]);
+
+  const topic = [
+    "web3",
+    "defi",
+    "arweave",
+    "ao",
+    "permaweb",
+    "gaming",
+    "nft",
+    "art",
+    "music",
+    "video",
+    "general",
+    "crypto",
+    "blockchain",
+    "technology",
+    "science",
+    "politics",
+    "economy",
+    "business",
+    "finance",
+    "investment",
+    "ai",
+    "metaverse",
+    "dao",
+    "trading",
+    "mining",
+    "staking",
+    "yield",
+    "governance",
+    "privacy",
+    "security",
+    "scaling",
+    "layer2",
+    "ml",
+    "data",
+    "cloud",
+  ];
 
   // Initialize AO Client
   const aoClient = getAOClient(process.env.NEXT_PUBLIC_AO_PROCESS_ID || "");
@@ -833,22 +869,6 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getPostStats = async (postId: string): Promise<PostStats> => {
-    try {
-      if (!walletAddress) {
-        throw new Error("Wallet not connected");
-      }
-      const response = await aoClient.getPostStats(postId, walletAddress);
-      return response;
-    } catch (error) {
-      console.error("Error getting post stats:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to get post stats"
-      );
-      throw error;
-    }
-  };
-
   const getFollowersList = async (wallet: string): Promise<User[]> => {
     try {
       if (!walletAddress) {
@@ -884,6 +904,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   return (
     <GlobalContext.Provider
       value={{
+        topic,
         isLoggedIn,
         setIsLoggedIn,
         user,
@@ -933,7 +954,6 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         getPersonalizedFeed,
         getBookmarkedFeed,
         getTopicFeed,
-        getPostStats,
         getFollowersList,
         getFollowingList,
       }}

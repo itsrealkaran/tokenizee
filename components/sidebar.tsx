@@ -6,6 +6,7 @@ import {
   User2 as User,
   LogOut,
   Bolt,
+  Bell,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,12 +21,13 @@ import { toast } from "react-hot-toast";
 const navigation = [
   { name: "Feed", href: "/feed", icon: LayoutDashboard },
   { name: "Explore", href: "/explore", icon: Search },
+  { name: "Notifications", href: "/notifications", icon: Bell },
   { name: "Profile", href: "/profile", icon: User },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { isLoggedIn, user, logout } = useGlobal();
+  const { isLoggedIn, user, logout, topic } = useGlobal();
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
 
   if (!isLoggedIn || !user) {
@@ -41,7 +43,10 @@ export function Sidebar() {
 
       <nav className="px-2 flex-1">
         {navigation.map((item) => {
-          const isActive = pathname.includes(item.href);
+          const isActive =
+            item.name === "Profile"
+              ? pathname.includes(`/profile/${user.username}`)
+              : pathname === item.href;
           return (
             <Link
               key={item.name}
@@ -73,7 +78,8 @@ export function Sidebar() {
             Topics
           </div>
           <ul className="flex flex-col gap-1 px-2">
-            {["Travel", "Tech", "Art", "Science", "Sports"].map((topic) => {
+            {/* TODO: show only 5 topics */}
+            {topic.slice(0, 5).map((topic) => {
               const topicPath = `/feed/topic/${topic.toLowerCase()}`;
               const isActive = pathname === topicPath;
               return (

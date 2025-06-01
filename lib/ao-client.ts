@@ -74,45 +74,6 @@ export interface Notification {
   post?: Post;
 }
 
-export interface UserStats {
-  user: User;
-  activity: {
-    totalPosts: number;
-    totalComments: number;
-    totalBookmarks: number;
-    totalFollowers: number;
-    totalFollowing: number;
-  };
-  engagement: {
-    totalUpvotes: number;
-    totalDownvotes: number;
-    totalShares: number;
-  };
-  recentActivity: {
-    posts: Post[];
-    comments: Comment[];
-    bookmarks: Post[];
-  };
-}
-
-export interface PostStats {
-  post: Post;
-  engagement: {
-    upvotes: number;
-    downvotes: number;
-    shares: number;
-    bookmarks: number;
-    comments: number;
-  };
-  recentActivity: {
-    comments: Comment[];
-    upvoters: User[];
-    downvoters: User[];
-    sharers: User[];
-    bookmarkers: User[];
-  };
-}
-
 interface AOResponse {
   Data: string;
   Tags: Array<{ name: string; value: string }>;
@@ -142,7 +103,6 @@ export interface AOClient {
   getPersonalizedFeed: (wallet: string, requestingWallet: string) => Promise<{ posts: Post[] }>;
   getBookmarkedFeed: (wallet: string, requestingWallet: string) => Promise<{ posts: Post[] }>;
   getTopicFeed: (topic: string, requestingWallet: string) => Promise<{ posts: Post[] }>;
-  getPostStats: (postId: string, requestingWallet: string) => Promise<PostStats>;
   getFollowersList: (wallet: string) => Promise<{ users: User[] }>;
   getFollowingList: (wallet: string) => Promise<{ users: User[] }>;
 }
@@ -393,13 +353,6 @@ export class AOClientImpl implements AOClient {
   async getTopicFeed(topic: string, requestingWallet: string): Promise<{ posts: Post[] }> {
     return this.call<{ posts: Post[] }>("GetTopicFeed", {
       Topic: topic,
-      RequestingWallet: requestingWallet
-    });
-  }
-
-  async getPostStats(postId: string, requestingWallet: string): Promise<PostStats> {
-    return this.call<PostStats>("GetPostStats", {
-      PostId: postId,
       RequestingWallet: requestingWallet
     });
   }
