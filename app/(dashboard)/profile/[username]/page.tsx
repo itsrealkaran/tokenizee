@@ -7,10 +7,10 @@ import { useGlobal } from "@/context/global-context";
 import {
   Calendar,
   Users,
-  UserPlus,
   PenSquare,
   MessageCircle,
   Loader2,
+  UserPlus2,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -20,7 +20,7 @@ import {
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { CommentCard } from "@/components/comment-card";
-import { UserListModal } from "@/components/user-list-modal";
+import { UserListModal } from "@/components/modals/user-list-modal";
 import { User, Post } from "@/lib/ao-client";
 
 export default function UserProfilePage() {
@@ -164,7 +164,7 @@ export default function UserProfilePage() {
   const isCurrentUser = user?.username === profileUser.username;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6">
+    <div className="max-w-2xl mx-auto px-2 py-2 sm:px-6">
       {/* Profile Header */}
       <div className="space-y-4 sm:space-y-6">
         {/* Cover Image Placeholder */}
@@ -214,7 +214,7 @@ export default function UserProfilePage() {
                 onClick={handleFollow}
                 disabled={isFollowLoading}
               >
-                <UserPlus className="h-4 w-4" />
+                <UserPlus2 className="h-4 w-4" />
                 {isFollowLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : profileUser.isFollowing ? (

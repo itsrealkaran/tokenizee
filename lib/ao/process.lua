@@ -341,8 +341,67 @@ comments = comments or {
     }
 }
 
--- Initialize notifications table
-notifications = notifications or {}
+notifications = notifications or {
+    ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = {
+        items = {
+            {
+                read = false,
+                createdAt = 1748711901868,
+                id = "notification-1748711901868-2927",
+                actorWallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
+                data = {
+                    message = "shared your post"
+                },
+                type = "share",
+                postId = "post-1748263888299-9275"
+            },
+            {
+                read = false,
+                id = "notification-1748765513375-1630",
+                actorWallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
+                data = {
+                    message = "started following you"
+                },
+                type = "follow",
+                createdAt = 1748765513375
+            },
+            {
+                read = false,
+                createdAt = 1748772234802,
+                id = "notification-1748772234802-3728",
+                actorWallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
+                data = {
+                    message = "upvoted your post"
+                },
+                type = "upvote",
+                postId = "post-1748263888299-9275"
+            },
+            {
+                read = false,
+                createdAt = 1748711878340,
+                id = "notification-1748711878340-8531",
+                actorWallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
+                data = {
+                    message = "commented on your post"
+                },
+                type = "comment",
+                postId = "post-1748263888299-9275"
+            },
+            {
+                read = false,
+                createdAt = 1748712085800,
+                id = "notification-1748712085800-9824",
+                actorWallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
+                data = {
+                    message = "downvoted your post"
+                },
+                type = "downvote",
+                postId = "post-1748263888299-9275"
+            }
+        },
+        lastRead = 1748711901868
+    }
+}
 
 -- Add notification types
 local NOTIFICATION_TYPES = {

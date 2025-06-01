@@ -99,6 +99,8 @@ interface GlobalContextType {
   getTopicFeed: (topic: string) => Promise<Post[]>;
   getFollowersList: (wallet: string) => Promise<User[]>;
   getFollowingList: (wallet: string) => Promise<User[]>;
+  unreadNotifications: number;
+  setUnreadNotifications: (count: number) => void;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -114,6 +116,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [userComments, setUserComments] = useState<Comment[]>([]);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   const topic = [
     "web3",
@@ -760,13 +763,14 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         throw new Error("Wallet not connected");
       }
       const response = await aoClient.getNotifications(walletAddress);
+      setUnreadNotifications(response.unreadCount);
       return response;
     } catch (error) {
       console.error("Error getting notifications:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to get notifications"
       );
-      throw error;
+      return { notifications: [], unreadCount: 0 };
     }
   };
 
@@ -776,7 +780,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         throw new Error("Wallet not connected");
       }
       const response = await aoClient.markNotificationsRead(walletAddress);
-      toast.success(response.message);
+      setUnreadNotifications(0);
       return response;
     } catch (error) {
       console.error("Error marking notifications as read:", error);
@@ -956,6 +960,8 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         getTopicFeed,
         getFollowersList,
         getFollowingList,
+        unreadNotifications,
+        setUnreadNotifications,
       }}
     >
       {children}
