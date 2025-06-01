@@ -235,7 +235,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
   return (
     <article className="space-y-6 sm:space-y-8 bg-card rounded-lg shadow-sm overflow-hidden">
       {/* Featured Image */}
-      <div className="w-full aspect-[16/9] relative group">
+      <div className="w-full aspect-[16/9] relative group overflow-hidden">
         <img
           src={imageUrl}
           alt={post.title}
@@ -246,6 +246,17 @@ export function DetailedPost({ post }: DetailedPostProps) {
           <h1 className="text-2xl sm:text-4xl font-bold text-white mb-4">
             {post.title}
           </h1>
+          {/* Topics */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {post.topic.map((topic) => (
+              <span
+                key={topic}
+                className="text-white/90 text-sm px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+              >
+                #{topic}
+              </span>
+            ))}
+          </div>
           <div className="flex items-center gap-4 text-white/90 text-sm">
             <div className="flex items-center gap-1.5">
               <Clock className="h-4 w-4" />
@@ -306,6 +317,18 @@ export function DetailedPost({ post }: DetailedPostProps) {
             >
               {paragraph}
             </p>
+          ))}
+        </div>
+
+        {/* Topics (Mobile View) */}
+        <div className="flex flex-wrap gap-2 sm:hidden">
+          {post.topic.map((topic) => (
+            <span
+              key={topic}
+              className="text-sm px-3 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+            >
+              #{topic}
+            </span>
           ))}
         </div>
 

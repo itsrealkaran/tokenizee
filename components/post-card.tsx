@@ -236,6 +236,17 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
           <p className="text-muted-foreground text-sm line-clamp-2">
             {truncatedContent}
           </p>
+          {/* Topics */}
+          <div className="flex flex-wrap gap-2 pt-1">
+            {post.topic.map((topic) => (
+              <span
+                key={topic}
+                className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+              >
+                #{topic}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* Engagement Section */}
