@@ -73,11 +73,9 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="px-4 py-3 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Notifications</h1>
-          {notifications.length > 0 && (
+    <div className="max-w-2xl -m-4">
+        {notifications.length > 0 && (
+          <div className="flex justify-end">
             <Button
               variant="ghost"
               size="sm"
@@ -86,9 +84,8 @@ export default function NotificationsPage() {
             >
               Mark all as read
             </Button>
-          )}
-        </div>
-      </div>
+          </div>
+        )}
 
       <div className="divide-y">
         {notifications.length === 0 ? (
