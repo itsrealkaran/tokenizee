@@ -37,7 +37,7 @@ export default function DashboardPage() {
           case "top":
             // Use trending posts for top stories
             setFilteredPosts(feedPosts);
-            setFeaturedPosts(trendingPosts.slice(0, 3));
+            setFeaturedPosts(trendingPosts.slice(0, 5));
             break;
           case "for-you":
             if (walletAddress) {

@@ -92,34 +92,34 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
 
             {/* Content Container */}
-            <div className="absolute inset-0 flex flex-col justify-between p-3 sm:p-4 md:p-6">
+            <div className="absolute inset-0 flex flex-col justify-between p-3 sm:p-4 md:p-5 lg:p-6">
               {/* Top Section */}
               <div className="flex items-start justify-between">
                 {post.author && (
-                  <span className="bg-white/90 text-black text-[10px] sm:text-xs font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-sm backdrop-blur-sm hover:bg-white transition-colors">
+                  <span className="bg-white/90 text-black text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full shadow-sm backdrop-blur-sm hover:bg-white transition-colors">
                     @{post.author.username}
                   </span>
                 )}
-                <div className="flex items-center gap-1 sm:gap-2">
+                <div className="flex items-center gap-1 sm:gap-1.5">
                   <button
-                    className="p-1.5 sm:p-2 rounded-full bg-black/30 text-white/80 hover:text-white hover:bg-black/50 transition-all backdrop-blur-sm"
+                    className="p-1.5 sm:p-1.5 rounded-full bg-black/30 text-white/80 hover:text-white hover:bg-black/50 transition-all backdrop-blur-sm"
                     onClick={handlePrevClick}
                   >
-                    <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <ChevronLeft className="h-4 w-4 sm:h-4 sm:w-4" />
                   </button>
                   <button
-                    className="p-1.5 sm:p-2 rounded-full bg-black/30 text-white/80 hover:text-white hover:bg-black/50 transition-all backdrop-blur-sm"
+                    className="p-1.5 sm:p-1.5 rounded-full bg-black/30 text-white/80 hover:text-white hover:bg-black/50 transition-all backdrop-blur-sm"
                     onClick={handleNextClick}
                   >
-                    <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <ChevronRight className="h-4 w-4 sm:h-4 sm:w-4" />
                   </button>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2 sm:gap-4">
+              <div className="flex flex-col gap-2 sm:gap-3 md:gap-4">
                 {/* Middle Section */}
-                <div className="space-y-2 sm:space-y-4">
-                  <h2 className="text-white text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight drop-shadow-lg line-clamp-2">
+                <div className="space-y-2 sm:space-y-3">
+                  <h2 className="text-white text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight drop-shadow-lg line-clamp-2">
                     {post.title}
                   </h2>
                   {/* Topics */}
@@ -127,7 +127,7 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                     {post.topic.map((topic) => (
                       <span
                         key={topic}
-                        className="text-white/90 text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+                        className="text-white/90 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
                           router.push(`/feed/topic/${topic}`);
@@ -141,8 +141,8 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
 
                 {/* Bottom Section */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white/90 flex items-center justify-center shadow-sm">
+                  <div className="flex items-center gap-2 sm:gap-2.5">
+                    <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-white/90 flex items-center justify-center shadow-sm">
                       <span className="text-sm sm:text-base font-semibold text-primary">
                         {post.author.displayName[0]}
                       </span>
@@ -157,9 +157,9 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 sm:gap-4">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
                     <button
-                      className="flex items-center gap-1 sm:gap-1.5 text-white/80 hover:text-white transition-colors bg-black/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full backdrop-blur-sm hover:bg-black/40"
+                      className="flex items-center gap-1 sm:gap-1.5 text-white/80 hover:text-white transition-colors bg-black/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full backdrop-blur-sm hover:bg-black/40"
                       onClick={(e) => {
                         e.stopPropagation();
                         // TODO: Implement share functionality
@@ -171,7 +171,7 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                       </span>
                     </button>
                     <button
-                      className="flex items-center gap-1 sm:gap-1.5 text-white/80 hover:text-white transition-colors bg-black/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full backdrop-blur-sm hover:bg-black/40"
+                      className="flex items-center gap-1 sm:gap-1.5 text-white/80 hover:text-white transition-colors bg-black/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full backdrop-blur-sm hover:bg-black/40"
                       onClick={(e) => {
                         e.stopPropagation();
                         // TODO: Implement bookmark functionality
