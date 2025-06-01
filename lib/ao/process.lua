@@ -431,6 +431,12 @@ end
 local function formatUserResponse(user, requestingWallet)
     if not user then return nil end
 
+    -- Check if requesting user exists and is following the target user
+    local isFollowing = false
+    if users[requestingWallet] then
+        isFollowing = users[requestingWallet].following[user.wallet] == true
+    end
+
     return {
         wallet = user.wallet,
         username = user.username,
@@ -442,7 +448,7 @@ local function formatUserResponse(user, requestingWallet)
         following = countTableEntries(user.following),
         posts = countArrayEntries(user.posts),
         comments = countArrayEntries(user.comments),
-        isFollowing = user.followers[requestingWallet] == true
+        isFollowing = isFollowing
     }
 end
 
@@ -1682,7 +1688,7 @@ end)
 Handlers.add("GetUser", { Action = "GetUser" }, function(msg)
     local wallet = msg.Tags["Wallet"]
     local username = msg.Tags["Username"]
-    local requestingWallet = msg.Tags["RequestingWallet"] or wallet
+    local requestingWallet = msg.Tags["RequestingWallet"]
 
     if not wallet and not username then
         ao.send({

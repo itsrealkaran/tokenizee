@@ -124,7 +124,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     username?: string;
   }): Promise<boolean> => {
     try {
-      const userData = await aoClient.getUser(params);
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const userData = await aoClient.getUser(params, walletAddress);
       return !!userData;
     } catch (error) {
       console.error("Error checking if user exists:", error);
@@ -134,35 +137,68 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   // Check user session on mount
   useEffect(() => {
+    let isSubscribed = true;
+    // Initialize AO Client inside effect to prevent recreation on every render
+    const aoClient = getAOClient(process.env.NEXT_PUBLIC_AO_PROCESS_ID || "");
+
     const checkUserSession = async () => {
       try {
-        if (typeof window !== "undefined" && window.arweaveWallet) {
-          const address = await window.arweaveWallet.getActiveAddress();
-          if (address) {
-            setWalletAddress(address);
-            setWalletConnected(true);
-
-            const userExists = await checkUserExists({ wallet: address });
-            if (userExists) {
-              const userData = await aoClient.getUser({ wallet: address });
-              setUser(userData.user);
-              console.log("userData", userData, user);
-              setIsLoggedIn(true);
-            }
-          } else {
+        if (typeof window === "undefined" || !window.arweaveWallet) {
+          if (isSubscribed) {
             setWalletConnected(false);
             setWalletAddress(null);
           }
+          return;
+        }
+
+        const address = await window.arweaveWallet.getActiveAddress();
+        if (address && isSubscribed) {
+          setWalletAddress(address);
+          setWalletConnected(true);
+
+          // Get user data directly instead of checking existence first
+          try {
+            const userData = await aoClient.getUser(
+              { wallet: address },
+              address
+            );
+            if (userData?.user && isSubscribed) {
+              setUser(userData.user);
+              setIsLoggedIn(true);
+            } else if (isSubscribed) {
+              setUser(null);
+              setIsLoggedIn(false);
+            }
+          } catch (error) {
+            // If user doesn't exist, just set logged out state
+            if (isSubscribed) {
+              setUser(null);
+              setIsLoggedIn(false);
+            }
+          }
+        } else if (isSubscribed) {
+          setWalletConnected(false);
+          setWalletAddress(null);
+          setUser(null);
+          setIsLoggedIn(false);
         }
       } catch (error) {
         console.error("Error checking user session:", error);
-        setWalletConnected(false);
-        setWalletAddress(null);
+        if (isSubscribed) {
+          setWalletConnected(false);
+          setWalletAddress(null);
+          setUser(null);
+          setIsLoggedIn(false);
+        }
       }
     };
 
     checkUserSession();
-  }, []);
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, []); // Remove aoClient from dependencies since it's now created inside the effect
 
   const logout = () => {
     setIsLoggedIn(false);
@@ -176,7 +212,8 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const updateUser = (updatedUser: User) => {
     setUser(updatedUser);
-    // Update user info in posts where they are the author
+
+    // Update user info in all relevant posts
     const updatePosts = (posts: Post[]) =>
       posts.map((post) =>
         post.author.username === user?.username
@@ -193,6 +230,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
     setFeedPosts(updatePosts(feedPosts));
     setTrendingPosts(updatePosts(trendingPosts));
+    setUserPosts(updatePosts(userPosts));
 
     // Update profile user if it's the same user
     if (profileUser?.username === user?.username) {
@@ -426,7 +464,10 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
       }
 
       // First get the following user's wallet address
-      const followingUserData = await aoClient.getUser({ username: following });
+      const followingUserData = await aoClient.getUser(
+        { username: following },
+        walletAddress
+      );
       const result = await aoClient.followUser(
         walletAddress,
         followingUserData.user.wallet
@@ -532,40 +573,53 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     try {
       // Only fetch if the username is different from current profile user
       if (!profileUser || profileUser.username !== username) {
-        // Load user data
-        const userData = await aoClient.getUser({ username });
+        if (!walletAddress) {
+          throw new Error("Wallet not connected");
+        }
+
+        // Load user data first
+        const userData = await aoClient.getUser({ username }, walletAddress);
+
+        console.log(walletAddress, userData);
+
+        if (!userData?.user) {
+          throw new Error("User not found");
+        }
+
+        // Update profile user with basic data first
         setProfileUser(userData.user);
 
-        // Load user posts using the wallet from userData
-        const posts = await aoClient.getUserPosts(
-          userData.user.wallet,
-          walletAddress || ""
-        );
-        setUserPosts(posts.posts);
+        try {
+          // Load all data in parallel with proper error handling
+          const [posts, comments, followers, following] = await Promise.all([
+            aoClient.getUserPosts(userData.user.wallet, walletAddress),
+            aoClient.getUserComments(userData.user.wallet),
+            aoClient.getFollowersList(userData.user.wallet),
+            aoClient.getFollowingList(userData.user.wallet),
+          ]);
 
-        // Load user comments using the wallet from userData
-        const comments = await aoClient.getUserComments(userData.user.wallet);
-        setUserComments(comments.comments);
-
-        // Load followers and following lists
-        const [followers, following] = await Promise.all([
-          aoClient.getFollowersList(userData.user.wallet),
-          aoClient.getFollowingList(userData.user.wallet),
-        ]);
-
-        // Update the profile user with the lists
-        setProfileUser((prev) => {
-          if (!prev) return null;
-          return {
-            ...prev,
-            followersList: followers.users,
-            followingList: following.users,
-          };
-        });
+          // Update all states atomically
+          setUserPosts(posts.posts);
+          setUserComments(comments.comments);
+          setProfileUser((prev) => {
+            if (!prev) return null;
+            return {
+              ...prev,
+              followersList: followers.users,
+              followingList: following.users,
+            };
+          });
+        } catch (error) {
+          console.error("Error loading profile details:", error);
+          // Keep the basic user data even if details fail to load
+          toast.error("Some profile details failed to load");
+        }
       }
     } catch (error) {
       console.error("Error loading profile data:", error);
-      toast.error("Failed to load profile data");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to load profile data"
+      );
       throw error;
     }
   };
@@ -604,20 +658,36 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   // Refresh data periodically
   useEffect(() => {
-    if (isLoggedIn) {
-      refreshFeed();
-      refreshTrending();
-      refreshLeaderboard();
+    let isSubscribed = true;
+    let refreshTimeout: NodeJS.Timeout;
 
-      const interval = setInterval(() => {
-        refreshFeed();
-        refreshTrending();
-        refreshLeaderboard();
-      }, 30000); // Refresh every 30 seconds
+    const refreshData = async () => {
+      if (!isLoggedIn || !walletAddress || !isSubscribed) return;
 
-      return () => clearInterval(interval);
-    }
-  }, [isLoggedIn]);
+      try {
+        await Promise.all([
+          refreshFeed(),
+          refreshTrending(),
+          refreshLeaderboard(),
+        ]);
+      } catch (error) {
+        console.error("Error refreshing data:", error);
+      }
+
+      if (isSubscribed) {
+        refreshTimeout = setTimeout(refreshData, 30000); // Refresh every 30 seconds
+      }
+    };
+
+    refreshData();
+
+    return () => {
+      isSubscribed = false;
+      if (refreshTimeout) {
+        clearTimeout(refreshTimeout);
+      }
+    };
+  }, [isLoggedIn, walletAddress]);
 
   // Add new handler implementations
   const getNotifications = async (): Promise<{

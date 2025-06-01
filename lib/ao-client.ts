@@ -119,7 +119,7 @@ interface AOResponse {
 }
 
 export interface AOClient {
-  getUser: (params: { wallet?: string; username?: string }) => Promise<{ user: User }>;
+  getUser: (params: { wallet?: string; username?: string }, requestingWallet: string) => Promise<{ user: User }>;
   registerUser: (username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string) => Promise<{ message: string; user: User }>;
   updateUser: (username: string, newUsername: string, displayName: string, dateOfBirth: string, bio: string) => Promise<{ message: string; user: User }>;
   createPost: (username: string, title: string, content: string, topic: string[]) => Promise<{ message: string; postId: string; post: Post }>;
@@ -227,7 +227,7 @@ export class AOClientImpl implements AOClient {
     throw new Error("Unexpected response format");
   }
 
-  async getUser(params: { wallet?: string; username?: string }): Promise<{ user: User }> {
+  async getUser(params: { wallet?: string; username?: string }, requestingWallet: string): Promise<{ user: User }> {
     if (!params.wallet && !params.username) {
       throw new Error("Either wallet or username must be provided");
     }
@@ -235,6 +235,7 @@ export class AOClientImpl implements AOClient {
     const tags: Record<string, string> = {};
     if (params.wallet) tags.Wallet = params.wallet;
     if (params.username) tags.Username = params.username;
+    tags.RequestingWallet = requestingWallet;
 
     return this.call<{ user: User }>("GetUser", tags);
   }
