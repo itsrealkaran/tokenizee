@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -34,6 +34,10 @@ export function RegisterModal({
     dateOfBirth: "",
     bio: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof RegisterFormData, string>>
+  >({});
 
   // Update form data when initialData changes
   useEffect(() => {
@@ -42,18 +46,75 @@ export function RegisterModal({
     }
   }, [initialData]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
+  const validateForm = () => {
+    const newErrors: Partial<Record<keyof RegisterFormData, string>> = {};
+
+    if (!formData.newUsername) {
+      newErrors.newUsername = "Username is required";
+    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.newUsername)) {
+      newErrors.newUsername =
+        "Username can only contain letters, numbers, and underscores";
+    } else if (formData.newUsername.length < 3) {
+      newErrors.newUsername = "Username must be at least 3 characters";
+    } else if (formData.newUsername.length > 30) {
+      newErrors.newUsername = "Username must be less than 30 characters";
+    }
+
+    if (!formData.displayName) {
+      newErrors.displayName = "Display name is required";
+    } else if (formData.displayName.length > 50) {
+      newErrors.displayName = "Display name must be less than 50 characters";
+    }
+
+    if (!formData.dateOfBirth) {
+      newErrors.dateOfBirth = "Date of birth is required";
+    } else {
+      const dob = new Date(formData.dateOfBirth);
+      const today = new Date();
+      const age = today.getFullYear() - dob.getFullYear();
+      if (age < 13) {
+        newErrors.dateOfBirth = "You must be at least 13 years old";
+      }
+    }
+
+    if (formData.bio && formData.bio.length > 160) {
+      newErrors.bio = "Bio must be less than 160 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await onSubmit(formData);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (errors[name as keyof RegisterFormData]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
   };
 
-  const inputClassName =
-    "mt-1 block w-full rounded-md border-2 border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-ring";
+  const inputClassName = (hasError: boolean) =>
+    `mt-1 block w-full rounded-md border-2 ${
+      hasError ? "border-destructive" : "border-input"
+    } bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-ring`;
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -87,7 +148,7 @@ export function RegisterModal({
                     as="h3"
                     className="text-base sm:text-lg font-medium leading-6 text-foreground"
                   >
-                    {isEditing ? "Edit Profile" : "Create Your Profile"}
+                    {isEditing ? "Update Profile" : "Create Your Profile"}
                   </Dialog.Title>
                   <Button
                     variant="ghost"
@@ -116,10 +177,16 @@ export function RegisterModal({
                       name="newUsername"
                       value={formData.newUsername}
                       onChange={handleChange}
-                      className={inputClassName + " mt-1.5 sm:mt-2 text-sm"}
+                      className={inputClassName(!!errors.newUsername)}
                       placeholder="Choose a username"
                       required
+                      disabled={isSubmitting}
                     />
+                    {errors.newUsername && (
+                      <p className="mt-1 text-sm text-destructive">
+                        {errors.newUsername}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -135,10 +202,16 @@ export function RegisterModal({
                       name="displayName"
                       value={formData.displayName}
                       onChange={handleChange}
-                      className={inputClassName + " mt-1.5 sm:mt-2 text-sm"}
+                      className={inputClassName(!!errors.displayName)}
                       placeholder="Your display name"
                       required
+                      disabled={isSubmitting}
                     />
+                    {errors.displayName && (
+                      <p className="mt-1 text-sm text-destructive">
+                        {errors.displayName}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -148,16 +221,24 @@ export function RegisterModal({
                     >
                       Bio
                     </label>
-                    <input
-                      type="text"
+                    <textarea
                       id="bio"
                       name="bio"
                       value={formData.bio}
                       onChange={handleChange}
-                      className={inputClassName + " mt-1.5 sm:mt-2 text-sm"}
-                      placeholder="Your bio"
-                      required
+                      className={inputClassName(!!errors.bio)}
+                      placeholder="Tell us about yourself"
+                      rows={3}
+                      disabled={isSubmitting}
                     />
+                    {errors.bio && (
+                      <p className="mt-1 text-sm text-destructive">
+                        {errors.bio}
+                      </p>
+                    )}
+                    <p className="mt-1 text-xs text-muted-foreground text-right">
+                      {formData.bio.length}/160
+                    </p>
                   </div>
 
                   <div>
@@ -173,9 +254,15 @@ export function RegisterModal({
                       name="dateOfBirth"
                       value={formData.dateOfBirth}
                       onChange={handleChange}
-                      className={inputClassName + " mt-1.5 sm:mt-2 text-sm"}
+                      className={inputClassName(!!errors.dateOfBirth)}
                       required
+                      disabled={isSubmitting}
                     />
+                    {errors.dateOfBirth && (
+                      <p className="mt-1 text-sm text-destructive">
+                        {errors.dateOfBirth}
+                      </p>
+                    )}
                   </div>
 
                   <div className="mt-4 sm:mt-6 flex justify-end space-x-2 sm:space-x-3">
@@ -184,11 +271,25 @@ export function RegisterModal({
                       variant="outline"
                       onClick={onClose}
                       className="h-8 sm:h-9 text-sm"
+                      disabled={isSubmitting}
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" className="h-8 sm:h-9 text-sm">
-                      {isEditing ? "Save Changes" : "Create Profile"}
+                    <Button
+                      type="submit"
+                      className="h-8 sm:h-9 text-sm"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          {isEditing ? "Saving..." : "Creating..."}
+                        </>
+                      ) : isEditing ? (
+                        "Save Changes"
+                      ) : (
+                        "Create Profile"
+                      )}
                     </Button>
                   </div>
                 </form>

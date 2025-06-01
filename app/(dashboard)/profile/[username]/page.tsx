@@ -330,19 +330,18 @@ export default function UserProfilePage() {
       </div>
 
       {/* Modals */}
-      {isEditing && (
-        <RegisterModal
-          isOpen={isEditing}
-          onClose={() => setIsEditing(false)}
-          onSubmit={handleEditProfile}
-          initialData={{
-            newUsername: profileUser.username,
-            displayName: profileUser.displayName,
-            dateOfBirth: profileUser.dateOfBirth,
-            bio: profileUser.bio,
-          }}
-        />
-      )}
+      <RegisterModal
+        isOpen={isEditing}
+        onClose={() => setIsEditing(false)}
+        onSubmit={handleEditProfile}
+        isEditing={true}
+        initialData={{
+          newUsername: profileUser.username,
+          displayName: profileUser.displayName,
+          dateOfBirth: profileUser.dateOfBirth,
+          bio: profileUser.bio || "",
+        }}
+      />
     </div>
   );
 }
