@@ -249,6 +249,10 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
               <span
                 key={topic}
                 className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/feed/topic/${topic}`);
+                }}
               >
                 #{topic}
               </span>

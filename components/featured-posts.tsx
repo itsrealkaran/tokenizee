@@ -129,6 +129,10 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                       <span
                         key={topic}
                         className="text-white/90 text-xs px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/feed/topic/${topic}`);
+                        }}
                       >
                         #{topic}
                       </span>

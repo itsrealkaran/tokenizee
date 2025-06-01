@@ -1108,7 +1108,16 @@ Handlers.add("GetTopicFeed", { Action = "GetTopicFeed" }, function(msg)
     local feed = {}
 
     for _, post in pairs(posts) do
-        if post.topic == topic then
+        -- Check if the topic exists in the post's topic array
+        local hasTopic = false
+        for _, postTopic in ipairs(post.topic) do
+            if postTopic == topic then
+                hasTopic = true
+                break
+            end
+        end
+        
+        if hasTopic then
             table.insert(feed, formatPostResponse(post, requestingWallet))
         end
     end
