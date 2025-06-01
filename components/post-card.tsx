@@ -25,8 +25,14 @@ const MAX_CONTENT_LENGTH = 200;
 
 export function PostCard({ post, onViewPost }: PostCardProps) {
   const router = useRouter();
-  const { upvotePost, downvotePost, sharePost, bookmarkPost, walletAddress } =
-    useGlobal();
+  const {
+    upvotePost,
+    downvotePost,
+    sharePost,
+    bookmarkPost,
+    walletAddress,
+    removeVote,
+  } = useGlobal();
   const [voteStatus, setVoteStatus] = useState<"up" | "down" | null>(
     post.hasUpvoted ? "up" : post.hasDownvoted ? "down" : null
   );
@@ -58,6 +64,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
     try {
       if (voteStatus === type) {
         // Remove vote
+        await removeVote(post.id);
         setVoteStatus(null);
         if (type === "up") {
           setUpvotes(upvotes - 1);

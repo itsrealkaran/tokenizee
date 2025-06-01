@@ -127,6 +127,7 @@ export interface AOClient {
   loadComments: (postId: string) => Promise<{ comments: Comment[] }>;
   upvotePost: (postId: string, wallet: string) => Promise<{ message: string; post: Post }>;
   downvotePost: (postId: string, wallet: string) => Promise<{ message: string; post: Post }>;
+  removeVote: (postId: string, wallet: string) => Promise<{ message: string; post: Post }>;
   sharePost: (postId: string, wallet: string) => Promise<{ message: string; post: Post }>;
   followUser: (followerWallet: string, followingWallet: string) => Promise<{ message: string; result: { follower: User; following: User } }>;
   searchUser: (searchTerm: string) => Promise<{ users: User[] }>;
@@ -161,6 +162,7 @@ export class AOClientImpl implements AOClient {
       "CommentPost",
       "Upvote",
       "Downvote",
+      "RemoveVote",
       "SharePost",
       "FollowUser",
       "BookmarkPost",
@@ -291,6 +293,13 @@ export class AOClientImpl implements AOClient {
 
   async downvotePost(postId: string, wallet: string): Promise<{ message: string; post: Post }> {
     return this.call<{ message: string; post: Post }>("Downvote", { 
+      PostId: postId,
+      Wallet: wallet
+    });
+  }
+
+  async removeVote(postId: string, wallet: string): Promise<{ message: string; post: Post }> {
+    return this.call<{ message: string; post: Post }>("RemoveVote", { 
       PostId: postId,
       Wallet: wallet
     });

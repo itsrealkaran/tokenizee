@@ -36,7 +36,7 @@ export default function DashboardPage() {
         switch (activeFeed) {
           case "top":
             // Use trending posts for top stories
-            setFilteredPosts(trendingPosts);
+            setFilteredPosts(feedPosts);
             setFeaturedPosts(trendingPosts.slice(0, 3));
             break;
           case "for-you":
@@ -129,7 +129,7 @@ export default function DashboardPage() {
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : filteredPosts.length === 0 ? (
-            <div className="text-center py-8 bg-muted/50 rounded-lg">
+            <div className="text-center py-8">
               <div className="flex flex-col items-center gap-3">
                 {activeFeed === "bookmarked" ? (
                   <Bookmark className="h-8 w-8 text-muted-foreground/50" />

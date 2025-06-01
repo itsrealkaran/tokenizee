@@ -74,6 +74,7 @@ interface GlobalContextType {
   loadComments: (postId: string) => Promise<Comment[]>;
   upvotePost: (postId: string) => Promise<Post>;
   downvotePost: (postId: string) => Promise<Post>;
+  removeVote: (postId: string) => Promise<Post>;
   sharePost: (postId: string) => Promise<Post>;
   followUser: (
     following: string
@@ -436,6 +437,25 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
       console.error("Error downvoting post:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to downvote post"
+      );
+      throw error;
+    }
+  };
+
+  const removeVote = async (postId: string): Promise<Post> => {
+    try {
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.removeVote(postId, walletAddress);
+      await refreshFeed();
+      await refreshTrending();
+      toast.success(response.message);
+      return response.post;
+    } catch (error) {
+      console.error("Error removing vote:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to remove vote"
       );
       throw error;
     }
@@ -897,6 +917,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         loadComments,
         upvotePost,
         downvotePost,
+        removeVote,
         sharePost,
         followUser,
         searchUser,

@@ -34,6 +34,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
     commentPost,
     bookmarkPost,
     user,
+    removeVote,
   } = useGlobal();
   const [voteStatus, setVoteStatus] = useState<"up" | "down" | null>(null);
   const [upvotes, setUpvotes] = useState(post.upvotes);
@@ -116,6 +117,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
     try {
       if (voteStatus === type) {
         // Remove vote
+        await removeVote(post.id);
         setVoteStatus(null);
         if (type === "up") {
           setUpvotes(upvotes - 1);
