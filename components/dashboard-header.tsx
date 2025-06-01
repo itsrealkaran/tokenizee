@@ -17,15 +17,15 @@ export function DashboardHeader() {
 
   return (
     <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-      <div className="max-w-2xl mx-auto px-2 sm:px-0 py-2.5 sm:py-4">
+      <div className="max-w-2xl mx-auto px-3 sm:px-0 py-3.5 sm:py-4">
         {pathname.startsWith("/feed/") ? (
-          <h1 className="text-base sm:text-xl font-semibold">
-            <div className="flex items-center gap-1.5 sm:gap-2">
+          <h1 className="text-lg sm:text-xl font-semibold">
+            <div className="flex items-center gap-2 sm:gap-2">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => router.back()}
-                className="h-8 w-8 sm:h-9 sm:w-9 p-0"
+                className="w-8 h-auto sm:w-9 p-0"
               >
                 <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
@@ -39,13 +39,13 @@ export function DashboardHeader() {
             </div>
           </h1>
         ) : pathname.startsWith("/profile/") ? (
-          <h1 className="text-base sm:text-xl font-semibold">
-            <div className="flex items-center gap-1.5 sm:gap-2">
+          <h1 className="text-lg sm:text-xl font-semibold">
+            <div className="flex items-center gap-2 sm:gap-2">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => router.back()}
-                className="h-8 w-8 sm:h-9 sm:w-9 p-0"
+                className=" w-8 h-auto sm:w-9 p-0"
               >
                 <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
@@ -56,7 +56,7 @@ export function DashboardHeader() {
           (() => {
             const lastSegment = pathname?.split("/").pop() || "";
             return (
-              <h1 className="pl-4 text-base sm:text-xl font-semibold">
+              <h1 className="pl-4 text-lg sm:text-xl font-semibold">
                 <span className="line-clamp-1">
                   {lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1) ||
                     "Dashboard"}
