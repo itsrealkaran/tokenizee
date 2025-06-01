@@ -92,20 +92,20 @@ export default function ExploreContent() {
           <div className="space-y-4">
             {topCreators.map((creator, index) => (
               <div
-                key={creator.username}
+                key={creator.user.username}
                 className="flex items-center cursor-pointer justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
-                onClick={() => router.push(`/profile/${creator.username}`)}
+                onClick={() => router.push(`/profile/${creator.user.username}`)}
               >
                 <div className="flex items-center space-x-4">
                   <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                     <span className="text-lg font-medium text-primary">
-                      {creator.displayName[0]}
+                      {creator.user.displayName[0]}
                     </span>
                   </div>
                   <div>
-                    <h3 className="font-medium">{creator.displayName}</h3>
+                    <h3 className="font-medium">{creator.user.displayName}</h3>
                     <p className="text-sm text-muted-foreground">
-                      @{creator.username}
+                      @{creator.user.username}
                     </p>
                   </div>
                 </div>
