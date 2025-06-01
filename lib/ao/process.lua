@@ -725,15 +725,13 @@ Handlers.add("LoadComments", { Action = "LoadComments" }, function(msg)
             if author then
                 local formattedComment = {
                     id = comment.id,
-                    postId = comment.postId,
                     content = comment.content,
                     author = {
                         wallet = comment.authorWallet,
                         username = author.username,
                         displayName = author.displayName
                     },
-                    createdAt = comment.createdAt,
-                    postTitle = posts[postId].title
+                    createdAt = comment.createdAt
                 }
                 table.insert(commentData, formattedComment)
             end
