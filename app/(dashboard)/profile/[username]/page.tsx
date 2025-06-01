@@ -50,6 +50,7 @@ export default function UserProfilePage() {
   const [followersList, setFollowersList] = useState<User[]>([]);
   const [followingList, setFollowingList] = useState<User[]>([]);
   const [isLoadingLists, setIsLoadingLists] = useState(false);
+  const [isLoadingContent, setIsLoadingContent] = useState(false);
 
   // Sync local state with global state
   useEffect(() => {
@@ -61,12 +62,14 @@ export default function UserProfilePage() {
     async (username: string) => {
       try {
         setIsLoading(true);
+        setIsLoadingContent(true);
         await loadProfileData(username);
       } catch (error) {
         console.error("Error loading profile:", error);
         toast.error("Failed to load profile data");
       } finally {
         setIsLoading(false);
+        setIsLoadingContent(false);
       }
     },
     [loadProfileData, initialProfileUser]
@@ -78,6 +81,7 @@ export default function UserProfilePage() {
       fetchProfileData(username);
     } else {
       setIsLoading(false);
+      setIsLoadingContent(false);
     }
   }, [params.username, profileUser, fetchProfileData]);
 
@@ -301,7 +305,11 @@ export default function UserProfilePage() {
 
         {/* Content */}
         <div className="space-y-4">
-          {activeTab === "posts" ? (
+          {isLoadingContent ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : activeTab === "posts" ? (
             userPosts.length > 0 ? (
               userPosts.map((post) => (
                 <PostCard

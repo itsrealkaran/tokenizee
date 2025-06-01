@@ -1801,3 +1801,52 @@ Handlers.add("GetFollowingList", { Action = "GetFollowingList" }, function(msg)
         Data = json.encode({ users = followingList })
     })
 end)
+
+-- Add RemoveVote handler
+Handlers.add("RemoveVote", { Action = "RemoveVote" }, function(msg)
+    log("INFO", "Remove vote request received", {
+        wallet = msg.Tags["Wallet"],
+        postId = msg.Tags["PostId"]
+    })
+
+    local postId = msg.Tags["PostId"]
+    local wallet = msg.Tags["Wallet"]
+
+    if not posts[postId] then
+        log("ERROR", "Remove vote failed - Post does not exist", { postId = postId })
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "RemoveVoteResponse", Status = "Error" },
+            Data = json.encode({ error = "Post does not exist." })
+        })
+        return
+    end
+
+    if not users[wallet] then
+        log("ERROR", "Remove vote failed - User does not exist", { wallet = wallet })
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "RemoveVoteResponse", Status = "Error" },
+            Data = json.encode({ error = "User does not exist." })
+        })
+        return
+    end
+
+    -- Remove both upvote and downvote if they exist
+    posts[postId].upvotedBy[wallet] = nil
+    posts[postId].downvotedBy[wallet] = nil
+
+    log("INFO", "Vote removed successfully", {
+        wallet = wallet,
+        postId = postId
+    })
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "RemoveVoteResponse", Status = "Success" },
+        Data = json.encode({ 
+            message = "Vote removed successfully.",
+            post = formatPostResponse(posts[postId], wallet)
+        })
+    })
+end)
