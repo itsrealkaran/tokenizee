@@ -168,9 +168,16 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         throw new Error("Wallet not connected");
       }
       const userData = await aoClient.getUser(params, walletAddress);
-      return !!userData;
+      if (userData?.user) {
+        setUser(userData.user);
+        setIsLoggedIn(true);
+        return true;
+      }
+      return false;
     } catch (error) {
       console.error("Error checking if user exists:", error);
+      setUser(null);
+      setIsLoggedIn(false);
       return false;
     }
   };
