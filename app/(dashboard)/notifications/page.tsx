@@ -75,7 +75,12 @@ export default function NotificationsPage() {
   return (
     <div className="max-w-2xl -m-4">
         {notifications.length > 0 && (
-          <div className="flex justify-end">
+          <div 
+            className={cn(
+              "flex justify-end transition-all duration-300",
+              notifications.every(n => n.read) ? "opacity-0 h-0 overflow-hidden" : "opacity-100 h-auto"
+            )}
+          >
             <Button
               variant="ghost"
               size="sm"
