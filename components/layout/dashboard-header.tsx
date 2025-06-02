@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Bolt } from "lucide-react";
 import { useGlobal } from "@/context/global-context";
 
 export function DashboardHeader() {
@@ -51,6 +51,14 @@ export function DashboardHeader() {
               </Button>
               <span className="line-clamp-1">{profileUser?.displayName}</span>
             </div>
+          </h1>
+        ) : pathname === "/feed" ? (
+          <h1 className="pl-4 text-lg sm:text-xl font-semibold flex items-center">
+            <div className="flex items-center gap-1 block sm:hidden">
+              <Bolt className="w-6 h-6 text-primary" />
+              <span className="text-lg font-bold text-primary">Tokenizee</span>
+            </div>
+            <span className="line-clamp-1 hidden sm:block">Feed</span>
           </h1>
         ) : (
           (() => {
