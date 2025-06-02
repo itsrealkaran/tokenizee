@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { use } from "react";
-import { PostCard } from "@/components/post-card";
+import { PostCard } from "@/components/feed/post-card";
 import { useGlobal } from "@/context/global-context";
 import { useRouter } from "next/navigation";
 import { Loader2, Hash } from "lucide-react";

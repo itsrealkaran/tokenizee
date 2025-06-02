@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PostCard } from "@/components/post-card";
-import { FeaturedPosts } from "@/components/featured-posts";
+import { PostCard } from "@/components/feed/post-card";
+import { FeaturedPosts } from "@/components/feed/featured-posts";
 import { useGlobal } from "@/context/global-context";
 import { useRouter } from "next/navigation";
 import { Loader2, Bookmark, Sparkles, TrendingUp } from "lucide-react";

@@ -1,8 +1,8 @@
-import { Sidebar } from "@/components/sidebar";
-import { RankingList } from "@/components/ranking-card";
-import { DashboardHeader } from "@/components/dashboard-header";
+import { Sidebar } from "@/components/layout/sidebar";
+import { RankingList } from "@/components/feed/ranking-card";
+import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { AuthCheck } from "@/components/auth-check";
-import { BottomNav } from "@/components/ui/bottom-nav";
+import { BottomNav } from "@/components/layout/bottom-nav";
 
 export default function DashboardLayout({
   children,

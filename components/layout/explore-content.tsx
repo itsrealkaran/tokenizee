@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { PostCard } from "@/components/post-card";
+import { PostCard } from "@/components/feed/post-card";
 import { useGlobal } from "@/context/global-context";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";

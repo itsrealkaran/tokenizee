@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { PostCard } from "@/components/post-card";
+import { PostCard } from "@/components/feed/post-card";
 import { useGlobal } from "@/context/global-context";
 import {
   Calendar,
@@ -19,7 +19,7 @@ import {
 } from "@/components/modals/register-modal";
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
-import { CommentCard } from "@/components/comment-card";
+import { CommentCard } from "@/components/feed/comment-card";
 import { UserListModal } from "@/components/modals/user-list-modal";
 import { User, Post } from "@/lib/ao-client";
 
