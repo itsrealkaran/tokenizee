@@ -98,7 +98,7 @@ export default function NotificationsPage() {
             <Bell className="h-12 w-12" />
             <p className="text-lg">No notifications yet</p>
             <p className="text-sm text-center">
-              When you get notifications, they'll show up here
+              When you get notifications, they&apos;ll show up here
             </p>
           </div>
         ) : (

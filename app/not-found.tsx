@@ -27,12 +27,12 @@ export default function NotFound() {
               Oopsie! 🫣
             </h1>
             <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-muted-foreground">
-              This page is giving main character energy... but it's not here
+              This page is giving main character energy... but it&apos;s not here
             </h2>
           </div>
 
           <p className="text-sm sm:text-base text-muted-foreground max-w-md mx-auto">
-            This page is more ghosted than your ex's DMs. Redirecting you to home in 7 seconds...
+            This page is more ghosted than your ex&apos;s DMs. Redirecting you to home in 7 seconds...
           </p>
 
           <div className="flex justify-center pt-2 sm:pt-4">

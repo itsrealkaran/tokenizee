@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useGlobal } from "@/context/global-context";
 import ConnectWallet from "@/components/ui/connect";
-import { Loader2 } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();

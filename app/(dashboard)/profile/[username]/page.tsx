@@ -34,8 +34,6 @@ export default function UserProfilePage() {
     loadProfileData,
     handleFollowUser,
     updateUserProfile,
-    getFollowersList,
-    getFollowingList,
   } = useGlobal();
   const [profileUser, setProfileUser] = useState<User | null>(
     initialProfileUser
@@ -49,7 +47,6 @@ export default function UserProfilePage() {
   const [showFollowing, setShowFollowing] = useState(false);
   const [followersList, setFollowersList] = useState<User[]>([]);
   const [followingList, setFollowingList] = useState<User[]>([]);
-  const [isLoadingLists, setIsLoadingLists] = useState(false);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
 
   // Sync local state with global state
@@ -240,7 +237,6 @@ export default function UserProfilePage() {
             size="sm"
             className="gap-2"
             onClick={handleShowFollowers}
-            disabled={isLoadingLists}
           >
             <Users className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">
@@ -252,7 +248,6 @@ export default function UserProfilePage() {
             size="sm"
             className="gap-2"
             onClick={handleShowFollowing}
-            disabled={isLoadingLists}
           >
             <Users className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">
