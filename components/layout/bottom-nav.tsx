@@ -9,7 +9,7 @@ import { useEffect } from "react";
 export function BottomNav() {
   const router = useRouter();
   const pathname = usePathname();
-  const { unreadNotifications, getNotifications } = useGlobal();
+  const { user, unreadNotifications, getNotifications } = useGlobal();
 
   // Fetch notifications when the component mounts
   useEffect(() => {
@@ -44,7 +44,10 @@ export function BottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background">
       <div className="flex h-16 items-center justify-around">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive =
+            item.name === "Profile"
+              ? pathname.includes(`/profile/${user?.username}`)
+              : pathname === item.href;
           return (
             <button
               key={item.name}

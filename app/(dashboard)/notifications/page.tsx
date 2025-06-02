@@ -67,7 +67,7 @@ export default function NotificationsPage() {
   if (loading) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
@@ -114,7 +114,7 @@ export default function NotificationsPage() {
                 <div className="flex items-start gap-3">
                   <div className="mt-1">
                     {notification.actor && (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted border-2 border-background">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 border-2 border-background">
                         <span className="text-sm font-medium">
                           {getNotificationIcon(notification.type)}
                         </span>
