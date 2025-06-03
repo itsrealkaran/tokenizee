@@ -22,7 +22,6 @@ export default function ExploreContent() {
   }>({ users: [], posts: [], comments: [] });
   const [isSearching, setIsSearching] = useState(false);
   const [activeSearchTab, setActiveSearchTab] = useState<SearchTabType>("all");
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const { trendingPosts, topCreators, search } = useGlobal();
   const searchParams = useSearchParams();
@@ -43,7 +42,6 @@ export default function ExploreContent() {
         searchContainerRef.current &&
         !searchContainerRef.current.contains(event.target as Node)
       ) {
-        setIsSearchFocused(false);
         if (!searchQuery.trim()) {
           setActiveTab("trending");
           setSearchResults({ users: [], posts: [], comments: [] });
@@ -74,18 +72,6 @@ export default function ExploreContent() {
       console.error("Search error:", error);
     } finally {
       setIsSearching(false);
-    }
-  };
-
-  const handleSearchFocus = () => {
-    setIsSearchFocused(true);
-  };
-
-  const handleSearchBlur = () => {
-    setIsSearchFocused(false);
-    if (!searchQuery.trim()) {
-      setActiveTab("trending");
-      setSearchResults({ users: [], posts: [], comments: [] });
     }
   };
 
@@ -124,7 +110,7 @@ export default function ExploreContent() {
     if (!hasResults) {
       return (
         <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-          <p>No results found for "{searchQuery}"</p>
+          <p>No results found for &quot;{searchQuery}&quot;</p>
         </div>
       );
     }
@@ -281,8 +267,6 @@ export default function ExploreContent() {
               placeholder="Search users, posts, or topics..."
               value={searchQuery}
               onChange={handleSearchChange}
-              onFocus={handleSearchFocus}
-              onBlur={handleSearchBlur}
               className="pl-8 sm:pl-10 h-9 sm:h-10 text-sm sm:text-base"
             />
           </form>
