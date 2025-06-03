@@ -1470,13 +1470,27 @@ Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
         })
     end
 
+    -- Format comment response using the same logic as LoadComments
+    local author = getAuthorDetails(wallet)
+    local formattedComment = {
+        id = commentId,
+        content = content,
+        author = {
+            wallet = wallet,
+            username = author.username,
+            displayName = author.displayName
+        },
+        createdAt = timestamp,
+        postId = postId
+    }
+
     ao.send({
         Target = msg.From,
         Tags = { Action = "CommentPostResponse", Status = "Success" },
         Data = json.encode({ 
             message = "Comment posted successfully.",
             commentId = commentId,
-            comment = formatCommentResponse(comments[commentId], wallet)
+            comment = formattedComment
         })
     })
 end)

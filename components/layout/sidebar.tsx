@@ -2,7 +2,7 @@
 
 import {
   LayoutDashboard,
-  Search,
+  Compass as Search,
   User2 as User,
   LogOut,
   Bolt,

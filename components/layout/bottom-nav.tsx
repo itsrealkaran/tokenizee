@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Compass, User, Bell } from "lucide-react";
+import { Compass, User2, Bell, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGlobal } from "@/context/global-context";
 import { useEffect, useState } from "react";
@@ -26,7 +26,7 @@ export function BottomNav() {
     {
       name: "Feed",
       href: "/feed",
-      icon: Home,
+      icon: LayoutDashboard,
     },
     {
       name: "Explore",
@@ -43,7 +43,7 @@ export function BottomNav() {
     {
       name: "Profile",
       href: "/profile",
-      icon: User,
+      icon: User2,
     },
   ];
   console.log(notifications);
