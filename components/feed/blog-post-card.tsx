@@ -260,7 +260,7 @@ export function BlogPostCard({
               </Button>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2 mt-2 border-t border-zinc-200 sm:border-none dark:border-zinc-800">
+          <div className="sm:hidden flex flex-wrap items-center gap-2 mt-2 border-t border-zinc-200 sm:border-none dark:border-zinc-800">
             <div className="flex items-center gap-0.5">
               <Button
                 variant="ghost"

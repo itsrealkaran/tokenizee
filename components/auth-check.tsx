@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useGlobal } from "@/context/global-context";
-import { Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle, Bolt } from "lucide-react";
 
 export function AuthCheck({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -68,7 +68,7 @@ export function AuthCheck({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <Bolt className="h-14 w-14 animate-pulse mx-auto text-primary" />
           <p className="text-muted-foreground">Checking authentication...</p>
         </div>
       </div>

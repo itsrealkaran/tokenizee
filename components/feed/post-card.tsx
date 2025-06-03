@@ -182,6 +182,20 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
           alt={post.title}
           className="w-full h-full object-cover transition-transform duration-300"
         />
+        <div className="absolute top-2 left-4 space-x-2">
+            {post.topic.map((topic) => (
+              <span
+                key={topic}
+                className="bg-black/70 text-white text-[11px] px-2 py-0.5 rounded-full font-medium hover:bg-primary/20 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/feed/topic/${topic}`);
+                }}
+              >
+                #{topic}
+              </span>
+            ))}
+          </div>
         <div className="absolute top-2 right-2 z-10 items-center sm:hidden flex bg-white/80 backdrop-blur-sm rounded-lg p-1">
           <Button
             variant="ghost"
@@ -241,21 +255,6 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
           <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
             {truncatedContent}
           </p>
-          {/* Topics */}
-          <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1">
-            {post.topic.map((topic) => (
-              <span
-                key={topic}
-                className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  router.push(`/feed/topic/${topic}`);
-                }}
-              >
-                #{topic}
-              </span>
-            ))}
-          </div>
         </div>
 
         {/* Engagement Section */}
