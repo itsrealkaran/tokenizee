@@ -180,7 +180,7 @@ export function Sidebar() {
             <div className="p-1">
               <button
                 onClick={logout}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-3 text-sm text-destructive dark:text-white hover:bg-white/10 rounded-md transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 Log out
