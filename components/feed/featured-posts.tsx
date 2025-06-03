@@ -152,7 +152,7 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                       <span className="text-white/60 text-[10px] sm:text-xs flex items-center gap-1">
                         <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                         {new Date(
-                          posts[currentIndex].createdAt * 1000
+                          posts[currentIndex].createdAt
                         ).toLocaleDateString()}
                       </span>
                     </div>
