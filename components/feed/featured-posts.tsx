@@ -72,20 +72,18 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative aspect-[16/9] overflow-hidden rounded-xl shadow-lg">
-        {posts.map((post, index) => (
+        {/* Only render the active post */}
+        {posts.length > 0 && (
           <div
-            key={post.id}
+            key={posts[currentIndex].id}
             className={cn(
-              "absolute inset-0 transition-all duration-700 ease-in-out cursor-pointer",
-              index === currentIndex
-                ? "opacity-100 scale-100"
-                : "opacity-0 scale-105"
+              "absolute inset-0 transition-all duration-700 ease-in-out cursor-pointer opacity-100 scale-100"
             )}
-            onClick={() => router.push(`/feed/${post.id}`)}
+            onClick={() => router.push(`/feed/${posts[currentIndex].id}`)}
           >
             <img
-              src={getImageUrl(post.id)}
-              alt={post.title}
+              src={getImageUrl(posts[currentIndex].id)}
+              alt={posts[currentIndex].title}
               className="w-full h-full object-cover"
             />
             {/* Overlay for readability */}
@@ -95,9 +93,9 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
             <div className="absolute inset-0 flex flex-col justify-between p-3 sm:p-4 md:p-5 lg:p-6">
               {/* Top Section */}
               <div className="flex items-start justify-between">
-                {post.author && (
+                {posts[currentIndex].author && (
                   <span className="bg-white/90 text-black text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full shadow-sm backdrop-blur-sm hover:bg-white transition-colors">
-                    @{post.author.username}
+                    @{posts[currentIndex].author.username}
                   </span>
                 )}
                 <div className="flex items-center gap-1 sm:gap-1.5">
@@ -120,11 +118,11 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                 {/* Middle Section */}
                 <div className="space-y-2 sm:space-y-3">
                   <h2 className="text-white text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight drop-shadow-lg line-clamp-2">
-                    {post.title}
+                    {posts[currentIndex].title}
                   </h2>
                   {/* Topics */}
                   <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {post.topic.map((topic) => (
+                    {posts[currentIndex].topic.map((topic) => (
                       <span
                         key={topic}
                         className="text-white/90 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
@@ -144,16 +142,18 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                   <div className="flex items-center gap-2 sm:gap-2.5">
                     <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-white/90 flex items-center justify-center shadow-sm">
                       <span className="text-sm sm:text-base font-semibold text-primary">
-                        {post.author.displayName[0]}
+                        {posts[currentIndex].author.displayName[0]}
                       </span>
                     </div>
                     <div className="flex flex-col">
                       <span className="text-white/90 text-xs sm:text-sm font-medium line-clamp-1">
-                        {post.author.displayName}
+                        {posts[currentIndex].author.displayName}
                       </span>
                       <span className="text-white/60 text-[10px] sm:text-xs flex items-center gap-1">
                         <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                        {new Date(post.createdAt * 1000).toLocaleDateString()}
+                        {new Date(
+                          posts[currentIndex].createdAt * 1000
+                        ).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
@@ -167,7 +167,7 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                     >
                       <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       <span className="text-[10px] sm:text-xs font-medium">
-                        {post.shares}
+                        {posts[currentIndex].shares}
                       </span>
                     </button>
                     <button
@@ -180,11 +180,11 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                       <Bookmark
                         className={cn(
                           "h-3.5 w-3.5 sm:h-4 sm:w-4",
-                          post.hasBookmarked && "fill-current"
+                          posts[currentIndex].hasBookmarked && "fill-current"
                         )}
                       />
                       <span className="text-[10px] sm:text-xs font-medium">
-                        {post.bookmarks}
+                        {posts[currentIndex].bookmarks}
                       </span>
                     </button>
                   </div>
@@ -192,7 +192,7 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
               </div>
             </div>
           </div>
-        ))}
+        )}
       </div>
       {/* Dots Indicator */}
       <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2">
