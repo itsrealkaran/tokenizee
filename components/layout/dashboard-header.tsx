@@ -54,11 +54,11 @@ export function DashboardHeader() {
           </h1>
         ) : pathname === "/feed" ? (
           <h1 className="pl-4 text-lg sm:text-xl font-semibold flex items-center">
-            <div className="flex items-center gap-1 block sm:hidden">
+            <div className="flex items-center gap-1 block lg:hidden">
               <Bolt className="w-6 h-6 text-primary" />
               <span className="text-lg font-bold text-primary">Tokenizee</span>
             </div>
-            <span className="line-clamp-1 hidden sm:block">Feed</span>
+            <span className="line-clamp-1 hidden lg:block">Feed</span>
           </h1>
         ) : (
           (() => {

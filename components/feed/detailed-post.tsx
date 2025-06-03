@@ -235,57 +235,22 @@ export function DetailedPost({ post }: DetailedPostProps) {
   };
 
   return (
-    <article className="space-y-6 sm:space-y-8 bg-card rounded-lg shadow-sm overflow-hidden">
+    <article className="p-2 overflow-hidden">
       {/* Featured Image */}
-      <div className="w-full aspect-[16/9] relative group overflow-hidden">
+      <div className="w-full aspect-[16/9] relative group overflow-hidden rounded-lg">
         <img
           src={imageUrl}
           alt={post.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
-          <h1 className="text-2xl sm:text-4xl font-bold text-white mb-4">
-            {post.title}
-          </h1>
-          {/* Topics */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {post.topic.map((topic) => (
-              <span
-                key={topic}
-                className="text-white/90 text-sm px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
-              >
-                #{topic}
-              </span>
-            ))}
-          </div>
-          <div className="flex items-center gap-4 text-white/90 text-sm">
-            <div className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4" />
-              <span>{readingTime} min read</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Bookmark className="h-4 w-4" />
-              <span className="text-sm">{post.bookmarks} Bookmarks</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="p-4 sm:p-6 space-y-6 sm:space-y-8">
-        {/* Author Info */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors ring-2 ring-primary/20">
-              <span className="text-xl sm:text-2xl font-medium text-primary">
-                {post.author.displayName[0]}
-              </span>
-            </div>
+        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 text-white">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
             <div>
-              <p className="font-medium text-lg sm:text-xl">
+              <p className="font-medium text-base sm:text-lg md:text-xl">
                 {post.author.displayName}
               </p>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
+              <div className="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
                 <span>@{post.author.username}</span>
                 <span>•</span>
                 <div className="flex items-center gap-1.5">
@@ -295,6 +260,38 @@ export function DetailedPost({ post }: DetailedPostProps) {
               </div>
             </div>
           </div>
+          {/* Topics */}
+          <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
+            {post.topic.map((topic) => (
+              <span
+                key={topic}
+                className="text-white/90 text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+              >
+                #{topic}
+              </span>
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-white/90 text-xs sm:text-sm">
+            <div className="flex items-center gap-1.5">
+              <Clock className="h-4 w-4" />
+              <span>{readingTime} min read</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Bookmark className="h-4 w-4" />
+              <span className="text-xs sm:text-sm">
+                {post.bookmarks} Bookmarks
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-3 sm:p-4 md:p-6 space-y-2">
+        {/* Author Info */}
+        <div className="flex flex-row justify-between">
+          <h1 className="text-lg sm:text-2xl font-semibold mb-2 sm:mb-4">
+            {post.title}
+          </h1>
           <Button
             variant="ghost"
             size="sm"
@@ -305,17 +302,20 @@ export function DetailedPost({ post }: DetailedPostProps) {
             onClick={handleBookmark}
           >
             <Bookmark
-              className={cn("h-6 w-6", isBookmarked && "fill-current")}
+              className={cn(
+                "h-5 w-5 sm:h-6 sm:w-6",
+                isBookmarked && "fill-current"
+              )}
             />
           </Button>
         </div>
 
         {/* Post Content */}
-        <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none">
+        <div className="prose prose-xs sm:prose-sm md:prose-base dark:prose-invert max-w-none">
           {post.content.split("\n\n").map((paragraph, index) => (
             <p
               key={index}
-              className="text-base sm:text-lg text-foreground/90 leading-relaxed mb-4"
+              className="text-xs sm:text-base text-foreground/90 leading-relaxed mb-3 sm:mb-4"
             >
               {paragraph}
             </p>
@@ -327,7 +327,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
           {post.topic.map((topic) => (
             <span
               key={topic}
-              className="text-sm px-3 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+              className="text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
             >
               #{topic}
             </span>
@@ -335,25 +335,28 @@ export function DetailedPost({ post }: DetailedPostProps) {
         </div>
 
         {/* Post Actions */}
-        <div className="flex items-center gap-4 sm:gap-6 pt-4 border-t">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-6 pt-3 sm:pt-4 border-t">
           <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant="ghost"
               size="sm"
               className={cn(
-                "h-9 w-9 p-0 hover:bg-primary/10",
+                "h-8 w-8 sm:h-9 sm:w-9 p-0 hover:bg-primary/10",
                 voteStatus === "up" && "text-primary hover:text-primary"
               )}
               onClick={() => handleVote("up")}
               disabled={isVoting}
             >
               <ArrowBigUp
-                className={cn("h-5 w-5", voteStatus === "up" && "fill-current")}
+                className={cn(
+                  "h-4 w-4 sm:h-5 sm:w-5",
+                  voteStatus === "up" && "fill-current"
+                )}
               />
             </Button>
             <span
               className={cn(
-                "text-sm font-medium min-w-[1.5rem] text-center",
+                "text-xs sm:text-sm font-medium min-w-[1.25rem] sm:min-w-[1.5rem] text-center",
                 voteStatus === "up" && "text-primary"
               )}
             >
@@ -363,7 +366,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
               variant="ghost"
               size="sm"
               className={cn(
-                "h-9 w-9 p-0 hover:bg-destructive/10",
+                "h-8 w-8 sm:h-9 sm:w-9 p-0 hover:bg-destructive/10",
                 voteStatus === "down" &&
                   "text-destructive hover:text-destructive"
               )}
@@ -372,14 +375,14 @@ export function DetailedPost({ post }: DetailedPostProps) {
             >
               <ArrowBigDown
                 className={cn(
-                  "h-5 w-5",
+                  "h-4 w-4 sm:h-5 sm:w-5",
                   voteStatus === "down" && "fill-current"
                 )}
               />
             </Button>
             <span
               className={cn(
-                "text-sm font-medium min-w-[1.5rem] text-center",
+                "text-xs sm:text-sm font-medium min-w-[1.25rem] sm:min-w-[1.5rem] text-center",
                 voteStatus === "down" && "text-destructive"
               )}
             >
@@ -390,47 +393,49 @@ export function DetailedPost({ post }: DetailedPostProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="gap-2 hover:bg-primary/10 h-9"
+            className="gap-2 hover:bg-primary/10 h-8 sm:h-9"
             onClick={handleShare}
             disabled={isSharing}
           >
             <Share2 className="h-4 w-4" />
-            <span className="text-sm">{shares}</span>
+            <span className="text-xs sm:text-sm">{shares}</span>
           </Button>
 
           <Button
             variant="ghost"
             size="sm"
-            className="gap-2 hover:bg-primary/10 h-9"
+            className="gap-2 hover:bg-primary/10 h-8 sm:h-9"
           >
             <MessageCircle className="h-4 w-4" />
-            <span className="text-sm">{comments.length}</span>
+            <span className="text-xs sm:text-sm">{comments.length}</span>
           </Button>
         </div>
 
         {/* Comments Section */}
-        <div className="space-y-4 sm:space-y-6 pt-6 border-t">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl sm:text-2xl font-semibold">Comments</h2>
-            <span className="text-sm text-muted-foreground">
+        <div className="space-y-4 sm:space-y-6 pt-4 sm:pt-6 border-t">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">
+              Comments
+            </h2>
+            <span className="text-xs sm:text-sm text-muted-foreground">
               {comments.length} {comments.length === 1 ? "comment" : "comments"}
             </span>
           </div>
 
           {/* Comment Input */}
-          <div className="space-y-4 bg-accent/5 p-4 rounded-lg">
+          <div className="space-y-3 bg-accent/5 p-3 sm:p-4 rounded-lg">
             <Textarea
               ref={commentInputRef}
               placeholder="Write a comment..."
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              className="min-h-[100px] resize-none bg-background text-base"
+              className="min-h-[80px] sm:min-h-[100px] resize-none bg-background text-xs sm:text-base"
             />
             <div className="flex justify-end">
               <Button
                 onClick={handleComment}
                 disabled={isCommenting || !newComment.trim()}
-                className="min-w-[120px] h-9 text-base"
+                className="min-w-[100px] sm:min-w-[120px] h-8 sm:h-9 text-xs sm:text-base"
               >
                 {isCommenting ? "Posting..." : "Post Comment"}
               </Button>
@@ -438,10 +443,10 @@ export function DetailedPost({ post }: DetailedPostProps) {
           </div>
 
           {/* Comments List */}
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {isLoadingComments ? (
-              <div className="flex items-center justify-center py-8">
-                <p className="text-base text-muted-foreground">
+              <div className="flex items-center justify-center py-6 sm:py-8">
+                <p className="text-xs sm:text-base text-muted-foreground">
                   Loading comments...
                 </p>
               </div>
@@ -450,9 +455,9 @@ export function DetailedPost({ post }: DetailedPostProps) {
                 <CommentCard key={comment.id} comment={comment} />
               ))
             ) : (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <MessageCircle className="h-12 w-12 text-muted-foreground/50 mb-3" />
-                <p className="text-base text-muted-foreground">
+              <div className="flex flex-col items-center justify-center py-6 sm:py-8 text-center">
+                <MessageCircle className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground/50 mb-2 sm:mb-3" />
+                <p className="text-xs sm:text-base text-muted-foreground">
                   No comments yet. Be the first to comment!
                 </p>
               </div>

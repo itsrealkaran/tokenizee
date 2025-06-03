@@ -15,7 +15,7 @@ export default function DashboardLayout({
         <div className="max-w-[1400px] mx-auto">
           <div className="flex h-[calc(100vh-3.5rem)] md:h-screen">
             {/* Desktop Sidebar */}
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <Sidebar />
             </div>
 
@@ -31,7 +31,7 @@ export default function DashboardLayout({
             </div>
 
             {/* Right Sidebar */}
-            <div className="w-80 p-4 hidden lg:block">
+            <div className="w-80 p-4 hidden xl:block">
               <div className="sticky top-4">
                 <h2 className="text-xl font-semibold mb-4 ml-2">Updates</h2>
                 <RankingList />
@@ -40,7 +40,7 @@ export default function DashboardLayout({
           </div>
 
           {/* Mobile Bottom Navigation */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <BottomNav />
           </div>
         </div>

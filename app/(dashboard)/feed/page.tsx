@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, Bookmark, Sparkles, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Post } from "@/lib/ao-client";
+import { BlogPostCard } from "@/components/feed/blog-post-card";
 
 type FeedType = "top" | "for-you" | "bookmarked";
 
@@ -146,6 +147,16 @@ export default function DashboardPage() {
                       : "No posts yet"}
                 </p>
               </div>
+            </div>
+          ) : activeFeed === "top" ? (
+            <div className="space-y-4">
+              {filteredPosts.map((post) => (
+                <BlogPostCard
+                  key={post.id}
+                  post={post}
+                  onViewPost={() => handleViewPost(post.id)}
+                />
+              ))}
             </div>
           ) : (
             <div className="space-y-4">

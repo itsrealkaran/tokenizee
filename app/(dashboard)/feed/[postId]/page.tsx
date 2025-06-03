@@ -53,7 +53,7 @@ export default function PostPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 -mx-4">
       <DetailedPost post={post} />
     </div>
   );

@@ -14,15 +14,21 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useGlobal } from "@/context/global-context";
 import { Post } from "@/lib/ao-client";
+import { useTheme } from "next-themes";
 
-interface PostCardProps {
+interface BlogPostCardProps {
   post: Post;
-  onViewPost: () => void;
+  onViewPost?: () => void;
+  className?: string;
 }
 
-const MAX_CONTENT_LENGTH = 200;
+const MAX_CONTENT_LENGTH = 150;
 
-export function PostCard({ post, onViewPost }: PostCardProps) {
+export function BlogPostCard({
+  post,
+  onViewPost,
+  className,
+}: BlogPostCardProps) {
   const router = useRouter();
   const {
     upvotePost,
@@ -42,6 +48,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
   const [isVoting, setIsVoting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [isBookmarking, setIsBookmarking] = useState(false);
+  const { theme } = useTheme();
 
   // Generate a consistent image ID based on post ID
   const imageId =
@@ -57,12 +64,9 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
       return;
     }
     setIsVoting(true);
-
     const previousVote = voteStatus;
-
     try {
       if (voteStatus === type) {
-        // Remove vote
         await removeVote(post.id);
         setVoteStatus(null);
         if (type === "up") {
@@ -71,11 +75,8 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
           setDownvotes(downvotes - 1);
         }
       } else {
-        // Change vote
         setVoteStatus(type);
-
         if (previousVote === null) {
-          // New vote
           if (type === "up") {
             setUpvotes(upvotes + 1);
             await upvotePost(post.id);
@@ -84,7 +85,6 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
             await downvotePost(post.id);
           }
         } else {
-          // Switch vote
           if (type === "up") {
             setUpvotes(upvotes + 1);
             setDownvotes(downvotes - 1);
@@ -98,7 +98,6 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
       }
     } catch (error) {
       console.error(error);
-      // Revert UI state on error
       if (type === "up") {
         setUpvotes(upvotes);
       } else {
@@ -118,7 +117,6 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
       return;
     }
     setIsSharing(true);
-
     try {
       await sharePost(post.id);
       setShares(shares + 1);
@@ -141,7 +139,6 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
       return;
     }
     setIsBookmarking(true);
-
     try {
       const action = isBookmarked ? "remove" : "add";
       await bookmarkPost(post.id, action);
@@ -172,101 +169,104 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
 
   return (
     <div
-      className="group border rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 bg-card p-2"
+      className={cn(
+        "grid grid-cols-1 sm:grid-cols-[1fr_2fr] gap-3 sm:gap-4 rounded-2xl hover:shadow-lg overflow-hidden transition-all border cursor-pointer p-3 sm:p-2",
+        "bg-white border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800",
+        className
+      )}
       onClick={onViewPost}
     >
       {/* Image Section */}
-      <div className="w-full aspect-[16/9] relative overflow-hidden rounded-lg">
+      <div className="relative w-full h-auto">
         <img
           src={imageUrl}
           alt={post.title}
-          className="w-full h-full object-cover transition-transform duration-300"
+          className="w-full h-full object-cover object-center rounded-xl"
         />
-        <div className="absolute top-2 right-2 z-10 items-center sm:hidden flex bg-white/80 backdrop-blur-sm rounded-lg p-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "h-5 w-5 p-0 hover:bg-white/10 text-black hover:text-black/80",
-              isBookmarked && "text-primary hover:text-primary"
-            )}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleBookmark();
-            }}
-            disabled={isBookmarking}
-          >
-            <Bookmark
-              className={cn("h-4 w-4", isBookmarked && "fill-current")}
-            />
-          </Button>
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <span className="absolute top-4 left-4 bg-black/70 text-white text-[11px] px-2 py-0.5 rounded-full font-medium">
+          #{post.topic[0]}
+        </span>
       </div>
-
       {/* Content Section */}
-      <div className="p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4">
-        {/* Author and Date */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-colors ring-2 ring-primary/20"
-              onClick={handleProfileClick}
-            >
-              <span className="text-sm sm:text-base font-medium text-primary">
-                {post.author.displayName[0]}
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <button
-                className="font-medium hover:underline text-xs sm:text-sm text-left"
-                onClick={handleProfileClick}
-              >
-                {post.author.displayName}
-              </button>
-              <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
-                <span>@{post.author.username}</span>
-                <span>•</span>
-                <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Title and Content */}
-        <div className="space-y-1.5 sm:space-y-2">
-          <h2 className="text-base sm:text-lg md:text-xl font-semibold line-clamp-2">
+      <div
+        className={cn(
+          "grid grid-rows-[1fr_auto] gap-2 sm:gap-3 md:gap-4 p-2 px-4 sm:pl-0",
+          "text-zinc-900 dark:text-white"
+        )}
+      >
+        <div>
+          <h2 className="font-bold mb-1 line-clamp-2 text-base sm:text-lg md:text-xl">
             {post.title}
           </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
+          <p
+            className={cn(
+              "mb-2 line-clamp-3 text-xs sm:text-sm",
+              "text-zinc-600 dark:text-zinc-300"
+            )}
+          >
             {truncatedContent}
           </p>
-          {/* Topics */}
-          <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1">
-            {post.topic.map((topic) => (
-              <span
-                key={topic}
-                className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  router.push(`/feed/topic/${topic}`);
-                }}
-              >
-                #{topic}
-              </span>
-            ))}
-          </div>
         </div>
-
-        {/* Engagement Section */}
-        <div className="flex items-center gap-2 sm:gap-4 pt-2 sm:pt-3 border-t">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <div className="flex items-center">
+        <div className="grid grid-rows-[auto_auto]">
+          <div className="grid grid-cols-[1fr_auto] items-center gap-2">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary cursor-pointer text-sm sm:text-md"
+                onClick={handleProfileClick}
+              >
+                {post.author.displayName[0]}
+              </div>
+              <div className="flex flex-col">
+                <span className="font-semibold text-xs sm:text-sm">
+                  {post.author.displayName}
+                </span>
+                <span className="flex items-center gap-1 text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400">
+                  @{post.author.username}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
+                className="rounded-full p-2 transition-colors h-8 w-8 bg-primary hover:bg-primary/90 text-white hover:text-white"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShare();
+                }}
+                disabled={isSharing}
+              >
+                <Share2
+                  className={cn("h-4 w-4", post.hasShared && "fill-current")}
+                />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
                 className={cn(
-                  "h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-primary/10",
+                  "rounded-full p-2 transition-colors h-8 w-8",
+                  isBookmarked && "text-primary",
+                  "text-primary dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-white border-primary hover:text-primary"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBookmark();
+                }}
+                disabled={isBookmarking}
+              >
+                <Bookmark
+                  className={cn("w-4 h-4", isBookmarked && "fill-current")}
+                />
+              </Button>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 mt-2 border-t border-zinc-200 sm:border-none dark:border-zinc-800">
+            <div className="flex items-center gap-0.5">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "h-7 w-7 p-0 hover:bg-primary/10",
                   voteStatus === "up" && "text-primary hover:text-primary"
                 )}
                 onClick={(e) => {
@@ -277,7 +277,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
               >
                 <ArrowBigUp
                   className={cn(
-                    "h-3.5 w-3.5 sm:h-4 sm:w-4",
+                    "h-4 w-4",
                     voteStatus === "up" && "fill-current"
                   )}
                 />
@@ -291,13 +291,12 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
                 {upvotes}
               </span>
             </div>
-
-            <div className="flex items-center">
+            <div className="flex items-center gap-0.5">
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 className={cn(
-                  "h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-destructive/10",
+                  "h-7 w-7 p-0 hover:bg-destructive/10",
                   voteStatus === "down" &&
                     "text-destructive hover:text-destructive"
                 )}
@@ -309,7 +308,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
               >
                 <ArrowBigDown
                   className={cn(
-                    "h-3.5 w-3.5 sm:h-4 sm:w-4",
+                    "h-4 w-4",
                     voteStatus === "down" && "fill-current"
                   )}
                 />
@@ -323,77 +322,17 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
                 {downvotes}
               </span>
             </div>
-
-            <div className="flex items-center">
+            <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
-                size="sm"
-                className={cn(
-                  "h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-primary/10",
-                  post.hasShared && "text-primary hover:text-primary"
-                )}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleShare();
-                }}
-                disabled={isSharing}
-              >
-                <Share2
-                  className={cn(
-                    "h-3.5 w-3.5 sm:h-4 sm:w-4",
-                    post.hasShared && "fill-current"
-                  )}
-                />
-              </Button>
-              <span
-                className={cn(
-                  "text-xs sm:text-sm font-medium min-w-[1.25rem] sm:min-w-[1.5rem] text-center",
-                  post.hasShared && "text-primary"
-                )}
-              >
-                {shares}
-              </span>
-            </div>
-
-            <div className="flex items-center">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-primary/10"
+                size="icon"
+                className="h-8 w-8 p-0 hover:bg-primary/10"
                 onClick={handleCommentClick}
               >
-                <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <MessageCircle className="h-4 w-4" />
               </Button>
               <span className="text-xs sm:text-sm font-medium min-w-[1.25rem] sm:min-w-[1.5rem] text-center">
                 {post.comments.length}
-              </span>
-            </div>
-
-            <div className="flex items-center hidden sm:flex">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={cn(
-                  "h-8 w-8 p-0 hover:bg-primary/10",
-                  isBookmarked && "text-primary hover:text-primary"
-                )}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleBookmark();
-                }}
-                disabled={isBookmarking}
-              >
-                <Bookmark
-                  className={cn("h-4 w-4", isBookmarked && "fill-current")}
-                />
-              </Button>
-              <span
-                className={cn(
-                  "text-sm font-medium min-w-[1.5rem] text-center",
-                  isBookmarked && "text-primary"
-                )}
-              >
-                {post.bookmarks}
               </span>
             </div>
           </div>
