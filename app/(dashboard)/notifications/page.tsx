@@ -74,25 +74,27 @@ export default function NotificationsPage() {
 
   return (
     <div className="max-w-2xl -m-4">
-        {notifications.length > 0 && (
-          <div 
-            className={cn(
-              "flex justify-end transition-all duration-300",
-              notifications.every(n => n.read) ? "opacity-0 h-0 overflow-hidden" : "opacity-100 h-auto"
-            )}
+      {notifications.length > 0 && (
+        <div
+          className={cn(
+            "flex justify-end transition-all duration-300",
+            notifications.every((n) => n.read)
+              ? "opacity-0 h-0 overflow-hidden"
+              : "opacity-100 h-auto"
+          )}
+        >
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleMarkAsRead}
+            className="text-sm text-muted-foreground hover:text-primary"
           >
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleMarkAsRead}
-              className="text-sm text-muted-foreground hover:text-primary"
-            >
-              Mark all as read
-            </Button>
-          </div>
-        )}
+            Mark all as read
+          </Button>
+        </div>
+      )}
 
-      <div className="divide-y">
+      <div>
         {notifications.length === 0 ? (
           <div className="flex h-[calc(100vh-12rem)] flex-col items-center justify-center space-y-4 text-muted-foreground px-4">
             <Bell className="h-12 w-12" />
@@ -106,7 +108,7 @@ export default function NotificationsPage() {
             <div
               key={notification.id}
               className={cn(
-                "group relative transition-colors hover:bg-muted/50",
+                "group relative border-y transition-colors hover:bg-muted/50",
                 notification.read ? "bg-background" : "bg-primary/5"
               )}
             >
@@ -138,7 +140,7 @@ export default function NotificationsPage() {
                               {notification.data.message}
                               {notification.post && (
                                 <Link
-                                  href={`/feed/post/${notification.post.id}`}
+                                  href={`/feed/${notification.post.id}`}
                                   className="ml-1 font-medium text-primary hover:underline truncate"
                                 >
                                   {notification.post.title}
