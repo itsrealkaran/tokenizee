@@ -108,7 +108,7 @@ export default function NotificationsPage() {
             <div
               key={notification.id}
               className={cn(
-                "group relative border-y transition-colors hover:bg-muted/50",
+                "group relative border-b transition-colors hover:bg-muted/50",
                 notification.read ? "bg-background" : "bg-primary/5"
               )}
             >

@@ -14,7 +14,6 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useGlobal } from "@/context/global-context";
 import { Post } from "@/lib/ao-client";
-import { useTheme } from "next-themes";
 
 interface BlogPostCardProps {
   post: Post;
@@ -48,7 +47,6 @@ export function BlogPostCard({
   const [isVoting, setIsVoting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [isBookmarking, setIsBookmarking] = useState(false);
-  const { theme } = useTheme();
 
   // Generate a consistent image ID based on post ID
   const imageId =

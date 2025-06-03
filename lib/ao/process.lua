@@ -345,7 +345,7 @@ notifications = notifications or {
     ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = {
         items = {
             {
-                read = false,
+                read = true,
                 createdAt = 1748711901868,
                 id = "notification-1748711901868-2927",
                 actorWallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
@@ -356,7 +356,7 @@ notifications = notifications or {
                 postId = "post-1748263888299-9275"
             },
             {
-                read = false,
+                read = true,
                 id = "notification-1748765513375-1630",
                 actorWallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
                 data = {
@@ -1265,12 +1265,20 @@ Handlers.add("GetNotifications", { Action = "GetNotifications" }, function(msg)
         return a.createdAt > b.createdAt
     end)
 
+    -- Count unread notifications
+    local unreadCount = 0
+    for _, notification in ipairs(formattedNotifications) do
+        if not notification.read then
+            unreadCount = unreadCount + 1
+        end
+    end
+
     ao.send({
         Target = msg.From,
         Tags = { Action = "GetNotificationsResponse", Status = "Success" },
         Data = json.encode({
             notifications = formattedNotifications,
-            unreadCount = #formattedNotifications - notifications[wallet].lastRead
+            unreadCount = unreadCount
         })
     })
 end)

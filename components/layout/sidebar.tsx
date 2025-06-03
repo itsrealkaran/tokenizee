@@ -12,27 +12,44 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PostModal } from "@/components/modals/post-modal";
 import { useGlobal } from "@/context/global-context";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { toast } from "react-hot-toast";
 
-const navigation = [
-  { name: "Feed", href: "/feed", icon: LayoutDashboard },
-  { name: "Explore", href: "/explore", icon: Search },
-  { name: "Notifications", href: "/notifications", icon: Bell },
-  { name: "Profile", href: "/profile", icon: User },
-];
-
 export function Sidebar() {
   const pathname = usePathname();
-  const { isLoggedIn, user, logout, topic } = useGlobal();
+  const { isLoggedIn, user, logout, topic, getNotifications } = useGlobal();
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+  const [notifications, setNotifications] = useState<{ unreadCount: number }>({
+    unreadCount: 0,
+  });
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const result = await getNotifications();
+      setNotifications(result);
+    };
+    fetchNotifications();
+  }, [getNotifications]);
 
   if (!isLoggedIn || !user) {
     return null;
   }
+
+  const navigation = [
+    { name: "Feed", href: "/feed", icon: LayoutDashboard },
+    { name: "Explore", href: "/explore", icon: Search },
+    {
+      name: "Notifications",
+      href: "/notifications",
+      icon: Bell,
+      badge:
+        notifications.unreadCount > 0 ? notifications.unreadCount : undefined,
+    },
+    { name: "Profile", href: "/profile", icon: User },
+  ];
 
   return (
     <div className="w-72 border-r border-border h-screen flex flex-col">
@@ -58,14 +75,21 @@ export function Sidebar() {
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
             >
-              <item.icon
-                className={cn(
-                  "w-6 h-6 transition-colors duration-200",
-                  isActive
-                    ? "text-primary"
-                    : "text-muted-foreground group-hover:text-foreground"
+              <div className="relative">
+                <item.icon
+                  className={cn(
+                    "w-6 h-6 transition-colors duration-200",
+                    isActive
+                      ? "text-primary"
+                      : "text-muted-foreground group-hover:text-foreground"
+                  )}
+                />
+                {item.badge && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </span>
                 )}
-              />
+              </div>
               <span className="text-lg">{item.name}</span>
             </Link>
           );

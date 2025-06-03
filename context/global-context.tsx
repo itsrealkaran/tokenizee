@@ -99,7 +99,6 @@ interface GlobalContextType {
   getTopicFeed: (topic: string) => Promise<Post[]>;
   getFollowersList: (wallet: string) => Promise<User[]>;
   getFollowingList: (wallet: string) => Promise<User[]>;
-  unreadNotifications: number;
   setUnreadNotifications: (count: number) => void;
 }
 
@@ -967,7 +966,6 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         getTopicFeed,
         getFollowersList,
         getFollowingList,
-        unreadNotifications,
         setUnreadNotifications,
       }}
     >
