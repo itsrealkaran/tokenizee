@@ -79,7 +79,7 @@ export function Sidebar() {
           </div>
           <ul className="flex flex-col gap-1 px-2">
             {/* TODO: show only 5 topics */}
-            {topic.slice(0, 5).map((topic) => {
+            {topic.slice(0, 3).map((topic) => {
               const topicPath = `/feed/topic/${topic.toLowerCase()}`;
               const isActive = pathname === topicPath;
               return (
@@ -99,6 +99,20 @@ export function Sidebar() {
                 </li>
               );
             })}
+            <li>
+              <Link
+                href={"/feed/topic"}
+                className={cn(
+                  "flex items-center gap-2 pl-6 pr-3 py-2 rounded-md text-sm font-medium transition-all border-l-4 border-transparent",
+                  pathname === "/feed/topic"
+                    ? "bg-primary/10 border-primary text-primary"
+                    : "hover:bg-muted/70 hover:border-primary/50 hover:text-primary text-muted-foreground"
+                )}
+              >
+                <span>Explore Topics</span>
+                <span className="font-bold text-base">{` >>`}</span>
+              </Link>
+            </li>
           </ul>
         </div>
       </nav>
