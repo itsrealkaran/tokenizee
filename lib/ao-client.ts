@@ -74,6 +74,12 @@ export interface Notification {
   post?: Post;
 }
 
+export interface SearchResults {
+  users: User[];
+  posts: Post[];
+  comments: Comment[];
+}
+
 interface AOResponse {
   Data: string;
   Tags: Array<{ name: string; value: string }>;
@@ -91,7 +97,7 @@ export interface AOClient {
   removeVote: (postId: string, wallet: string) => Promise<{ message: string; post: Post }>;
   sharePost: (postId: string, wallet: string) => Promise<{ message: string; post: Post }>;
   followUser: (followerWallet: string, followingWallet: string) => Promise<{ message: string; result: { follower: User; following: User } }>;
-  searchUser: (searchTerm: string) => Promise<{ users: User[] }>;
+  search: (query: string, requestingWallet: string, type?: 'all' | 'users' | 'posts' | 'comments') => Promise<{ query: string; type: string; results: SearchResults }>;
   getFeed: (requestingWallet: string) => Promise<{ posts: Post[] }>;
   getTrending: (requestingWallet: string) => Promise<{ posts: Post[] }>;
   getLeaderboard: (requestingWallet: string) => Promise<{ users: LeaderboardEntry[] }>;
@@ -279,9 +285,11 @@ export class AOClientImpl implements AOClient {
     });
   }
 
-  async searchUser(searchTerm: string): Promise<{ users: User[] }> {
-    return this.call<{ users: User[] }>("SearchUser", {
-      SearchTerm: searchTerm
+  async search(query: string, requestingWallet: string, type: 'all' | 'users' | 'posts' | 'comments' = 'all'): Promise<{ query: string; type: string; results: SearchResults }> {
+    return this.call<{ query: string; type: string; results: SearchResults }>("Search", {
+      Query: query,
+      Type: type,
+      RequestingWallet: requestingWallet
     });
   }
 

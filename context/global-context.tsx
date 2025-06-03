@@ -78,7 +78,14 @@ interface GlobalContextType {
   followUser: (
     following: string
   ) => Promise<{ follower: User; following: User }>;
-  searchUser: (searchTerm: string) => Promise<User[]>;
+  search: (
+    query: string,
+    type?: "all" | "users" | "posts" | "comments"
+  ) => Promise<{
+    query: string;
+    type: string;
+    results: { users: User[]; posts: Post[]; comments: Comment[] };
+  }>;
   refreshFeed: () => Promise<void>;
   refreshTrending: () => Promise<void>;
   refreshLeaderboard: () => Promise<void>;
@@ -555,19 +562,6 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const searchUser = async (searchTerm: string): Promise<User[]> => {
-    try {
-      const response = await aoClient.searchUser(searchTerm);
-      return response.users;
-    } catch (error) {
-      console.error("Error searching users:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to search users"
-      );
-      return [];
-    }
-  };
-
   const refreshFeed = async (): Promise<void> => {
     try {
       if (!walletAddress) {
@@ -911,6 +905,27 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const search = async (
+    query: string,
+    type: "all" | "users" | "posts" | "comments" = "all"
+  ): Promise<{
+    query: string;
+    type: string;
+    results: { users: User[]; posts: Post[]; comments: Comment[] };
+  }> => {
+    try {
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const response = await aoClient.search(query, walletAddress, type);
+      return response;
+    } catch (error) {
+      console.error("Error searching:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to search");
+      return { query, type, results: { users: [], posts: [], comments: [] } };
+    }
+  };
+
   return (
     <GlobalContext.Provider
       value={{
@@ -951,7 +966,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         removeVote,
         sharePost,
         followUser,
-        searchUser,
+        search,
         refreshFeed,
         refreshTrending,
         refreshLeaderboard,

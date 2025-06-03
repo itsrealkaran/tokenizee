@@ -1955,3 +1955,121 @@ Handlers.add("RemoveVote", { Action = "RemoveVote" }, function(msg)
         })
     })
 end)
+
+Handlers.add("Search", { Action = "Search" }, function(msg)
+    log("INFO", "Search request received", {
+        query = msg.Tags["Query"],
+        type = msg.Tags["Type"]
+    })
+
+    local query = msg.Tags["Query"]
+    local type = msg.Tags["Type"] or "all" -- all, users, posts, comments
+    local requestingWallet = msg.Tags["RequestingWallet"]
+
+    if not query or query == "" then
+        log("ERROR", "Search failed - Empty query", {})
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "SearchResponse", Status = "Error" },
+            Data = json.encode({ error = "Search query cannot be empty." })
+        })
+        return
+    end
+
+    query = string.lower(query)
+    local results = {
+        users = {},
+        posts = {},
+        comments = {}
+    }
+
+    -- Search users
+    if type == "all" or type == "users" then
+        for _, user in pairs(users) do
+            if string.find(string.lower(user.username), query) or 
+               string.find(string.lower(user.displayName), query) or
+               (user.bio and string.find(string.lower(user.bio), query)) then
+                table.insert(results.users, formatUserResponse(user, requestingWallet))
+            end
+        end
+    end
+
+    -- Search posts
+    if type == "all" or type == "posts" then
+        for _, post in pairs(posts) do
+            if string.find(string.lower(post.title), query) or 
+               string.find(string.lower(post.content), query) then
+                table.insert(results.posts, formatPostResponse(post, requestingWallet))
+            end
+        end
+    end
+
+    -- Search comments
+    if type == "all" or type == "comments" then
+        for _, comment in pairs(comments) do
+            if string.find(string.lower(comment.content), query) then
+                local author = getAuthorDetails(comment.authorWallet)
+                if author then
+                    local formattedComment = {
+                        id = comment.id,
+                        content = comment.content,
+                        author = {
+                            wallet = comment.authorWallet,
+                            username = author.username,
+                            displayName = author.displayName
+                        },
+                        createdAt = comment.createdAt,
+                        postId = comment.postId
+                    }
+                    table.insert(results.comments, formattedComment)
+                end
+            end
+        end
+    end
+
+    -- Sort results by relevance (exact matches first)
+    local function sortByRelevance(a, b, field)
+        local aLower = string.lower(a[field])
+        local bLower = string.lower(b[field])
+        local aExact = aLower == query
+        local bExact = bLower == query
+        if aExact and not bExact then return true end
+        if not aExact and bExact then return false end
+        return aLower < bLower
+    end
+
+    -- Sort users by username
+    table.sort(results.users, function(a, b)
+        return sortByRelevance(a, b, "username")
+    end)
+
+    -- Sort posts by title
+    table.sort(results.posts, function(a, b)
+        return sortByRelevance(a, b, "title")
+    end)
+
+    -- Sort comments by content
+    table.sort(results.comments, function(a, b)
+        return sortByRelevance(a, b, "content")
+    end)
+
+    log("INFO", "Search completed successfully", {
+        query = query,
+        type = type,
+        results = {
+            users = #results.users,
+            posts = #results.posts,
+            comments = #results.comments
+        }
+    })
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "SearchResponse", Status = "Success" },
+        Data = json.encode({
+            query = query,
+            type = type,
+            results = results
+        })
+    })
+end)
