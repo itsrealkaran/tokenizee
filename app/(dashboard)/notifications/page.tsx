@@ -16,21 +16,26 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
     case "follow":
-      return <UserPlus2 className="h-4 w-4 text-blue-500" />;
+      return <UserPlus2 className="h-5 w-5 text-blue-500 fill-blue-500/20" />;
     case "comment":
-      return <MessageCircle className="h-4 w-4 text-green-500" />;
+      return (
+        <MessageCircle className="h-5 w-5 text-green-500 fill-green-500/20" />
+      );
     case "upvote":
-      return <ArrowBigUp className="h-4 w-4 text-purple-500" />;
+      return (
+        <ArrowBigUp className="h-5 w-5 text-purple-500 fill-purple-500/20" />
+      );
     case "downvote":
-      return <ArrowBigDown className="h-4 w-4 text-red-500" />;
+      return <ArrowBigDown className="h-5 w-5 text-red-500 fill-red-500/20" />;
     case "share":
-      return <Share2 className="h-4 w-4 text-orange-500" />;
+      return <Share2 className="h-5 w-5 text-orange-500 fill-orange-500/20" />;
     default:
-      return <Bell className="h-4 w-4 text-muted-foreground" />;
+      return <Bell className="h-5 w-5 text-muted-foreground" />;
   }
 };
 
@@ -38,6 +43,7 @@ export default function NotificationsPage() {
   const { getNotifications, markNotificationsRead } = useGlobal();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     loadNotifications();
@@ -55,7 +61,7 @@ export default function NotificationsPage() {
     }
   };
 
-  const handleMarkAsRead = async () => {
+  const handleMarkSingleAsRead = async () => {
     try {
       await markNotificationsRead();
       await loadNotifications();
@@ -86,79 +92,98 @@ export default function NotificationsPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleMarkAsRead}
-            className="text-sm text-muted-foreground hover:text-primary"
+            onClick={handleMarkSingleAsRead}
+            className="text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             Mark all as read
           </Button>
         </div>
       )}
 
-      <div>
+      <div role="list" className="space-y-1">
         {notifications.length === 0 ? (
           <div className="flex h-[calc(100vh-12rem)] flex-col items-center justify-center space-y-4 text-muted-foreground px-4">
-            <Bell className="h-12 w-12" />
-            <p className="text-lg">No notifications yet</p>
-            <p className="text-sm text-center">
-              When you get notifications, they&apos;ll show up here
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl animate-pulse" />
+              <Bell className="h-16 w-16 relative z-10" />
+            </div>
+            <p className="text-xl font-medium">No notifications yet</p>
+            <p className="text-sm text-center max-w-sm">
+              When you get notifications about follows, comments, or
+              interactions, they&apos;ll show up here
             </p>
           </div>
         ) : (
           notifications.map((notification) => (
             <div
               key={notification.id}
+              role="listitem"
               className={cn(
-                "group relative border-b transition-colors hover:bg-muted/50",
-                notification.read ? "bg-background" : "bg-primary/5"
+                "group cursor-pointer relative border-b transition-all duration-200 hover:bg-muted/50 flex items-stretch overflow-hidden",
+                notification.read
+                  ? "bg-background"
+                  : "bg-primary/5 border-l-4 border-primary"
               )}
+              onClick={async () => {
+                if (!notification.read) {
+                  await handleMarkSingleAsRead();
+                }
+                if (notification.post) {
+                  router.push(`/feed/${notification.post.id}`);
+                } else if (notification?.actor?.username) {
+                  router.push(`/profile/${notification.actor.username}`);
+                }
+              }}
+              tabIndex={0}
+              aria-label={
+                notification.post
+                  ? `View post: ${notification.post.title}`
+                  : notification?.actor?.displayName
+                    ? `View profile: ${notification.actor.displayName}`
+                    : "View notification"
+              }
             >
-              <div className="px-4 py-3">
-                <div className="flex items-start gap-3">
-                  <div className="mt-1">
-                    {notification.actor && (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 border-2 border-background">
-                        <span className="text-sm font-medium">
-                          {getNotificationIcon(notification.type)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <div className="flex flex-wrap items-baseline gap-1">
-                            {notification.actor && (
-                              <Link
-                                href={`/profile/${notification.actor.username}`}
-                                className="font-medium hover:underline truncate"
-                              >
-                                {notification.actor.displayName}
-                              </Link>
-                            )}
-                            <p className="text-sm text-muted-foreground truncate">
-                              {notification.data.message}
-                              {notification.post && (
-                                <Link
-                                  href={`/feed/${notification.post.id}`}
-                                  className="ml-1 font-medium text-primary hover:underline truncate"
-                                >
-                                  {notification.post.title}
-                                </Link>
-                              )}
-                            </p>
-                          </div>
+              <div className="flex items-center gap-4 px-4 py-4 w-full">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-background shrink-0 bg-muted/50 group-hover:bg-muted/80 transition-colors">
+                  {getNotificationIcon(notification.type)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-baseline gap-1">
+                          {notification.actor && (
+                            <Link
+                              href={`/profile/${notification.actor.username}`}
+                              className="font-medium hover:underline truncate text-foreground"
+                              tabIndex={-1}
+                            >
+                              {notification.actor.displayName}
+                            </Link>
+                          )}
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {formatDistanceToNow(notification.createdAt, {
+                              addSuffix: true,
+                            })}
+                          </p>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {formatDistanceToNow(notification.createdAt, {
-                            addSuffix: true,
-                          })}
-                        </p>
                       </div>
-                      {!notification.read && (
-                        <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-2" />
+                      <p className="text-sm text-muted-foreground truncate mt-0.5">
+                        {notification.data.message}
+                      </p>
+                      {notification.post && (
+                        <Link
+                          href={`/feed/${notification.post.id}`}
+                          className="ml-1 font-medium text-muted-foreground truncate"
+                          tabIndex={-1}
+                        >
+                          {notification.post.title}
+                        </Link>
                       )}
                     </div>
+                    {!notification.read && (
+                      <div className="h-2.5 w-2.5 rounded-full bg-primary shrink-0 mt-2 animate-pulse" />
+                    )}
                   </div>
                 </div>
               </div>
