@@ -11,6 +11,8 @@ export interface User {
   username: string;
   displayName: string;
   bio: string;
+  profileImageUrl?: string;
+  backgroundImageUrl?: string;
   dateOfBirth: string;
   createdAt: number;
   followers: number;
@@ -22,16 +24,24 @@ export interface User {
   followingList?: User[];
 }
 
+export interface MediaItem {
+  url: string;
+  alt: string;
+  type: 'image' | 'video' | 'audio' | 'document';
+}
+
 export interface Post {
   id: string;
   author: {
     wallet: string;
     username: string;
     displayName: string;
+    profileImageUrl?: string;
   };
   title: string;
   content: string;
   topic: string[];
+  media: MediaItem[];
   upvotes: number;
   downvotes: number;
   shares: number;
@@ -87,9 +97,9 @@ interface AOResponse {
 
 export interface AOClient {
   getUser: (params: { wallet?: string; username?: string }, requestingWallet: string) => Promise<{ user: User }>;
-  registerUser: (username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string) => Promise<{ message: string; user: User }>;
-  updateUser: (wallet: string, username: string, newUsername: string, displayName: string, dateOfBirth: string, bio: string) => Promise<{ message: string; user: User }>;
-  createPost: (wallet: string, title: string, content: string, topic: string[]) => Promise<{ message: string; postId: string; post: Post }>;
+  registerUser: (username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string, profileImageUrl?: string, backgroundImageUrl?: string) => Promise<{ message: string; user: User }>;
+  updateUser: (wallet: string, username: string, newUsername: string, displayName: string, dateOfBirth: string, bio: string, profileImageUrl?: string, backgroundImageUrl?: string) => Promise<{ message: string; user: User }>;
+  createPost: (wallet: string, title: string, content: string, topic: string[], media?: MediaItem[]) => Promise<{ message: string; postId: string; post: Post }>;
   commentPost: (postId: string, wallet: string, content: string) => Promise<{ message: string; commentId: string; comment: Comment }>;
   loadComments: (postId: string) => Promise<{ comments: Comment[] }>;
   upvotePost: (postId: string, wallet: string) => Promise<{ message: string; post: Post }>;
@@ -208,34 +218,71 @@ export class AOClientImpl implements AOClient {
     return this.call<{ user: User }>("GetUser", tags);
   }
 
-  async registerUser(username: string, displayName: string, dateOfBirth: string, bio: string, wallet: string): Promise<{ message: string; user: User }> {
-    return this.call<{ message: string; user: User }>("Register", {
+  async registerUser(
+    username: string, 
+    displayName: string, 
+    dateOfBirth: string, 
+    bio: string, 
+    wallet: string,
+    profileImageUrl?: string,
+    backgroundImageUrl?: string
+  ): Promise<{ message: string; user: User }> {
+    const tags: Record<string, string> = {
       Username: username,
       DisplayName: displayName,
       DateOfBirth: dateOfBirth,
       Bio: bio,
       Wallet: wallet
-    });
+    };
+
+    if (profileImageUrl) tags.ProfileImageUrl = profileImageUrl;
+    if (backgroundImageUrl) tags.BackgroundImageUrl = backgroundImageUrl;
+
+    return this.call<{ message: string; user: User }>("Register", tags);
   }
 
-  async updateUser(wallet: string, username: string, newUsername: string, displayName: string, dateOfBirth: string, bio: string): Promise<{ message: string; user: User }> {
-    return this.call<{ message: string; user: User }>("UpdateUser", {
+  async updateUser(
+    wallet: string, 
+    username: string, 
+    newUsername: string, 
+    displayName: string, 
+    dateOfBirth: string, 
+    bio: string,
+    profileImageUrl?: string,
+    backgroundImageUrl?: string
+  ): Promise<{ message: string; user: User }> {
+    const tags: Record<string, string> = {
       Wallet: wallet,
       Username: username,
       NewUsername: newUsername,
       DisplayName: displayName,
       DateOfBirth: dateOfBirth,
       Bio: bio
-    });
+    };
+
+    if (profileImageUrl) tags.ProfileImageUrl = profileImageUrl;
+    if (backgroundImageUrl) tags.BackgroundImageUrl = backgroundImageUrl;
+
+    return this.call<{ message: string; user: User }>("UpdateUser", tags);
   }
 
-  async createPost(wallet: string, title: string, content: string, topic: string[]): Promise<{ message: string; postId: string; post: Post }> {
-    return this.call<{ message: string; postId: string; post: Post }>("CreatePost", {
+  async createPost(
+    wallet: string, 
+    title: string, 
+    content: string, 
+    topic: string[],
+    media?: MediaItem[]
+  ): Promise<{ message: string; postId: string; post: Post }> {
+    const tags: Record<string, string> = {
       Wallet: wallet,
       Title: title,
       Content: content,
       Topic: JSON.stringify(topic)
-    });
+    };
+
+    if (media) tags.Media = JSON.stringify(media);
+
+    return this.call<{ message: string; postId: string; post: Post }>("CreatePost", tags);
   }
 
   async commentPost(postId: string, wallet: string, content: string): Promise<{ message: string; commentId: string; comment: Comment }> {

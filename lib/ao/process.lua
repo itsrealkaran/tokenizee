@@ -4,6 +4,8 @@ users = users or {
       username = "itsrealkaran",
       displayName = "Karan Singh",
       bio = "Tokenizee | Kapsul",
+      profileImageUrl = "https://example.com/profile1.jpg",
+      backgroundImageUrl = "https://example.com/background1.jpg",
       followers = {
         ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
       },
@@ -139,6 +141,18 @@ posts = posts or {
       authorWallet = "8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg",
       content = "Technology is evolving at a rapid pace, transforming the way we live, work, and interact. From artificial intelligence to blockchain, the innovations of today are shaping the world of tomorrow. In this post, we explore the latest trends in tech and how they are impacting our daily lives. Whether you're a developer, entrepreneur, or enthusiast, staying updated with these advancements is crucial for success in the digital age.",
       topic = { "tech", "general" },
+      media = {
+        {
+          url = "https://example.com/image1.jpg",
+          alt = "Technology innovation",
+          type = "image"
+        },
+        {
+          url = "https://example.com/video1.mp4",
+          alt = "Tech demo video",
+          type = "video"
+        }
+      },
       sharedBy = {
         ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true,
         ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
@@ -469,10 +483,12 @@ local function formatPostResponse(post, requestingWallet)
         title = post.title,
         content = post.content,
         topic = post.topic,
+        media = post.media or {},
         author = {
             wallet = post.authorWallet,
             username = author.username,
-            displayName = author.displayName
+            displayName = author.displayName,
+            profileImageUrl = users[post.authorWallet].profileImageUrl
         },
         createdAt = post.createdAt,
         comments = post.comments,
@@ -501,6 +517,8 @@ local function formatUserResponse(user, requestingWallet)
         username = user.username,
         displayName = user.displayName,
         bio = user.bio,
+        profileImageUrl = user.profileImageUrl,
+        backgroundImageUrl = user.backgroundImageUrl,
         dateOfBirth = user.dateOfBirth,
         createdAt = user.createdAt,
         followers = countTableEntries(user.followers),
@@ -557,6 +575,8 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
     local dateOfBirth = msg.Tags["DateOfBirth"]
     local bio = msg.Tags["Bio"]
     local wallet = msg.Tags["Wallet"]
+    local profileImageUrl = msg.Tags["ProfileImageUrl"]
+    local backgroundImageUrl = msg.Tags["BackgroundImageUrl"]
 
     if users[wallet] then
         log("ERROR", "Register failed - Wallet already exists", { wallet = wallet })
@@ -600,6 +620,8 @@ Handlers.add("Register", { Action = "Register" }, function(msg)
         displayName = displayName,
         dateOfBirth = dateOfBirth,
         bio = bio,
+        profileImageUrl = profileImageUrl,
+        backgroundImageUrl = backgroundImageUrl,
         posts = {},
         bookmarkedPosts = {},
         comments = {},
@@ -635,6 +657,8 @@ Handlers.add("UpdateUser", { Action = "UpdateUser" }, function(msg)
     local displayName = msg.Tags["DisplayName"]
     local dateOfBirth = msg.Tags["DateOfBirth"]
     local bio = msg.Tags["Bio"]
+    local profileImageUrl = msg.Tags["ProfileImageUrl"]
+    local backgroundImageUrl = msg.Tags["BackgroundImageUrl"]
 
     if not users[wallet] then
         log("ERROR", "Update failed - User does not exist", { wallet = wallet })
@@ -666,6 +690,8 @@ Handlers.add("UpdateUser", { Action = "UpdateUser" }, function(msg)
     users[wallet].displayName = displayName
     users[wallet].dateOfBirth = dateOfBirth
     users[wallet].bio = bio
+    users[wallet].profileImageUrl = profileImageUrl
+    users[wallet].backgroundImageUrl = backgroundImageUrl
 
     log("INFO", "User updated successfully", { 
         wallet = wallet,
@@ -703,6 +729,7 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
     local title = msg.Tags["Title"]
     local content = msg.Tags["Content"]
     local topicJson = msg.Tags["Topic"]
+    local mediaJson = msg.Tags["Media"]
 
     if not title or not content then
         log("ERROR", "Create post failed - Invalid post format", { 
@@ -732,6 +759,23 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
         return
     end
 
+    -- Parse the JSON media string into a Lua table
+    local media = {}
+    if mediaJson then
+        local success, parsedMedia = pcall(json.decode, mediaJson)
+        if success and type(parsedMedia) == "table" then
+            media = parsedMedia
+        else
+            log("ERROR", "Create post failed - Invalid media format", { mediaJson = mediaJson })
+            ao.send({
+                Target = msg.From,
+                Tags = { Action = "CreatePostResponse", Status = "Error" },
+                Data = json.encode({ error = "Invalid media format" })
+            })
+            return
+        end
+    end
+
     local postId = generateId("post")
     local timestamp = os.time()
 
@@ -741,6 +785,7 @@ Handlers.add("CreatePost", { Action = "CreatePost" }, function(msg)
         title = title,
         content = content,
         topic = topic,
+        media = media,
         upvotedBy = {},
         downvotedBy = {},
         sharedBy = {},
@@ -1249,12 +1294,18 @@ Handlers.add("GetNotifications", { Action = "GetNotifications" }, function(msg)
 
         -- Add user details for actor
         if notification.actorWallet and users[notification.actorWallet] then
-            formattedNotification.actor = formatUserResponse(users[notification.actorWallet], wallet)
+            formattedNotification.actor = {
+                wallet = notification.actorWallet,
+                displayName = users[notification.actorWallet].displayName
+            }
         end
 
         -- Add post details if applicable
         if notification.postId and posts[notification.postId] then
-            formattedNotification.post = formatPostResponse(posts[notification.postId], wallet)
+            formattedNotification.post = {
+                id = notification.postId,
+                title = posts[notification.postId].title
+            }
         end
 
         table.insert(formattedNotifications, formattedNotification)
