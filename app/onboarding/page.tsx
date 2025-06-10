@@ -60,7 +60,6 @@ export default function Onboarding() {
           <Button
             onClick={() => setIsRegisterModalOpen(true)}
             size="lg"
-            className="w-full"
           >
             Complete Onboarding
           </Button>

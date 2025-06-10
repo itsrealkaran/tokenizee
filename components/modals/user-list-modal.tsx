@@ -29,7 +29,7 @@ export function UserListModal({
   users,
   currentUsername,
 }: UserListModalProps) {
-  const { followUser, user } = useGlobal();
+  const { followUser, user, profileUser } = useGlobal();
   const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({});
   const [isFollowing, setIsFollowing] = useState<Record<string, boolean>>({});
 
@@ -72,61 +72,67 @@ export function UserListModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] h-[50vh]">
-        <DialogHeader className="space-y-1">
-          <DialogTitle className="text-base font-medium">{title}</DialogTitle>
+      <DialogContent className="w-[95vw] sm:w-[600px] h-[80vh] sm:h-[70vh] max-w-[600px]">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="text-lg sm:text-xl font-semibold">
+            {title}
+          </DialogTitle>
         </DialogHeader>
-        <div className="space-y-1 max-h-[60vh] overflow-y-auto p-2">
+        <div className="space-y-2 max-h-[calc(80vh-80px)] sm:max-h-[calc(70vh-80px)] overflow-y-auto px-2 sm:px-4">
           {users.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <Users2 className="h-8 w-8 text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">No users found</p>
+            <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+              <Users2 className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground mb-2 sm:mb-3" />
+              <p className="text-sm sm:text-base text-muted-foreground">
+                No users found
+              </p>
             </div>
           ) : (
             users.map((user) => (
               <div
                 key={user.username}
-                className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50 transition-colors group"
+                className="flex items-center justify-between p-2 sm:p-3 rounded-lg hover:bg-muted/50 transition-colors group"
               >
                 <div
-                  className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer"
+                  className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 cursor-pointer"
                   onClick={() =>
                     (window.location.href = `/profile/${user.username}`)
                   }
                 >
-                  <Avatar 
+                  <Avatar
                     displayName={user.displayName}
                     profileImageUrl={user.profileImageUrl}
                     size="sm"
+                    className="h-8 w-8 sm:h-10 sm:w-10"
                   />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                    <p className="text-sm sm:text-base font-medium truncate group-hover:text-primary transition-colors">
                       {user.displayName}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">
                       @{user.username}
                     </p>
                   </div>
                 </div>
-                {user.username !== currentUsername && (
-                  <Button
-                    variant={
-                      followingMap[user.username] ? "secondary" : "default"
-                    }
-                    size="sm"
-                    onClick={() => handleFollow(user.username)}
-                    disabled={isFollowing[user.username]}
-                    className="h-7 px-2 text-xs"
-                  >
-                    {isFollowing[user.username] ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : followingMap[user.username] ? (
-                      "Following"
-                    ) : (
-                      "Follow"
-                    )}
-                  </Button>
-                )}
+                {user.username !== currentUsername &&
+                  user.username !== profileUser?.username && (
+                    <Button
+                      variant={
+                        followingMap[user.username] ? "secondary" : "default"
+                      }
+                      size="sm"
+                      onClick={() => handleFollow(user.username)}
+                      disabled={isFollowing[user.username]}
+                      className="h-7 sm:h-9 px-2 sm:px-4 text-xs sm:text-sm"
+                    >
+                      {isFollowing[user.username] ? (
+                        <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                      ) : followingMap[user.username] ? (
+                        "Following"
+                      ) : (
+                        "Follow"
+                      )}
+                    </Button>
+                  )}
               </div>
             ))
           )}

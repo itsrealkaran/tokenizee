@@ -149,15 +149,26 @@ export default function DashboardPage() {
               </div>
             </div>
           ) : activeFeed === "top" ? (
-            <div className="space-y-4">
-              {filteredPosts.map((post) => (
-                <BlogPostCard
-                  key={post.id}
-                  post={post}
-                  onViewPost={() => handleViewPost(post.id)}
-                />
-              ))}
-            </div>
+            <>
+              <div className="space-y-4 hidden sm:block">
+                {filteredPosts.map((post) => (
+                  <BlogPostCard
+                    key={post.id}
+                    post={post}
+                    onViewPost={() => handleViewPost(post.id)}
+                  />
+                ))}
+              </div>
+              <div className="space-y-4 sm:hidden">
+                {filteredPosts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    onViewPost={() => handleViewPost(post.id)}
+                  />
+                ))}
+              </div>
+            </>
           ) : (
             <div className="space-y-4">
               {filteredPosts.map((post) => (

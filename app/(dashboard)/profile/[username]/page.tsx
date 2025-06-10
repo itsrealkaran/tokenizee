@@ -229,14 +229,12 @@ export default function UserProfilePage() {
                 onClick={handleFollow}
                 disabled={isFollowLoading}
               >
-                <UserPlus2 className="h-4 w-4" />
                 {isFollowLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
-                ) : profileUser.isFollowing ? (
-                  "Following"
                 ) : (
-                  "Follow"
+                  <UserPlus2 className="h-4 w-4" />
                 )}
+                {profileUser.isFollowing ? "Following" : "Follow"}
               </Button>
             )}
           </div>

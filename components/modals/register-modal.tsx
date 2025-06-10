@@ -240,7 +240,7 @@ export function RegisterModal({
                   {/* Cover Image with Profile Picture */}
                   <div className="relative -mx-2 -mt-2 mb-16">
                     {/* Cover Image */}
-                    <div className="relative h-32 sm:h-48 bg-primary/10">
+                    <div className="relative h-32 sm:h-48 bg-avatar">
                       {backgroundPreview ? (
                         <Image
                           src={backgroundPreview}
@@ -261,7 +261,7 @@ export function RegisterModal({
                           className="hidden"
                           disabled={isSubmitting}
                         />
-                        <div className="flex items-center gap-2 text-white">
+                        <div className="flex items-center gap-2 text-primary">
                           <ImagePlusIcon className="size-8" />
                         </div>
                       </label>
@@ -269,7 +269,7 @@ export function RegisterModal({
 
                     {/* Profile Picture */}
                     <div className="absolute -bottom-12 left-4 sm:left-6">
-                      <div className="relative h-24 w-24 rounded-full overflow-hidden bg-[#F2EDFC] ring-4 ring-background group">
+                      <div className="relative h-24 w-24 rounded-full overflow-hidden bg-avatar ring-4 ring-background group">
                         {profilePreview ? (
                           <Image
                             src={profilePreview}
