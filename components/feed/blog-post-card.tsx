@@ -14,8 +14,6 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useGlobal } from "@/context/global-context";
 import { Post } from "@/lib/ao-client";
-import { Avatar } from "@/components/ui/avatar";
-import Image from "next/image";
 
 interface BlogPostCardProps {
   post: Post;
@@ -180,14 +178,15 @@ export function BlogPostCard({
       onClick={onViewPost}
     >
       {/* Image Section */}
-      <div className="w-full aspect-[16/9] relative overflow-hidden rounded-lg">
-        <Image
+      <div className="relative w-full h-auto">
+        <img
           src={imageUrl}
           alt={post.title}
-          fill
-          className="object-cover transition-transform duration-300"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="w-full h-full object-cover object-center rounded-xl"
         />
+        <span className="absolute top-4 left-4 bg-black/70 text-white text-[11px] px-2 py-0.5 rounded-full font-medium">
+          #{post.topic[0]}
+        </span>
       </div>
       {/* Content Section */}
       <div
@@ -212,15 +211,12 @@ export function BlogPostCard({
         <div className="grid grid-rows-[auto_auto]">
           <div className="grid grid-cols-[1fr_auto] items-center gap-2">
             <div className="flex items-center gap-2">
-              <Avatar
-                displayName={post.author.displayName}
-                profileImageUrl={post.author.profileImageUrl}
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleProfileClick(e);
-                }}
-              />
+              <div
+                className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary cursor-pointer text-sm sm:text-md"
+                onClick={handleProfileClick}
+              >
+                {post.author.displayName[0]}
+              </div>
               <div className="flex flex-col">
                 <span className="font-semibold text-xs sm:text-sm">
                   {post.author.displayName}
