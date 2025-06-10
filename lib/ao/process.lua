@@ -4,8 +4,8 @@ users = users or {
       username = "itsrealkaran",
       displayName = "Karan Singh",
       bio = "Tokenizee | Kapsul",
-      profileImageUrl = "https://example.com/profile1.jpg",
-      backgroundImageUrl = "https://example.com/background1.jpg",
+      profileImageUrl = "https://pbs.twimg.com/profile_images/1929278179690070016/4JSCRDvp_400x400.jpg",
+      backgroundImageUrl = "https://pbs.twimg.com/profile_banners/1420367124124487680/1725384277/1500x500",
       followers = {
         ["KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
       },
@@ -468,7 +468,8 @@ local function getAuthorDetails(wallet)
     end
     return {
         username = users[wallet].username,
-        displayName = users[wallet].displayName
+        displayName = users[wallet].displayName,
+        profileImageUrl = users[wallet].profileImageUrl
     }
 end
 
@@ -488,7 +489,7 @@ local function formatPostResponse(post, requestingWallet)
             wallet = post.authorWallet,
             username = author.username,
             displayName = author.displayName,
-            profileImageUrl = users[post.authorWallet].profileImageUrl
+            profileImageUrl = author.profileImageUrl
         },
         createdAt = post.createdAt,
         comments = post.comments,
@@ -848,7 +849,8 @@ Handlers.add("LoadComments", { Action = "LoadComments" }, function(msg)
                     author = {
                         wallet = comment.authorWallet,
                         username = author.username,
-                        displayName = author.displayName
+                        displayName = author.displayName,
+                        profileImageUrl = author.profileImageUrl
                     },
                     createdAt = comment.createdAt
                 }
@@ -1002,7 +1004,8 @@ Handlers.add("GetUserComments", { Action = "GetUserComments" }, function(msg)
                         author = {
                             wallet = comment.authorWallet,
                             username = author.username,
-                            displayName = author.displayName
+                            displayName = author.displayName,
+                            profileImageUrl = author.profileImageUrl
                         },
                         createdAt = comment.createdAt,
                         postTitle = post.title
