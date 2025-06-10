@@ -1571,7 +1571,8 @@ Handlers.add("CommentPost", { Action = "CommentPost" }, function(msg)
         author = {
             wallet = wallet,
             username = author.username,
-            displayName = author.displayName
+            displayName = author.displayName,
+            profileImageUrl = author.profileImageUrl
         },
         createdAt = timestamp,
         postId = postId

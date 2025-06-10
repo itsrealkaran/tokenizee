@@ -27,7 +27,7 @@ export interface User {
 export interface MediaItem {
   url: string;
   alt: string;
-  type: 'image' | 'video' | 'audio' | 'document';
+  type: 'image' | 'video' | 'audio';
 }
 
 export interface Post {

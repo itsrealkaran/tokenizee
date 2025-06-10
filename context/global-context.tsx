@@ -14,6 +14,7 @@ import {
   Comment,
   LeaderboardEntry,
   Notification,
+  MediaItem,
 } from "@/lib/ao-client";
 import { toast } from "react-hot-toast";
 import { uploadFileTurbo } from "@/lib/turbo";
@@ -70,7 +71,8 @@ interface GlobalContextType {
   createPost: (
     title: string,
     content: string,
-    topics: string[]
+    topics: string[],
+    mediaFiles?: File[]
   ) => Promise<{ postId: string; post: Post }>;
   commentPost: (
     postId: string,
@@ -297,19 +299,30 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const uploadImage = async (file: File): Promise<string> => {
+  const uploadMedia = async (file: File): Promise<string> => {
     try {
       // Check file size (100KB = 102400 bytes)
       const fileSize = file.size;
       console.log(`File size: ${fileSize} bytes`);
+
+      // Determine file type
+      const fileType = file.type.split("/")[0]; // 'image', 'video', or 'audio'
+      if (!["image", "video", "audio"].includes(fileType)) {
+        throw new Error(
+          "Unsupported file type. Only images, videos, and audio files are allowed."
+        );
+      }
 
       let uploadResult;
       if (fileSize <= 102400) {
         console.log("Using Turbo upload for small file");
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("title", "Profile Image");
-        formData.append("description", "User profile image");
+        formData.append(
+          "title",
+          `${fileType.charAt(0).toUpperCase() + fileType.slice(1)} File`
+        );
+        formData.append("description", `User ${fileType} file`);
 
         uploadResult = await uploadFileTurbo(formData);
         if (!uploadResult.success) {
@@ -320,13 +333,13 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         console.log("Using AO upload for large file");
         const xid = await uploadFileAO(
           file,
-          "Profile Image",
-          "User profile image"
+          `${fileType.charAt(0).toUpperCase() + fileType.slice(1)} File`,
+          `User ${fileType} file`
         );
         return `https://arweave.net/${xid}`;
       }
     } catch (error) {
-      console.error("Error uploading image:", error);
+      console.error("Error uploading media:", error);
       throw error;
     }
   };
@@ -354,11 +367,11 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
       // Upload images if provided
       if (profileImage) {
         console.log("Uploading profile image...");
-        profileImageUrl = await uploadImage(profileImage);
+        profileImageUrl = await uploadMedia(profileImage);
       }
       if (backgroundImage) {
         console.log("Uploading background image...");
-        backgroundImageUrl = await uploadImage(backgroundImage);
+        backgroundImageUrl = await uploadMedia(backgroundImage);
       }
 
       const response = await aoClient.updateUser(
@@ -390,7 +403,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
       return false;
     }
   };
-
+  
   // AO API Methods
   const registerUser = async (
     username: string,
@@ -411,11 +424,11 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
       // Upload images if provided
       if (profileImage) {
         console.log("Uploading profile image...");
-        profileImageUrl = await uploadImage(profileImage);
+        profileImageUrl = await uploadMedia(profileImage);
       }
       if (backgroundImage) {
         console.log("Uploading background image...");
-        backgroundImageUrl = await uploadImage(backgroundImage);
+        backgroundImageUrl = await uploadMedia(backgroundImage);
       }
 
       const response = await aoClient.registerUser(
@@ -441,21 +454,50 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const createMediaItem = async (file: File): Promise<MediaItem> => {
+    try {
+      const fileType = file.type.split('/')[0]; // 'image', 'video', or 'audio'
+      if (!['image', 'video', 'audio'].includes(fileType)) {
+        throw new Error('Unsupported file type. Only images, videos, and audio files are allowed.');
+      }
+
+      const url = await uploadMedia(file);
+      return {
+        url,
+        alt: file.name,
+        type: fileType as 'image' | 'video' | 'audio'
+      };
+    } catch (error) {
+      console.error("Error creating media item:", error);
+      throw error;
+    }
+  };
+
   const createPost = async (
     title: string,
     content: string,
-    topics: string[]
+    topics: string[],
+    mediaFiles?: File[]
   ): Promise<{ postId: string; post: Post }> => {
     try {
       if (!walletAddress) {
         throw new Error("Wallet not connected");
       }
 
+      let mediaItems: MediaItem[] = [];
+      if (mediaFiles && mediaFiles.length > 0) {
+        console.log("Uploading media files...");
+        mediaItems = await Promise.all(
+          mediaFiles.map(file => createMediaItem(file))
+        );
+      }
+
       const response = await aoClient.createPost(
         walletAddress,
         title,
         content,
-        topics
+        topics,
+        mediaItems
       );
       await refreshFeed();
       toast.success(response.message);
