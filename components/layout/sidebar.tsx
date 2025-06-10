@@ -7,6 +7,7 @@ import {
   LogOut,
   Bolt,
   Bell,
+  TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -97,47 +98,51 @@ export function Sidebar() {
         })}
 
         {/* Topics Navigation */}
-        <div className="mt-4">
+        <div className="mt-8">
           <div className="border-t border-border mb-4" />
-          <div className="px-6 pb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Topics
+          <div className="flex items-center justify-between px-6 pb-4">
+            <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Topics
+            </div>
+            <Link
+              href="/feed/topic"
+              className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              see all
+            </Link>
           </div>
-          <ul className="flex flex-col gap-1 px-2">
-            {/* TODO: show only 5 topics */}
-            {topic.slice(0, 3).map((topic) => {
+          <ul className="flex flex-col px-4">
+            {topic.slice(0, 3).map((topic, idx) => {
               const topicPath = `/feed/topic/${topic.toLowerCase()}`;
               const isActive = pathname === topicPath;
+              const trendingNumbers = [200, 150, 85];
               return (
                 <li key={topic}>
                   <Link
                     href={topicPath}
                     className={cn(
-                      "flex items-center gap-2 pl-6 pr-3 py-2 rounded-md text-sm font-medium transition-all border-l-4 border-transparent",
-                      isActive
-                        ? "bg-primary/10 border-primary text-primary"
-                        : "hover:bg-muted/70 hover:border-primary/50 hover:text-primary text-muted-foreground"
+                      "flex items-center gap-2 group transition-all rounded-lg px-0 py-1.5",
+                      isActive ? "bg-primary/10" : ""
                     )}
                   >
-                    <span className="font-bold text-base">#</span>
-                    <span>{topic}</span>
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1 px-3 py-1 rounded-full border border-primary text-primary font-medium text-xs",
+                        isActive
+                          ? "bg-primary/10"
+                          : "bg-transparent group-hover:bg-primary/5"
+                      )}
+                    >
+                      #{topic}
+                    </span>
+                    <span className="flex items-center gap-1 text-primary font-medium text-sm">
+                      <TrendingUp className="w-4 h-4" />
+                      <span className="ml-1">{trendingNumbers[idx]}</span>
+                    </span>
                   </Link>
                 </li>
               );
             })}
-            <li>
-              <Link
-                href={"/feed/topic"}
-                className={cn(
-                  "flex items-center gap-2 pl-6 pr-3 py-2 rounded-md text-sm font-medium transition-all border-l-4 border-transparent",
-                  pathname === "/feed/topic"
-                    ? "bg-primary/10 border-primary text-primary"
-                    : "hover:bg-muted/70 hover:border-primary/50 hover:text-primary text-muted-foreground"
-                )}
-              >
-                <span>Explore Topics</span>
-                <span className="font-bold text-base">{` >>`}</span>
-              </Link>
-            </li>
           </ul>
         </div>
       </nav>

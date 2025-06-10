@@ -8,6 +8,7 @@
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
+    --avatar: 260, 71%, 96%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
     --primary: 261 69% 59%;
@@ -31,6 +32,7 @@
     --foreground: 0 0% 98%;
     --card: 240 11% 11%;
     --card-foreground: 0 0% 98%;
+    --avatar: 255, 14%, 17%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 261 30% 50%;

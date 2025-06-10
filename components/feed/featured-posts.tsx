@@ -135,7 +135,6 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                 {/* Bottom Section */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 sm:gap-2.5">
-                    <div className="flex items-center bg-background rounded-full">
                     <Avatar
                       displayName={posts[currentIndex].author.displayName}
                       profileImageUrl={
@@ -143,7 +142,6 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                       }
                       size="sm"
                     />
-                    </div>
                     <div className="flex flex-col">
                       <span className="text-white/90 text-xs sm:text-sm font-medium line-clamp-1">
                         {posts[currentIndex].author.displayName}

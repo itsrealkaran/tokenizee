@@ -29,8 +29,8 @@ export function Avatar({
   return (
     <div
       className={cn(
-        "rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/20 transition-colors",
-        onClick && "cursor-pointer hover:bg-primary/20",
+        "rounded-full bg-avatar flex items-center justify-center ring-2 ring-primary/20 transition-colors",
+        onClick && "cursor-pointer hover:bg-avatar/80",
         sizeClasses[size],
         className
       )}

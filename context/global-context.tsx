@@ -134,7 +134,6 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const topic = [
     "web3",
-    "defi",
     "arweave",
     "ao",
     "permaweb",
@@ -142,6 +141,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     "nft",
     "art",
     "music",
+    "defi",
     "video",
     "general",
     "crypto",
@@ -403,7 +403,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
       return false;
     }
   };
-  
+
   // AO API Methods
   const registerUser = async (
     username: string,
@@ -456,16 +456,18 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
   const createMediaItem = async (file: File): Promise<MediaItem> => {
     try {
-      const fileType = file.type.split('/')[0]; // 'image', 'video', or 'audio'
-      if (!['image', 'video', 'audio'].includes(fileType)) {
-        throw new Error('Unsupported file type. Only images, videos, and audio files are allowed.');
+      const fileType = file.type.split("/")[0]; // 'image', 'video', or 'audio'
+      if (!["image", "video", "audio"].includes(fileType)) {
+        throw new Error(
+          "Unsupported file type. Only images, videos, and audio files are allowed."
+        );
       }
 
       const url = await uploadMedia(file);
       return {
         url,
         alt: file.name,
-        type: fileType as 'image' | 'video' | 'audio'
+        type: fileType as "image" | "video" | "audio",
       };
     } catch (error) {
       console.error("Error creating media item:", error);
@@ -488,7 +490,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
       if (mediaFiles && mediaFiles.length > 0) {
         console.log("Uploading media files...");
         mediaItems = await Promise.all(
-          mediaFiles.map(file => createMediaItem(file))
+          mediaFiles.map((file) => createMediaItem(file))
         );
       }
 

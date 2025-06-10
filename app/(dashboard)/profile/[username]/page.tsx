@@ -166,9 +166,9 @@ export default function UserProfilePage() {
             backgroundPosition: "center",
           }}
         >
-          <div className="flex sm:hidden -mb-32 sm:mb-0 h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-white">
+          <div className="flex sm:hidden -mb-32 sm:mb-0 h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-avatar">
             <div
-              className="flex sm:hidden h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-primary/10 items-center justify-center text-xl sm:text-2xl font-bold text-primary border-4 border-background"
+              className="flex sm:hidden h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-avatar items-center justify-center text-xl sm:text-2xl font-bold text-primary border-4 border-background"
               style={{
                 backgroundImage: profileUser.profileImageUrl
                   ? `url(${profileUser.profileImageUrl})`
@@ -186,7 +186,7 @@ export default function UserProfilePage() {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between px-2 sm:px-4 -top-12 sm:top-0">
           <div className="flex flex-col items-center sm:-mt-16 gap-3 sm:items-start sm:gap-4">
             <div
-              className="hidden sm:flex h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-[#F2EDFC] items-center justify-center text-xl sm:text-2xl font-bold text-primary border-4 border-background relative"
+              className="hidden sm:flex h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-avatar items-center justify-center text-xl sm:text-2xl font-bold text-primary border-4 border-background relative"
               style={{
                 backgroundImage: profileUser.profileImageUrl
                   ? `url(${profileUser.profileImageUrl})`
