@@ -170,20 +170,19 @@ export function BlogPostCard({
       onClick={onViewPost}
     >
       {/* Image Section */}
-      <div className="relative w-full h-auto">
-        {post.media.length > 0 && (
-          <>
-            <Image
-              src={post.media[0].url}
-              alt={post.title}
-              fill
-              className="object-cover object-center rounded-xl"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-            <span className="absolute top-4 left-4 bg-black/70 text-white text-[11px] px-2 py-0.5 rounded-full font-medium">
-              #{post.topic[0]}
-            </span>
-          </>
+      <div className="w-full aspect-[16/9] relative overflow-hidden rounded-lg">
+        {post.media && post.media.length > 0 ? (
+          <Image
+            src={post.media[0].url}
+            alt={post.title}
+            fill
+            className="object-cover transition-transform duration-300"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="w-full h-full bg-muted flex items-center justify-center">
+            <span className="text-muted-foreground">No media</span>
+          </div>
         )}
       </div>
       {/* Content Section */}

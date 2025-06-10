@@ -74,13 +74,20 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
             )}
             onClick={() => router.push(`/feed/${posts[currentIndex].id}`)}
           >
-            <Image
-              src={posts[currentIndex].media[0].url}
-              alt={posts[currentIndex].title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
+            {posts[currentIndex].media &&
+            posts[currentIndex].media.length > 0 ? (
+              <Image
+                src={posts[currentIndex].media[0].url}
+                alt={posts[currentIndex].title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            ) : (
+              <div className="w-full h-full bg-muted flex items-center justify-center">
+                <span className="text-muted-foreground">No media</span>
+              </div>
+            )}
             {/* Overlay for readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
 

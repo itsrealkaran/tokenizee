@@ -172,13 +172,19 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
     >
       {/* Image Section */}
       <div className="w-full aspect-[16/9] relative overflow-hidden rounded-lg">
-        <Image
-          src={post.media[0].url}
-          alt={post.title}
-          fill
-          className="object-cover transition-transform duration-300"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+        {post.media && post.media.length > 0 ? (
+          <Image
+            src={post.media[0].url}
+            alt={post.title}
+            fill
+            className="object-cover transition-transform duration-300"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="w-full h-full bg-muted flex items-center justify-center">
+            <span className="text-muted-foreground">No media</span>
+          </div>
+        )}
         <div className="absolute top-2 left-4 space-x-2">
           {post.topic.map((topic) => (
             <span
