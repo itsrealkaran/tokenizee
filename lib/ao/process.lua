@@ -2167,3 +2167,53 @@ Handlers.add("Search", { Action = "Search" }, function(msg)
         })
     })
 end)
+
+-- GetPublicProfile handler
+Handlers.add("GetPublicProfile", { Action = "GetPublicProfile" }, function(msg)
+    local wallet = msg.Tags["Wallet"]
+    
+    if not wallet then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetPublicProfileResponse", Status = "Error" },
+            Data = json.encode({ error = "Missing Wallet tag." })
+        })
+        return
+    end
+
+    if not users[wallet] then
+        ao.send({
+            Target = msg.From,
+            Tags = { Action = "GetPublicProfileResponse", Status = "Error" },
+            Data = json.encode({ error = "User not found." })
+        })
+        return
+    end
+
+    local user = users[wallet]
+    local response = {
+        user = {
+            backgroundImage = user.backgroundImageUrl,
+            profileImage = user.profileImageUrl,
+            username = user.username,
+            displayName = user.displayName,
+            bio = user.bio
+        },
+        tokenizee = {
+            name = "Tokenizee",
+            description = "A decentralized social platform for content creators and their communities",
+            version = "0.9.7",
+            stats = {
+                totalUsers = countTableEntries(users),
+                totalPosts = countTableEntries(posts),
+                totalComments = countTableEntries(comments)
+            }
+        }
+    }
+
+    ao.send({
+        Target = msg.From,
+        Tags = { Action = "GetPublicProfileResponse", Status = "Success" },
+        Data = json.encode(response)
+    })
+end)
