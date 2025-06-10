@@ -19,6 +19,9 @@ import {
 import { toast } from "react-hot-toast";
 import { uploadFileTurbo } from "@/lib/turbo";
 import { uploadFileAO } from "@/lib/aoupload";
+import imageCompression from "browser-image-compression";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 interface GlobalContextType {
   isLoggedIn: boolean;
@@ -115,6 +118,7 @@ interface GlobalContextType {
   getFollowersList: (wallet: string) => Promise<User[]>;
   getFollowingList: (wallet: string) => Promise<User[]>;
   setUnreadNotifications: (count: number) => void;
+  uploadMedia: (file: File) => Promise<string>;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -131,6 +135,8 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [userComments, setUserComments] = useState<Comment[]>([]);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [ffmpeg, setFFmpeg] = useState<FFmpeg | null>(null);
+  const [isFFmpegLoaded, setIsFFmpegLoaded] = useState(false);
 
   const topic = [
     "web3",
@@ -299,131 +305,183 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const uploadMedia = async (file: File): Promise<string> => {
+  useEffect(() => {
+    const loadFFmpeg = async () => {
+      try {
+        const ffmpegInstance = new FFmpeg();
+        const baseURL = window.location.origin;
+
+        // Load FFmpeg core files
+        await ffmpegInstance.load({
+          coreURL: await toBlobURL(
+            `${baseURL}/ffmpeg-core.js`,
+            "text/javascript"
+          ),
+          wasmURL: await toBlobURL(
+            `${baseURL}/ffmpeg-core.wasm`,
+            "application/wasm"
+          ),
+        });
+
+        setFFmpeg(ffmpegInstance);
+        setIsFFmpegLoaded(true);
+      } catch (error) {
+        console.error("Failed to load FFmpeg:", error);
+        toast.error("Failed to load media compression tools");
+      }
+    };
+
+    loadFFmpeg();
+  }, []);
+
+  const compressImage = async (file: File): Promise<File> => {
     try {
-      // Check file size (100KB = 102400 bytes)
-      const fileSize = file.size;
-      console.log(`Original file size: ${fileSize} bytes`);
+      const options = {
+        maxSizeMB: 0.1, // Target 100KB
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+        fileType: "image/jpeg",
+        initialQuality: 0.8,
+      };
 
-      // Determine file type
-      const fileType = file.type.split("/")[0]; // 'image', 'video', or 'audio'
-      if (!["image", "video", "audio"].includes(fileType)) {
-        throw new Error(
-          "Unsupported file type. Only images, videos, and audio files are allowed."
-        );
-      }
-
-      let fileToUpload = file;
-
-      // Compress image if it's an image file
-      if (fileType === "image") {
-        try {
-          const compressedFile = await compressImage(file);
-          console.log(`Compressed file size: ${compressedFile.size} bytes`);
-          fileToUpload = compressedFile;
-        } catch (error) {
-          console.warn("Image compression failed, using original file:", error);
-        }
-      }
-
-      let uploadResult;
-      if (fileToUpload.size <= 102400) {
-        console.log("Using Turbo upload for small file");
-        const formData = new FormData();
-        formData.append("file", fileToUpload);
-        formData.append(
-          "title",
-          `${fileType.charAt(0).toUpperCase() + fileType.slice(1)} File`
-        );
-        formData.append("description", `User ${fileType} file`);
-
-        uploadResult = await uploadFileTurbo(formData);
-        if (!uploadResult.success) {
-          throw new Error(uploadResult.error || "Turbo upload failed");
-        }
-        return `https://arweave.net/${uploadResult.id}`;
-      } else {
-        console.log("Using AO upload for large file");
-        const xid = await uploadFileAO(
-          fileToUpload,
-          `${fileType.charAt(0).toUpperCase() + fileType.slice(1)} File`,
-          `User ${fileType} file`
-        );
-        return `https://arweave.net/${xid}`;
-      }
+      const compressedFile = await imageCompression(file, options);
+      return new File([compressedFile], file.name, { type: "image/jpeg" });
     } catch (error) {
-      console.error("Error uploading media:", error);
-      throw error;
+      console.error("Image compression failed:", error);
+      return file;
     }
   };
 
-  // Helper function to compress images
-  const compressImage = async (file: File): Promise<File> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target?.result as string;
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          let width = img.width;
-          let height = img.height;
+  const compressVideo = async (file: File): Promise<File> => {
+    if (!ffmpeg || !isFFmpegLoaded) {
+      console.warn("FFmpeg not loaded, skipping video compression");
+      return file;
+    }
 
-          // Calculate new dimensions while maintaining aspect ratio
-          const MAX_WIDTH = 1920;
-          const MAX_HEIGHT = 1080;
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height = Math.round((height * MAX_WIDTH) / width);
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width = Math.round((width * MAX_HEIGHT) / height);
-              height = MAX_HEIGHT;
-            }
-          }
+    try {
+      const inputFileName = "input.mp4";
+      const outputFileName = "output.mp4";
 
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          if (!ctx) {
-            reject(new Error("Failed to get canvas context"));
-            return;
-          }
+      // Write input file to FFmpeg's virtual filesystem
+      await ffmpeg.writeFile(inputFileName, await fetchFile(file));
 
-          // Draw image with white background
-          ctx.fillStyle = "white";
-          ctx.fillRect(0, 0, width, height);
-          ctx.drawImage(img, 0, 0, width, height);
+      // Run FFmpeg command to compress video
+      await ffmpeg.exec([
+        "-i",
+        inputFileName,
+        "-c:v",
+        "libx264",
+        "-crf",
+        "28", // Lower quality = smaller file (range: 0-51)
+        "-preset",
+        "medium",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "128k",
+        outputFileName,
+      ]);
 
-          // Convert to blob with quality 0.8
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) {
-                reject(new Error("Failed to compress image"));
-                return;
-              }
-              // Create a new file from the blob
-              const compressedFile = new File([blob], file.name, {
-                type: "image/jpeg",
-                lastModified: Date.now(),
-              });
-              resolve(compressedFile);
-            },
-            "image/jpeg",
-            0.8
-          );
-        };
-        img.onerror = () => {
-          reject(new Error("Failed to load image"));
-        };
-      };
-      reader.onerror = () => {
-        reject(new Error("Failed to read file"));
-      };
-    });
+      // Read the compressed file
+      const data = await ffmpeg.readFile(outputFileName);
+      const compressedBlob = new Blob([data], { type: "video/mp4" });
+
+      return new File([compressedBlob], file.name, { type: "video/mp4" });
+    } catch (error) {
+      console.error("Video compression failed:", error);
+      return file;
+    }
+  };
+
+  const compressAudio = async (file: File): Promise<File> => {
+    if (!ffmpeg || !isFFmpegLoaded) {
+      console.warn("FFmpeg not loaded, skipping audio compression");
+      return file;
+    }
+
+    try {
+      const inputFileName = "input.mp3";
+      const outputFileName = "output.mp3";
+
+      // Write input file to FFmpeg's virtual filesystems
+      await ffmpeg.writeFile(inputFileName, await fetchFile(file));
+
+      // Run FFmpeg command to compress audio
+      await ffmpeg.exec([
+        "-i",
+        inputFileName,
+        "-c:a",
+        "libmp3lame",
+        "-q:a",
+        "4", // Lower quality = smaller file (range: 0-9)
+        outputFileName,
+      ]);
+
+      // Read the compressed file
+      const data = await ffmpeg.readFile(outputFileName);
+      const compressedBlob = new Blob([data], { type: "audio/mp3" });
+
+      return new File([compressedBlob], file.name, { type: "audio/mp3" });
+    } catch (error) {
+      console.error("Audio compression failed:", error);
+      return file;
+    }
+  };
+
+  const uploadMedia = async (file: File): Promise<string> => {
+    try {
+      // Check file size
+      if (file.size > 100 * 1024 * 1024) {
+        // 100MB limit
+        throw new Error("File size exceeds 100MB limit");
+      }
+
+      let compressedFile = file;
+      const originalSize = file.size;
+
+      // Compress based on file type
+      if (file.type.startsWith("image/")) {
+        compressedFile = await compressImage(file);
+      } else if (file.type.startsWith("video/")) {
+        compressedFile = await compressVideo(file);
+      } else if (file.type.startsWith("audio/")) {
+        compressedFile = await compressAudio(file);
+      }
+
+      const compressedSize = compressedFile.size;
+      console.log(`Original size: ${originalSize} bytes`);
+      console.log(`Compressed size: ${compressedSize} bytes`);
+      console.log(
+        `Compression ratio: ${((compressedSize / originalSize) * 100).toFixed(2)}%`
+      );
+
+      // Upload using appropriate method based on file size
+      if (compressedSize > 5 * 1024 * 1024) {
+        // 5MB
+        console.log("Using AOUpload!");
+        const xid = await uploadFileAO(
+          compressedFile,
+          "Media File",
+          "User media file"
+        );
+        return `https://arweave.net/${xid}`;
+      } else {
+        console.log("Using Turbo!");
+        const formData = new FormData();
+        formData.append("file", compressedFile);
+        formData.append("title", "Media File");
+        formData.append("description", "User media file");
+        const result = await uploadFileTurbo(formData);
+        if (!result.success) {
+          throw new Error(result.error || "Turbo upload failed");
+        }
+        return `https://arweave.net/${result.id}`;
+      }
+    } catch (error) {
+      console.error("Media upload failed:", error);
+      toast.error("Failed to upload media");
+      throw error;
+    }
   };
 
   const updateUserProfile = async (
@@ -1182,6 +1240,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         getFollowersList,
         getFollowingList,
         setUnreadNotifications,
+        uploadMedia,
       }}
     >
       {children}
