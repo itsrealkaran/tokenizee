@@ -1299,7 +1299,9 @@ Handlers.add("GetNotifications", { Action = "GetNotifications" }, function(msg)
         if notification.actorWallet and users[notification.actorWallet] then
             formattedNotification.actor = {
                 wallet = notification.actorWallet,
-                displayName = users[notification.actorWallet].displayName
+                displayName = users[notification.actorWallet].displayName,
+                username = users[notification.actorWallet].username,
+                profileImageUrl = users[notification.actorWallet].profileImageUrl
             }
         end
 
