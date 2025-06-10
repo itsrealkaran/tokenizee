@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useGlobal } from "@/context/global-context";
-import { RegisterModal } from "@/components/modals/register-modal";
+import {
+  RegisterModal,
+  RegisterFormData,
+} from "@/components/modals/register-modal";
 import { Button } from "@/components/ui/button";
 
 export default function Onboarding() {
   const router = useRouter();
-  const { isLoggedIn, user, walletConnected, setIsLoggedIn, registerUser } =
-    useGlobal();
+  const { isLoggedIn, user, walletConnected } = useGlobal();
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(true);
 
   // Redirect if not connected or already logged in
@@ -22,32 +24,20 @@ export default function Onboarding() {
   }, [walletConnected, isLoggedIn, user, router]);
 
   // Handle registration
-  const handleRegister = async (data: {
-    newUsername: string;
-    displayName: string;
-    dateOfBirth: string;
-    bio: string;
-  }) => {
+  const handleRegister = async (data: RegisterFormData) => {
     try {
-      const success = await registerUser(
-        data.newUsername,
-        data.displayName,
-        data.dateOfBirth,
-        data.bio
-      );
-      if (success) {
-        setIsRegisterModalOpen(false);
-        setIsLoggedIn(true);
-        const redirectPath = sessionStorage.getItem("redirectPath");
-        if (redirectPath) {
-          sessionStorage.removeItem("redirectPath");
-          router.push(redirectPath);
-        } else {
-          router.push("/feed");
-        }
+      // The registerUser function is now called directly from the RegisterModal
+      // This handler is kept for any additional onboarding-specific logic
+      setIsRegisterModalOpen(false);
+      const redirectPath = sessionStorage.getItem("redirectPath");
+      if (redirectPath) {
+        sessionStorage.removeItem("redirectPath");
+        router.push(redirectPath);
+      } else {
+        router.push("/feed");
       }
     } catch (error) {
-      console.error("Error registering user:", error);
+      console.error("Error in onboarding process:", error);
     }
   };
 

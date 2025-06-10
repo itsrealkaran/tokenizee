@@ -16,6 +16,8 @@ import {
   Notification,
 } from "@/lib/ao-client";
 import { toast } from "react-hot-toast";
+import { uploadFileTurbo } from "@/lib/turbo";
+import { uploadFileAO } from "@/lib/aoupload";
 
 interface GlobalContextType {
   isLoggedIn: boolean;
@@ -27,7 +29,9 @@ interface GlobalContextType {
     newUsername: string,
     displayName: string,
     dateOfBirth: string,
-    bio: string
+    bio: string,
+    profileImage?: File,
+    backgroundImage?: File
   ) => Promise<boolean>;
   logout: () => void;
   feedPosts: Post[];
@@ -59,7 +63,9 @@ interface GlobalContextType {
     username: string,
     displayName: string,
     dateOfBirth: string,
-    bio: string
+    bio: string,
+    profileImage?: File,
+    backgroundImage?: File
   ) => Promise<boolean>;
   createPost: (
     title: string,
@@ -291,11 +297,47 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const uploadImage = async (file: File): Promise<string> => {
+    try {
+      // Check file size (100KB = 102400 bytes)
+      const fileSize = file.size;
+      console.log(`File size: ${fileSize} bytes`);
+
+      let uploadResult;
+      if (fileSize <= 102400) {
+        console.log("Using Turbo upload for small file");
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("title", "Profile Image");
+        formData.append("description", "User profile image");
+
+        uploadResult = await uploadFileTurbo(formData);
+        if (!uploadResult.success) {
+          throw new Error(uploadResult.error || "Turbo upload failed");
+        }
+        return `https://arweave.net/${uploadResult.id}`;
+      } else {
+        console.log("Using AO upload for large file");
+        const xid = await uploadFileAO(
+          file,
+          "Profile Image",
+          "User profile image"
+        );
+        return `https://arweave.net/${xid}`;
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw error;
+    }
+  };
+
   const updateUserProfile = async (
     newUsername: string,
     displayName: string,
     dateOfBirth: string,
-    bio: string
+    bio: string,
+    profileImage?: File,
+    backgroundImage?: File
   ): Promise<boolean> => {
     try {
       if (!user?.username) {
@@ -306,13 +348,28 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         throw new Error("Wallet not connected");
       }
 
+      let profileImageUrl = user.profileImageUrl;
+      let backgroundImageUrl = user.backgroundImageUrl;
+
+      // Upload images if provided
+      if (profileImage) {
+        console.log("Uploading profile image...");
+        profileImageUrl = await uploadImage(profileImage);
+      }
+      if (backgroundImage) {
+        console.log("Uploading background image...");
+        backgroundImageUrl = await uploadImage(backgroundImage);
+      }
+
       const response = await aoClient.updateUser(
         walletAddress,
         user.username,
         newUsername,
         displayName,
         dateOfBirth,
-        bio
+        bio,
+        profileImageUrl,
+        backgroundImageUrl
       );
 
       // Update the user state with the new data
@@ -339,11 +396,26 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     username: string,
     displayName: string,
     dateOfBirth: string,
-    bio: string
+    bio: string,
+    profileImage?: File,
+    backgroundImage?: File
   ): Promise<boolean> => {
     try {
       if (!walletAddress) {
         throw new Error("Wallet not connected");
+      }
+
+      let profileImageUrl: string | undefined;
+      let backgroundImageUrl: string | undefined;
+
+      // Upload images if provided
+      if (profileImage) {
+        console.log("Uploading profile image...");
+        profileImageUrl = await uploadImage(profileImage);
+      }
+      if (backgroundImage) {
+        console.log("Uploading background image...");
+        backgroundImageUrl = await uploadImage(backgroundImage);
       }
 
       const response = await aoClient.registerUser(
@@ -351,7 +423,9 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         displayName,
         dateOfBirth,
         bio,
-        walletAddress
+        walletAddress,
+        profileImageUrl,
+        backgroundImageUrl
       );
 
       setUser(response.user);

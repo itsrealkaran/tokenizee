@@ -17,7 +17,7 @@ try {
   throw new Error('Failed to parse ARWEAVE_JWK environment variable');
 }
 
-export async function uploadFile(formData: FormData) {
+export async function uploadFileTurbo(formData: FormData) {
   try {
     const file = formData.get('file') as File;
     const title = formData.get('title') as string;

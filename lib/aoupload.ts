@@ -26,7 +26,7 @@ const AO_CONFIG = {
 
 export const AO = AO_CONFIG;
 
-export async function uploadFileToArweave(
+export async function uploadFileAO(
   file: File,
   title = "MEKA Asset",
   description = "MEKA Human Asset"

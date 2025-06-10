@@ -33,7 +33,6 @@ export default function UserProfilePage() {
     userComments,
     loadProfileData,
     handleFollowUser,
-    updateUserProfile,
   } = useGlobal();
   const [profileUser, setProfileUser] = useState<User | null>(
     initialProfileUser
@@ -69,7 +68,7 @@ export default function UserProfilePage() {
         setIsLoadingContent(false);
       }
     },
-    [loadProfileData, initialProfileUser]
+    [loadProfileData]
   );
 
   useEffect(() => {
@@ -86,19 +85,11 @@ export default function UserProfilePage() {
     if (!user) return;
 
     try {
-      const success = await updateUserProfile(
-        data.newUsername,
-        data.displayName,
-        data.dateOfBirth,
-        data.bio
-      );
-
-      if (success) {
-        toast.success("Profile updated successfully!");
-        setIsEditing(false);
-        if (data.newUsername !== user.username) {
-          router.push(`/profile/${data.newUsername}`);
-        }
+      // The updateUserProfile function is now called directly from the RegisterModal
+      // This handler is kept for any additional profile-specific logic
+      setIsEditing(false);
+      if (data.newUsername !== user.username) {
+        router.push(`/profile/${data.newUsername}`);
       }
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -283,22 +274,6 @@ export default function UserProfilePage() {
           </Button>
         </div>
 
-        {/* User List Modals */}
-        <UserListModal
-          isOpen={showFollowers}
-          onClose={() => setShowFollowers(false)}
-          title="Followers"
-          users={followersList}
-          currentUsername={profileUser.username}
-        />
-        <UserListModal
-          isOpen={showFollowing}
-          onClose={() => setShowFollowing(false)}
-          title="Following"
-          users={followingList}
-          currentUsername={profileUser.username}
-        />
-
         {/* Tabs */}
         <div className="flex border-b">
           <button
@@ -324,53 +299,73 @@ export default function UserProfilePage() {
             {`Comments (${profileUser.comments})`}
           </button>
         </div>
+      </div>
 
-        {/* Content */}
-        <div className="space-y-4">
-          {isLoadingContent ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : activeTab === "posts" ? (
-            userPosts.length > 0 ? (
-              userPosts.map((post) => (
+      {/* Content */}
+      <div className="mt-4">
+        {isLoadingContent ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : activeTab === "posts" ? (
+          userPosts.length > 0 ? (
+            <div className="space-y-4">
+              {userPosts.map((post) => (
                 <PostCard
                   key={post.id}
                   post={post}
                   onViewPost={() => router.push(`/feed/${post.id}`)}
                 />
-              ))
-            ) : (
-              <div className="text-center py-8">
-                <PenSquare className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                <p className="text-muted-foreground">No posts yet</p>
-              </div>
-            )
-          ) : userComments.length > 0 ? (
-            userComments.map((comment) => (
-              <CommentCard key={comment.id} comment={comment} />
-            ))
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8">
-              <MessageCircle className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-              <p className="text-muted-foreground">No comments yet</p>
+              <PenSquare className="h-12 w-12 text-muted-foreground/50 mx-auto" />
+              <p className="text-muted-foreground mt-2">No posts yet</p>
             </div>
-          )}
-        </div>
+          )
+        ) : userComments.length > 0 ? (
+          <div className="space-y-4">
+            {userComments.map((comment) => (
+              <CommentCard key={comment.id} comment={comment} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <MessageCircle className="h-12 w-12 text-muted-foreground/50 mx-auto" />
+            <p className="text-muted-foreground mt-2">No comments yet</p>
+          </div>
+        )}
       </div>
 
       {/* Modals */}
       <RegisterModal
         isOpen={isEditing}
+        isEditing={true}
         onClose={() => setIsEditing(false)}
         onSubmit={handleEditProfile}
-        isEditing={true}
         initialData={{
           newUsername: profileUser.username,
           displayName: profileUser.displayName,
           dateOfBirth: profileUser.dateOfBirth,
           bio: profileUser.bio || "",
+          profileImageUrl: profileUser.profileImageUrl,
+          backgroundImageUrl: profileUser.backgroundImageUrl,
         }}
+      />
+      <UserListModal
+        isOpen={showFollowers}
+        onClose={() => setShowFollowers(false)}
+        title="Followers"
+        users={followersList}
+        currentUsername={profileUser.username}
+      />
+      <UserListModal
+        isOpen={showFollowing}
+        onClose={() => setShowFollowing(false)}
+        title="Following"
+        users={followingList}
+        currentUsername={profileUser.username}
       />
     </div>
   );

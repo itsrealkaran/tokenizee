@@ -4,7 +4,16 @@ import { useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { Button } from "@/components/ui/button";
-import { X, Loader2 } from "lucide-react";
+import {
+  X,
+  Loader2,
+  Image as ImageIcon,
+  UserRoundPenIcon,
+  ImagePlusIcon,
+  User2,
+} from "lucide-react";
+import Image from "next/image";
+import { useGlobal } from "@/context/global-context";
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -19,6 +28,8 @@ export interface RegisterFormData {
   displayName: string;
   dateOfBirth: string;
   bio: string;
+  profileImageUrl?: string;
+  backgroundImageUrl?: string;
 }
 
 export function RegisterModal({
@@ -28,21 +39,38 @@ export function RegisterModal({
   initialData,
   isEditing,
 }: RegisterModalProps) {
+  const { registerUser, updateUserProfile } = useGlobal();
   const [formData, setFormData] = useState<RegisterFormData>({
     newUsername: "",
     displayName: "",
     dateOfBirth: "",
     bio: "",
+    profileImageUrl: "",
+    backgroundImageUrl: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<
     Partial<Record<keyof RegisterFormData, string>>
   >({});
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [backgroundPreview, setBackgroundPreview] = useState<string | null>(
+    null
+  );
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [backgroundImageFile, setBackgroundImageFile] = useState<File | null>(
+    null
+  );
 
   // Update form data when initialData changes
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
+      if (initialData.profileImageUrl) {
+        setProfilePreview(initialData.profileImageUrl);
+      }
+      if (initialData.backgroundImageUrl) {
+        setBackgroundPreview(initialData.backgroundImageUrl);
+      }
     }
   }, [initialData]);
 
@@ -94,7 +122,31 @@ export function RegisterModal({
 
     setIsSubmitting(true);
     try {
-      await onSubmit(formData);
+      if (isEditing) {
+        const success = await updateUserProfile(
+          formData.newUsername,
+          formData.displayName,
+          formData.dateOfBirth,
+          formData.bio,
+          profileImageFile || undefined,
+          backgroundImageFile || undefined
+        );
+        if (success) {
+          onClose();
+        }
+      } else {
+        const success = await registerUser(
+          formData.newUsername,
+          formData.displayName,
+          formData.dateOfBirth,
+          formData.bio,
+          profileImageFile || undefined,
+          backgroundImageFile || undefined
+        );
+        if (success) {
+          onClose();
+        }
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -108,6 +160,27 @@ export function RegisterModal({
     // Clear error when user starts typing
     if (errors[name as keyof RegisterFormData]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "profile" | "background"
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Create a preview URL
+    const previewUrl = URL.createObjectURL(file);
+
+    if (type === "profile") {
+      setProfilePreview(previewUrl);
+      setProfileImageFile(file);
+      setFormData((prev) => ({ ...prev, profileImageUrl: previewUrl }));
+    } else {
+      setBackgroundPreview(previewUrl);
+      setBackgroundImageFile(file);
+      setFormData((prev) => ({ ...prev, backgroundImageUrl: previewUrl }));
     }
   };
 
@@ -142,7 +215,7 @@ export function RegisterModal({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-background p-4 sm:p-6 text-left align-middle shadow-xl transition-all border border-border">
+              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-background p-4 sm:p-6 text-left align-middle shadow-xl transition-all border border-border">
                 <div className="flex items-center justify-between">
                   <Dialog.Title
                     as="h3"
@@ -164,56 +237,147 @@ export function RegisterModal({
                   onSubmit={handleSubmit}
                   className="mt-3 sm:mt-4 space-y-3 sm:space-y-4"
                 >
-                  <div>
-                    <label
-                      htmlFor="username"
-                      className="block text-sm font-medium text-foreground"
-                    >
-                      Username
-                    </label>
-                    <input
-                      type="text"
-                      id="username"
-                      name="newUsername"
-                      value={formData.newUsername}
-                      onChange={handleChange}
-                      className={inputClassName(!!errors.newUsername)}
-                      placeholder="Choose a username"
-                      required
-                      disabled={isSubmitting}
-                    />
-                    {errors.newUsername && (
-                      <p className="mt-1 text-sm text-destructive">
-                        {errors.newUsername}
-                      </p>
-                    )}
+                  {/* Cover Image with Profile Picture */}
+                  <div className="relative -mx-2 -mt-2 mb-16">
+                    {/* Cover Image */}
+                    <div className="relative h-32 sm:h-48 bg-primary/10">
+                      {backgroundPreview ? (
+                        <Image
+                          src={backgroundPreview}
+                          alt="Background preview"
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-muted-foreground">
+                          <ImageIcon className="size-8" />
+                        </div>
+                      )}
+                      <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(e, "background")}
+                          className="hidden"
+                          disabled={isSubmitting}
+                        />
+                        <div className="flex items-center gap-2 text-white">
+                          <ImagePlusIcon className="size-8" />
+                        </div>
+                      </label>
+                    </div>
+
+                    {/* Profile Picture */}
+                    <div className="absolute -bottom-12 left-4 sm:left-6">
+                      <div className="relative h-24 w-24 rounded-full overflow-hidden bg-[#F2EDFC] ring-4 ring-background group">
+                        {profilePreview ? (
+                          <Image
+                            src={profilePreview}
+                            alt="Profile preview"
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center text-3xl font-bold text-primary">
+                            {formData.displayName?.[0] || (
+                              <User2 className="size-6" />
+                            )}
+                          </div>
+                        )}
+                        <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleImageUpload(e, "profile")}
+                            className="hidden"
+                            disabled={isSubmitting}
+                          />
+                          <div className="flex flex-col items-center gap-1 text-white">
+                            <UserRoundPenIcon className="size-6" />
+                          </div>
+                        </label>
+                      </div>
+                    </div>
                   </div>
 
-                  <div>
-                    <label
-                      htmlFor="displayName"
-                      className="block text-sm font-medium text-foreground"
-                    >
-                      Display Name
-                    </label>
-                    <input
-                      type="text"
-                      id="displayName"
-                      name="displayName"
-                      value={formData.displayName}
-                      onChange={handleChange}
-                      className={inputClassName(!!errors.displayName)}
-                      placeholder="Your display name"
-                      required
-                      disabled={isSubmitting}
-                    />
-                    {errors.displayName && (
-                      <p className="mt-1 text-sm text-destructive">
-                        {errors.displayName}
-                      </p>
-                    )}
+                  {/* Form Fields */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-12">
+                    <div>
+                      <label
+                        htmlFor="username"
+                        className="block text-sm font-medium text-foreground"
+                      >
+                        Username
+                      </label>
+                      <input
+                        type="text"
+                        id="username"
+                        name="newUsername"
+                        value={formData.newUsername}
+                        onChange={handleChange}
+                        className={inputClassName(!!errors.newUsername)}
+                        placeholder="Choose a username"
+                        required
+                        disabled={isSubmitting}
+                      />
+                      {errors.newUsername && (
+                        <p className="mt-1 text-sm text-destructive">
+                          {errors.newUsername}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="displayName"
+                        className="block text-sm font-medium text-foreground"
+                      >
+                        Display Name
+                      </label>
+                      <input
+                        type="text"
+                        id="displayName"
+                        name="displayName"
+                        value={formData.displayName}
+                        onChange={handleChange}
+                        className={inputClassName(!!errors.displayName)}
+                        placeholder="Your display name"
+                        required
+                        disabled={isSubmitting}
+                      />
+                      {errors.displayName && (
+                        <p className="mt-1 text-sm text-destructive">
+                          {errors.displayName}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="dateOfBirth"
+                        className="block text-sm font-medium text-foreground"
+                      >
+                        Date of Birth
+                      </label>
+                      <input
+                        type="date"
+                        id="dateOfBirth"
+                        name="dateOfBirth"
+                        value={formData.dateOfBirth}
+                        onChange={handleChange}
+                        className={inputClassName(!!errors.dateOfBirth)}
+                        required
+                        disabled={isSubmitting}
+                      />
+                      {errors.dateOfBirth && (
+                        <p className="mt-1 text-sm text-destructive">
+                          {errors.dateOfBirth}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
+                  {/* Bio Field */}
                   <div>
                     <label
                       htmlFor="bio"
@@ -239,30 +403,6 @@ export function RegisterModal({
                     <p className="mt-1 text-xs text-muted-foreground text-right">
                       {formData.bio.length}/160
                     </p>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="dateOfBirth"
-                      className="block text-sm font-medium text-foreground"
-                    >
-                      Date of Birth
-                    </label>
-                    <input
-                      type="date"
-                      id="dateOfBirth"
-                      name="dateOfBirth"
-                      value={formData.dateOfBirth}
-                      onChange={handleChange}
-                      className={inputClassName(!!errors.dateOfBirth)}
-                      required
-                      disabled={isSubmitting}
-                    />
-                    {errors.dateOfBirth && (
-                      <p className="mt-1 text-sm text-destructive">
-                        {errors.dateOfBirth}
-                      </p>
-                    )}
                   </div>
 
                   <div className="mt-4 sm:mt-6 flex justify-end space-x-2 sm:space-x-3">
