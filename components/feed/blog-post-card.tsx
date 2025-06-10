@@ -14,6 +14,8 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useGlobal } from "@/context/global-context";
 import { Post } from "@/lib/ao-client";
+import { Avatar } from "@/components/ui/avatar";
+import Image from "next/image";
 
 interface BlogPostCardProps {
   post: Post;
@@ -47,13 +49,6 @@ export function BlogPostCard({
   const [isVoting, setIsVoting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [isBookmarking, setIsBookmarking] = useState(false);
-
-  // Generate a consistent image ID based on post ID
-  const imageId =
-    Math.abs(
-      post.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-    ) % 1000;
-  const imageUrl = `https://picsum.photos/seed/${imageId}/800/450`;
 
   const handleVote = async (type: "up" | "down") => {
     if (isVoting) return;
@@ -176,14 +171,20 @@ export function BlogPostCard({
     >
       {/* Image Section */}
       <div className="relative w-full h-auto">
-        <img
-          src={imageUrl}
-          alt={post.title}
-          className="w-full h-full object-cover object-center rounded-xl"
-        />
-        <span className="absolute top-4 left-4 bg-black/70 text-white text-[11px] px-2 py-0.5 rounded-full font-medium">
-          #{post.topic[0]}
-        </span>
+        {post.media.length > 0 && (
+          <>
+            <Image
+              src={post.media[0].url}
+              alt={post.title}
+              fill
+              className="object-cover object-center rounded-xl"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+            <span className="absolute top-4 left-4 bg-black/70 text-white text-[11px] px-2 py-0.5 rounded-full font-medium">
+              #{post.topic[0]}
+            </span>
+          </>
+        )}
       </div>
       {/* Content Section */}
       <div
@@ -208,12 +209,15 @@ export function BlogPostCard({
         <div className="grid grid-rows-[auto_auto]">
           <div className="grid grid-cols-[1fr_auto] items-center gap-2">
             <div className="flex items-center gap-2">
-              <div
-                className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary cursor-pointer text-sm sm:text-md"
-                onClick={handleProfileClick}
-              >
-                {post.author.displayName[0]}
-              </div>
+              <Avatar
+                displayName={post.author.displayName}
+                profileImageUrl={post.author.profileImageUrl}
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleProfileClick(e);
+                }}
+              />
               <div className="flex flex-col">
                 <span className="font-semibold text-xs sm:text-sm">
                   {post.author.displayName}

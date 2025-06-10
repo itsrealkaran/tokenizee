@@ -14,6 +14,8 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useGlobal } from "@/context/global-context";
 import { Post } from "@/lib/ao-client";
+import { Avatar } from "@/components/ui/avatar";
+import Image from "next/image";
 
 interface PostCardProps {
   post: Post;
@@ -177,25 +179,27 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
     >
       {/* Image Section */}
       <div className="w-full aspect-[16/9] relative overflow-hidden rounded-lg">
-        <img
+        <Image
           src={imageUrl}
           alt={post.title}
-          className="w-full h-full object-cover transition-transform duration-300"
+          fill
+          className="object-cover transition-transform duration-300"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         <div className="absolute top-2 left-4 space-x-2">
-            {post.topic.map((topic) => (
-              <span
-                key={topic}
-                className="bg-black/70 text-white text-[11px] px-2 py-0.5 rounded-full font-medium hover:bg-primary/20 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  router.push(`/feed/topic/${topic}`);
-                }}
-              >
-                #{topic}
-              </span>
-            ))}
-          </div>
+          {post.topic.map((topic) => (
+            <span
+              key={topic}
+              className="bg-black/70 text-white text-[11px] px-2 py-0.5 rounded-full font-medium hover:bg-primary/20 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/feed/topic/${topic}`);
+              }}
+            >
+              #{topic}
+            </span>
+          ))}
+        </div>
         <div className="absolute top-2 right-2 z-10 items-center sm:hidden flex bg-white/80 backdrop-blur-sm rounded-lg p-1">
           <Button
             variant="ghost"
@@ -223,14 +227,15 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
         {/* Author and Date */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-colors ring-2 ring-primary/20"
-              onClick={handleProfileClick}
-            >
-              <span className="text-sm sm:text-base font-medium text-primary">
-                {post.author.displayName[0]}
-              </span>
-            </div>
+            <Avatar
+              displayName={post.author.displayName}
+              profileImageUrl={post.author.profileImageUrl}
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleProfileClick(e);
+              }}
+            />
             <div className="flex flex-col">
               <button
                 className="font-medium hover:underline text-xs sm:text-sm text-left"

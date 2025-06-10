@@ -17,6 +17,7 @@ import { PostModal } from "@/components/modals/post-modal";
 import { useGlobal } from "@/context/global-context";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { toast } from "react-hot-toast";
+import { Avatar } from "@/components/ui/avatar";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -152,11 +153,12 @@ export function Sidebar() {
 
         <div className="flex items-center justify-between p-3 rounded-full hover:bg-muted/50 transition-colors cursor-pointer">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <span className="text-lg font-medium text-primary">
-                {user.displayName[0]}
-              </span>
-            </div>
+            <Avatar
+              displayName={user.displayName}
+              profileImageUrl={user.profileImageUrl}
+              size="sm"
+              onClick={() => {}}
+            />
             <div className="flex flex-col">
               <span className="font-semibold truncate max-w-[120px]">
                 {user.displayName}

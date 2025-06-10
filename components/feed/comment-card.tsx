@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 import { Comment } from "@/lib/ao-client";
+import { Avatar } from "../ui/avatar";
 
 interface CommentCardProps {
   comment: Comment;
@@ -22,14 +23,12 @@ export function CommentCard({ comment }: CommentCardProps) {
       <div className="absolute -left-2 top-4 w-1 h-8 bg-primary/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
 
       <div className="flex items-start gap-3 sm:gap-4">
-        <div
-          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-all duration-200 hover:scale-105"
+        <Avatar
+          displayName={comment.author.displayName}
+          profileImageUrl={comment.author.profileImageUrl}
+          size="sm"
           onClick={handleProfileClick}
-        >
-          <span className="text-base sm:text-lg font-medium text-primary">
-            {comment.author.displayName[0]}
-          </span>
-        </div>
+        />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             <button

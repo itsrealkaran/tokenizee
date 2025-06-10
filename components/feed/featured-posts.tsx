@@ -11,6 +11,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Post } from "@/lib/ao-client";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Avatar } from "../ui/avatar";
 
 interface FeaturedPostsProps {
   posts: Post[];
@@ -81,10 +83,12 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
             )}
             onClick={() => router.push(`/feed/${posts[currentIndex].id}`)}
           >
-            <img
+            <Image
               src={getImageUrl(posts[currentIndex].id)}
               alt={posts[currentIndex].title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
             {/* Overlay for readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
@@ -140,11 +144,11 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                 {/* Bottom Section */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 sm:gap-2.5">
-                    <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-white/90 flex items-center justify-center shadow-sm">
-                      <span className="text-sm sm:text-base font-semibold text-primary">
-                        {posts[currentIndex].author.displayName[0]}
-                      </span>
-                    </div>
+                    <Avatar
+                      displayName={posts[currentIndex].author.displayName}
+                      profileImageUrl={posts[currentIndex].author.profileImageUrl}
+                      size="sm"
+                    />
                     <div className="flex flex-col">
                       <span className="text-white/90 text-xs sm:text-sm font-medium line-clamp-1">
                         {posts[currentIndex].author.displayName}

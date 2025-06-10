@@ -8,6 +8,7 @@ import { useGlobal } from "@/context/global-context";
 import { cn } from "@/lib/utils";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Post, User, Comment } from "@/lib/ao-client";
+import { Avatar } from "../ui/avatar";
 
 type TabType = "trending" | "creators" | "search";
 type SearchTabType = "all" | "users" | "posts" | "comments";
@@ -130,11 +131,11 @@ export default function ExploreContent() {
                     onClick={() => router.push(`/profile/${user.username}`)}
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-lg font-medium text-primary">
-                          {user.displayName[0]}
-                        </span>
-                      </div>
+                      <Avatar
+                        displayName={user.displayName}
+                        profileImageUrl={user.profileImageUrl}
+                        size="sm"
+                      />
                       <div>
                         <h3 className="font-medium line-clamp-1">
                           {user.displayName}
@@ -293,14 +294,18 @@ export default function ExploreContent() {
               <div
                 key={creator.user.username}
                 className="flex items-center cursor-pointer justify-between p-3 sm:p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
-                onClick={() => router.push(`/profile/${creator.user.username}`)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log(e);
+                  router.push(`/profile/${creator.user.username}`);
+                }}
               >
                 <div className="flex items-center space-x-3 sm:space-x-4">
-                  <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-base sm:text-lg font-medium text-primary">
-                      {creator.user.displayName[0]}
-                    </span>
-                  </div>
+                  <Avatar
+                    displayName={creator.user.displayName}
+                    profileImageUrl={creator.user.profileImageUrl}
+                    size="sm"
+                  />
                   <div>
                     <h3 className="font-medium text-sm sm:text-base line-clamp-1">
                       {creator.user.displayName}

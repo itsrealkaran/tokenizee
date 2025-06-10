@@ -225,7 +225,9 @@ export function PostModal({ isOpen, onClose }: PostModalProps) {
                       <Image
                         src={previewUrl}
                         alt="Preview"
-                        className="h-full w-full object-cover rounded-md"
+                        fill
+                        className="object-cover rounded-md"
+                        sizes="64px"
                       />
                       <button
                         type="button"

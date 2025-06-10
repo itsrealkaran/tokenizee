@@ -60,6 +60,7 @@ export interface Comment {
     wallet: string;
     username: string;
     displayName: string;
+    profileImageUrl?: string;
   };
   content: string;
   createdAt: number;

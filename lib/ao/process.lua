@@ -143,14 +143,9 @@ posts = posts or {
       topic = { "tech", "general" },
       media = {
         {
-          url = "https://example.com/image1.jpg",
-          alt = "Technology innovation",
+          url = "https://images.unsplash.com/photo-1636587224433-3cd253788c40?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dG9rZW58ZW58MHx8MHx8fDA%3D",
+          alt = "Tokenizee",
           type = "image"
-        },
-        {
-          url = "https://example.com/video1.mp4",
-          alt = "Tech demo video",
-          type = "video"
         }
       },
       sharedBy = {
@@ -175,6 +170,13 @@ posts = posts or {
       authorWallet = "KkBpSPg-bFQDt2wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
       content = "Art is not just a form of expression, but a window into the soul of humanity. Throughout history, artists have used their craft to challenge norms, inspire change, and evoke emotion. In this article, we delve into the world of art, exploring its evolution from classical masterpieces to contemporary works. Discover how art continues to influence culture and society in profound ways.",
       topic = { "art", "general" },
+      media = {
+        {
+          url = "https://images.unsplash.com/photo-1636587224433-3cd253788c40?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dG9rZW58ZW58MHx8MHx8fDA%3D",
+          alt = "Tokenizee",
+          type = "image"
+        }
+      },
       sharedBy = {},
       bookmarkedBy = {
         ["qGlQRSiLM5hM2EtiLlsvMsaAj0_OfU3UzUH_1_wS-Nw"] = true
@@ -190,6 +192,13 @@ posts = posts or {
       authorWallet = "3ggyhyhQz68ug_rpNX3hHDZid_EPPjtu0ffuC6g9kL8",
       content = "Artificial intelligence is no longer a concept of the future—it's here and now. From self-driving cars to smart assistants, AI is revolutionizing industries and enhancing our everyday experiences. This post examines the rise of AI, its current applications, and what the future may hold as machines become increasingly intelligent and autonomous.",
       topic = { "tech", "ai" },
+      media = {
+        {
+          url = "https://images.unsplash.com/photo-1636587224433-3cd253788c40?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dG9rZW58ZW58MHx8MHx8fDA%3D",
+          alt = "Tokenizee",
+          type = "image"
+        }
+      },
       sharedBy = {},
       bookmarkedBy = {},
       createdAt = 1748326194790
@@ -205,6 +214,13 @@ posts = posts or {
       authorWallet = "WNtWM-CbP4p4__4KmnVrw_k7xUcT35kuVxuXu8BMvx4",
       content = "Web3 is redefining the internet by putting power back into the hands of users. With decentralized applications and blockchain technology, individuals can own their data, participate in governance, and transact securely without intermediaries. In this post, we break down the fundamentals of Web3 and what it means for the future of the digital world.",
       topic = { "web3", "general" },
+      media = {
+        {
+          url = "https://images.unsplash.com/photo-1636587224433-3cd253788c40?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dG9rZW58ZW58MHx8MHx8fDA%3D",
+          alt = "Tokenizee",
+          type = "image"
+        }
+      },
       sharedBy = {},
       bookmarkedBy = {
         ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true
@@ -223,6 +239,13 @@ posts = posts or {
       authorWallet = "KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s",
       content = "Welcome to the network! This is your first article on our platform. Here, you can share your thoughts, ideas, and stories with a vibrant community of readers and creators. Whether you're passionate about technology, art, science, or any other topic, this is the place to connect and grow. Start your journey today and make your voice heard!",
       topic = { "general", "web3" },
+      media = {
+        {
+          url = "https://images.unsplash.com/photo-1636587224433-3cd253788c40?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dG9rZW58ZW58MHx8MHx8fDA%3D",
+          alt = "Tokenizee",
+          type = "image"
+        }
+      },
       sharedBy = {
         ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true,
         ["8iD-Gy_sKx98oth27JhjjP2V_xUSIGqs_8-skb63YHg"] = true
@@ -242,6 +265,13 @@ posts = posts or {
       authorWallet = "OVRxaP7mNWwjSihsr450Ah0zQwfd-LsMinVnhuapLFE",
       content = "The world is full of opportunities for those willing to explore and innovate. In this new post, we discuss the importance of curiosity, lifelong learning, and embracing change in a rapidly evolving landscape. Stay tuned for more insights and inspiration!",
       topic = { "general" },
+      media = {
+        {
+          url = "https://images.unsplash.com/photo-1636587224433-3cd253788c40?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dG9rZW58ZW58MHx8MHx8fDA%3D",
+          alt = "Tokenizee",
+          type = "image"
+        }
+      },
       sharedBy = {},
       bookmarkedBy = {},
       createdAt = 1748319443108
@@ -259,6 +289,13 @@ posts = posts or {
       authorWallet = "qGlQRSiLM5hM2EtiLlsvMsaAj0_OfU3UzUH_1_wS-Nw",
       content = "Coding is more than just writing lines of code—it's about solving problems, building solutions, and creating value. In this post, we share tips and tricks for staying productive, motivated, and creative while coding. Whether you're a beginner or a seasoned developer, there's always something new to learn in the world of programming.",
       topic = { "tech", "coding" },
+      media = {
+        {
+          url = "https://images.unsplash.com/photo-1636587224433-3cd253788c40?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dG9rZW58ZW58MHx8MHx8fDA%3D",
+          alt = "Tokenizee",
+          type = "image"
+        }
+      },
       sharedBy = {},
       bookmarkedBy = {
         ["KkBpSPg-bFQDy3wyYUZ4dOEZyUf73ITMZcTspxIaH0s"] = true,

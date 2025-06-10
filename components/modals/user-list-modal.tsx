@@ -12,6 +12,7 @@ import { useGlobal } from "@/context/global-context";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Loader2, Users2 } from "lucide-react";
+import { Avatar } from "../ui/avatar";
 
 interface UserListModalProps {
   isOpen: boolean;
@@ -93,11 +94,11 @@ export function UserListModal({
                     (window.location.href = `/profile/${user.username}`)
                   }
                 >
-                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors shrink-0">
-                    <span className="text-xs font-medium text-primary">
-                      {user.displayName[0]}
-                    </span>
-                  </div>
+                  <Avatar 
+                    displayName={user.displayName}
+                    profileImageUrl={user.profileImageUrl}
+                    size="sm"
+                  />
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
                       {user.displayName}

@@ -165,10 +165,29 @@ export default function UserProfilePage() {
       {/* Profile Header */}
       <div className="space-y-4 sm:space-y-6">
         {/* Cover Image Placeholder */}
-        <div className="flex h-24 mb-14 sm:mb-0 sm:h-32 bg-gradient-to-r items-center justify-center from-primary/20 to-primary/10 rounded-lg">
+        <div
+          className="flex h-24 mb-14 sm:mb-0 sm:h-32 bg-gradient-to-r items-center justify-center from-primary/20 to-primary/10 rounded-lg relative"
+          style={{
+            backgroundImage: profileUser.backgroundImageUrl
+              ? `url(${profileUser.backgroundImageUrl})`
+              : undefined,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            border: "1px solid #f0f0f0",
+          }}
+        >
           <div className="flex sm:hidden -mb-28 sm:mb-0 h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-white">
-            <div className="flex sm:hidden h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-primary/10 items-center justify-center text-xl sm:text-2xl font-bold text-primary border-4 border-background">
-              {profileUser.displayName[0]}
+            <div
+              className="flex sm:hidden h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-primary/10 items-center justify-center text-xl sm:text-2xl font-bold text-primary border-4 border-background"
+              style={{
+                backgroundImage: profileUser.profileImageUrl
+                  ? `url(${profileUser.profileImageUrl})`
+                  : undefined,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+              {!profileUser.profileImageUrl && profileUser.displayName[0]}
             </div>
           </div>
         </div>
@@ -176,8 +195,17 @@ export default function UserProfilePage() {
         {/* Profile Info */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between px-2 sm:px-4 -top-12 sm:top-0">
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-3 sm:gap-4">
-            <div className="hidden sm:flex h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-primary/10 items-center justify-center text-xl sm:text-2xl font-bold text-primary border-4 border-background relative">
-              {profileUser.displayName[0]}
+            <div
+              className="hidden sm:flex h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-primary/10 items-center justify-center text-xl sm:text-2xl font-bold text-primary border-4 border-background relative"
+              style={{
+                backgroundImage: profileUser.profileImageUrl
+                  ? `url(${profileUser.profileImageUrl})`
+                  : undefined,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+              {!profileUser.profileImageUrl && profileUser.displayName[0]}
             </div>
             <div className="text-center sm:text-left mb-2">
               <h1 className="text-lg sm:text-xl font-bold">

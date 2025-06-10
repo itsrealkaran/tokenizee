@@ -18,6 +18,8 @@ import { CommentCard } from "./comment-card";
 import { Textarea } from "@/components/ui/textarea";
 import { Post, Comment } from "@/lib/ao-client";
 import { useSearchParams } from "next/navigation";
+import { Avatar } from "@/components/ui/avatar";
+import Image from "next/image";
 
 interface DetailedPostProps {
   post: Post;
@@ -51,13 +53,6 @@ export function DetailedPost({ post }: DetailedPostProps) {
   // Calculate reading time (assuming average reading speed of 200 words per minute)
   const wordCount = post.content.split(/\s+/).length;
   const readingTime = Math.ceil(wordCount / 200);
-
-  // Generate a consistent image ID based on post ID
-  const imageId =
-    Math.abs(
-      post.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-    ) % 1000;
-  const imageUrl = `https://picsum.photos/seed/${imageId}/1200/675`;
 
   // Initialize vote status based on post data
   useEffect(() => {
@@ -238,52 +233,67 @@ export function DetailedPost({ post }: DetailedPostProps) {
     <article className="p-2 overflow-hidden">
       {/* Featured Image */}
       <div className="w-full aspect-[16/9] relative group overflow-hidden rounded-lg">
-        <img
-          src={imageUrl}
-          alt={post.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 text-white">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
-            <div>
-              <p className="font-medium text-base sm:text-lg md:text-xl">
-                {post.author.displayName}
-              </p>
-              <div className="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
-                <span>@{post.author.username}</span>
-                <span>•</span>
+        {post.media.length > 0 && (
+          <>
+            <Image
+              src={post.media[0].url}
+              alt={post.title}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 text-white">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
+                <div className="flex items-center gap-2">
+                  <Avatar
+                    displayName={post.author.displayName}
+                    profileImageUrl={post.author.profileImageUrl}
+                    size="md"
+                  />
+                  <div>
+                    <p className="font-medium text-base sm:text-lg md:text-xl">
+                      {post.author.displayName}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
+                      <span>@{post.author.username}</span>
+                      <span>•</span>
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="h-4 w-4" />
+                        <span>
+                          {new Date(post.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Topics */}
+              <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
+                {post.topic.map((topic) => (
+                  <span
+                    key={topic}
+                    className="text-white/90 text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+                  >
+                    #{topic}
+                  </span>
+                ))}
+              </div>
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-white/90 text-xs sm:text-sm">
                 <div className="flex items-center gap-1.5">
-                  <Calendar className="h-4 w-4" />
-                  <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                  <Clock className="h-4 w-4" />
+                  <span>{readingTime} min read</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Bookmark className="h-4 w-4" />
+                  <span className="text-xs sm:text-sm">
+                    {post.bookmarks} Bookmarks
+                  </span>
                 </div>
               </div>
             </div>
-          </div>
-          {/* Topics */}
-          <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
-            {post.topic.map((topic) => (
-              <span
-                key={topic}
-                className="text-white/90 text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
-              >
-                #{topic}
-              </span>
-            ))}
-          </div>
-          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-white/90 text-xs sm:text-sm">
-            <div className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4" />
-              <span>{readingTime} min read</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Bookmark className="h-4 w-4" />
-              <span className="text-xs sm:text-sm">
-                {post.bookmarks} Bookmarks
-              </span>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
       <div className="p-3 sm:p-4 md:p-6 space-y-2">
