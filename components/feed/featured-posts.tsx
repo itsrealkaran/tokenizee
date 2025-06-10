@@ -24,15 +24,6 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Generate consistent image IDs for each post
-  const getImageUrl = (postId: string) => {
-    const imageId =
-      Math.abs(
-        postId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-      ) % 1000;
-    return `https://picsum.photos/seed/${imageId}/1200/600`;
-  };
-
   // Auto-play functionality with pause on hover
   useEffect(() => {
     if (!isAutoPlaying || isHovered) return;
@@ -84,7 +75,7 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
             onClick={() => router.push(`/feed/${posts[currentIndex].id}`)}
           >
             <Image
-              src={getImageUrl(posts[currentIndex].id)}
+              src={posts[currentIndex].media[0].url}
               alt={posts[currentIndex].title}
               fill
               className="object-cover"
@@ -144,11 +135,15 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                 {/* Bottom Section */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 sm:gap-2.5">
+                    <div className="flex items-center bg-background rounded-full">
                     <Avatar
                       displayName={posts[currentIndex].author.displayName}
-                      profileImageUrl={posts[currentIndex].author.profileImageUrl}
+                      profileImageUrl={
+                        posts[currentIndex].author.profileImageUrl
+                      }
                       size="sm"
                     />
+                    </div>
                     <div className="flex flex-col">
                       <span className="text-white/90 text-xs sm:text-sm font-medium line-clamp-1">
                         {posts[currentIndex].author.displayName}

@@ -45,13 +45,6 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
   const [isSharing, setIsSharing] = useState(false);
   const [isBookmarking, setIsBookmarking] = useState(false);
 
-  // Generate a consistent image ID based on post ID
-  const imageId =
-    Math.abs(
-      post.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-    ) % 1000;
-  const imageUrl = `https://picsum.photos/seed/${imageId}/800/450`;
-
   const handleVote = async (type: "up" | "down") => {
     if (isVoting) return;
     if (!walletAddress) {
@@ -180,7 +173,7 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
       {/* Image Section */}
       <div className="w-full aspect-[16/9] relative overflow-hidden rounded-lg">
         <Image
-          src={imageUrl}
+          src={post.media[0].url}
           alt={post.title}
           fill
           className="object-cover transition-transform duration-300"
