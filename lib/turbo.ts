@@ -10,10 +10,12 @@ if (!process.env.ARWEAVE_JWK) {
   throw new Error('ARWEAVE_JWK environment variable is not set');
 }
 
-let jwk: any;
+// @ts-expect-error - JWK type from environment variable needs to be parsed without type checking
+let jwk;
 try {
   jwk = JSON.parse(process.env.ARWEAVE_JWK);
 } catch (error) {
+  console.log(error);
   throw new Error('Failed to parse ARWEAVE_JWK environment variable');
 }
 
@@ -33,6 +35,7 @@ export async function uploadFileTurbo(formData: FormData) {
     await writeFile(tempPath, Buffer.from(arrayBuffer));
 
     const turbo = TurboFactory.authenticated({ 
+      // @ts-expect-error - ArweaveSigner expects a specific JWK type that we can't guarantee from env var
       signer: new ArweaveSigner(jwk)
     });
 

@@ -12,7 +12,6 @@ import {
   ArrowBigUp,
   ArrowBigDown,
   UserPlus2,
-  Badge,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

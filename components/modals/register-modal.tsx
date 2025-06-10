@@ -18,7 +18,6 @@ import { useGlobal } from "@/context/global-context";
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: RegisterFormData) => void;
   initialData?: RegisterFormData;
   isEditing?: boolean;
 }
@@ -35,7 +34,6 @@ export interface RegisterFormData {
 export function RegisterModal({
   isOpen,
   onClose,
-  onSubmit,
   initialData,
   isEditing,
 }: RegisterModalProps) {

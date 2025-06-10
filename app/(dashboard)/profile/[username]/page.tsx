@@ -13,10 +13,7 @@ import {
   UserPlus2,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
-import {
-  RegisterModal,
-  RegisterFormData,
-} from "@/components/modals/register-modal";
+import { RegisterModal } from "@/components/modals/register-modal";
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { CommentCard } from "@/components/feed/comment-card";
@@ -81,15 +78,13 @@ export default function UserProfilePage() {
     }
   }, [params.username, profileUser, fetchProfileData]);
 
-  const handleEditProfile = async (data: RegisterFormData) => {
+  const handleEditProfile = async () => {
     if (!user) return;
 
     try {
-      // The updateUserProfile function is now called directly from the RegisterModal
-      // This handler is kept for any additional profile-specific logic
       setIsEditing(false);
-      if (data.newUsername !== user.username) {
-        router.push(`/profile/${data.newUsername}`);
+      if (user.username !== profileUser?.username) {
+        router.push(`/profile/${user.username}`);
       }
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -340,15 +335,21 @@ export default function UserProfilePage() {
       <RegisterModal
         isOpen={isEditing}
         isEditing={true}
-        onClose={() => setIsEditing(false)}
-        onSubmit={handleEditProfile}
-        initialData={{
-          newUsername: profileUser.username,
-          displayName: profileUser.displayName,
-          dateOfBirth: profileUser.dateOfBirth,
-          bio: profileUser.bio || "",
-          profileImageUrl: profileUser.profileImageUrl,
-          backgroundImageUrl: profileUser.backgroundImageUrl,
+        initialData={
+          user
+            ? {
+                newUsername: user.username,
+                displayName: user.displayName,
+                dateOfBirth: user.dateOfBirth,
+                bio: user.bio || "",
+                profileImageUrl: user.profileImageUrl,
+                backgroundImageUrl: user.backgroundImageUrl,
+              }
+            : undefined
+        }
+        onClose={() => {
+          setIsEditing(false);
+          handleEditProfile();
         }}
       />
       <UserListModal

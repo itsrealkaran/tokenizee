@@ -6,7 +6,8 @@ import crypto from "crypto";
 
 // Polyfill crypto for aoconnect library
 if (!globalThis.crypto) {
-  globalThis.crypto = crypto.webcrypto as any;
+  // @ts-expect-error - crypto.webcrypto type is not properly typed in the polyfill
+  globalThis.crypto = crypto.webcrypto;
 }
 
 // AO configuration
@@ -65,7 +66,8 @@ export async function uploadFileAO(
         { name: "Title", value: title },
         { name: "Description", value: description },
       ],
-      data: buffer as any  // Using raw buffer for proper Arweave upload
+      // @ts-expect-error - buffer type needs to be any for proper Arweave upload
+      data: buffer  // Using raw buffer for proper Arweave upload
     });
 
     console.log("assetProcess created with ID:", assetProcess);

@@ -3,10 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useGlobal } from "@/context/global-context";
-import {
-  RegisterModal,
-  RegisterFormData,
-} from "@/components/modals/register-modal";
+import { RegisterModal } from "@/components/modals/register-modal";
 import { Button } from "@/components/ui/button";
 
 export default function Onboarding() {
@@ -24,10 +21,8 @@ export default function Onboarding() {
   }, [walletConnected, isLoggedIn, user, router]);
 
   // Handle registration
-  const handleRegister = async (data: RegisterFormData) => {
+  const handleRegister = async () => {
     try {
-      // The registerUser function is now called directly from the RegisterModal
-      // This handler is kept for any additional onboarding-specific logic
       setIsRegisterModalOpen(false);
       const redirectPath = sessionStorage.getItem("redirectPath");
       if (redirectPath) {
@@ -57,18 +52,17 @@ export default function Onboarding() {
           </p>
         </div>
         <div className="w-full max-w-sm mx-auto">
-          <Button
-            onClick={() => setIsRegisterModalOpen(true)}
-            size="lg"
-          >
+          <Button onClick={() => setIsRegisterModalOpen(true)} size="lg">
             Complete Onboarding
           </Button>
         </div>
         <RegisterModal
           isOpen={isRegisterModalOpen}
           isEditing={false}
-          onClose={() => setIsRegisterModalOpen(false)}
-          onSubmit={handleRegister}
+          onClose={() => {
+            setIsRegisterModalOpen(false);
+            handleRegister();
+          }}
         />
       </div>
     </div>

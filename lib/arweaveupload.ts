@@ -4,7 +4,8 @@ import Arweave from "arweave";
 
 // Polyfill crypto for aoconnect library
 if (!globalThis.crypto ) {
-  globalThis.crypto = crypto.webcrypto as any;
+  // @ts-expect-error - crypto.webcrypto type is not properly typed in the polyfill
+  globalThis.crypto = crypto.webcrypto;
 }
 
 export const AO = {
