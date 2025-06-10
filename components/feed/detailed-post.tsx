@@ -54,6 +54,16 @@ export function DetailedPost({ post }: DetailedPostProps) {
   const wordCount = post.content.split(/\s+/).length;
   const readingTime = Math.ceil(wordCount / 200);
 
+  // Generate a consistent image ID based on post ID
+  const imageId =
+    Math.abs(
+      post.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    ) % 1000;
+  const imageUrl =
+    post.media && post.media.length > 0
+      ? post.media[0].url
+      : `https://picsum.photos/seed/${imageId}/800/450`;
+
   // Initialize vote status based on post data
   useEffect(() => {
     if (post.hasUpvoted) {
@@ -236,7 +246,7 @@ export function DetailedPost({ post }: DetailedPostProps) {
         {post.media.length > 0 && (
           <>
             <Image
-              src={post.media[0].url}
+              src={imageUrl}
               alt={post.title}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"

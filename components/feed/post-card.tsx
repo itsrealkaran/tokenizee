@@ -45,6 +45,16 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
   const [isSharing, setIsSharing] = useState(false);
   const [isBookmarking, setIsBookmarking] = useState(false);
 
+   // Generate a consistent image ID based on post ID
+   const imageId =
+   Math.abs(
+     post.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
+   ) % 1000;
+ const imageUrl =
+   post.media && post.media.length > 0
+     ? post.media[0].url
+     : `https://picsum.photos/seed/${imageId}/800/450`;
+
   const handleVote = async (type: "up" | "down") => {
     if (isVoting) return;
     if (!walletAddress) {
@@ -172,19 +182,13 @@ export function PostCard({ post, onViewPost }: PostCardProps) {
     >
       {/* Image Section */}
       <div className="w-full aspect-[16/9] relative overflow-hidden rounded-lg">
-        {post.media && post.media.length > 0 ? (
-          <Image
-            src={post.media[0].url}
-            alt={post.title}
-            fill
-            className="object-cover transition-transform duration-300"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-        ) : (
-          <div className="w-full h-full bg-muted flex items-center justify-center">
-            <span className="text-muted-foreground">No media</span>
-          </div>
-        )}
+        <Image
+          src={imageUrl}
+          alt={post.title}
+          fill
+          className="object-cover transition-transform duration-300"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
         <div className="absolute top-2 left-4 space-x-2">
           {post.topic.map((topic) => (
             <span
