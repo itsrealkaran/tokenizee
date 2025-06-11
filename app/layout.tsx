@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Toaster } from "react-hot-toast";
 import { NotificationProvider } from "@/context/notification-context";
+import { PWAInstallPrompt } from "@/components/pwa/pwa-install-prompt";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -56,6 +57,7 @@ export default function RootLayout({
                 <ThemeToggle />
               </div>
               <main>{children}</main>
+              <PWAInstallPrompt />
               <Toaster />
             </ThemeProvider>
           </NotificationProvider>
