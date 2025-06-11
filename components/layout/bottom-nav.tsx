@@ -5,20 +5,12 @@ import { Compass, User2, Bell, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGlobal } from "@/context/global-context";
 import { useNotifications } from "@/context/notification-context";
-import { useEffect } from "react";
 
 export function BottomNav() {
   const router = useRouter();
   const pathname = usePathname();
   const { user } = useGlobal();
-  const { unreadNotifications, getNotifications } = useNotifications();
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      await getNotifications();
-    };
-    fetchNotifications();
-  }, [getNotifications]);
+  const { unreadNotifications } = useNotifications();
 
   const navItems = [
     {

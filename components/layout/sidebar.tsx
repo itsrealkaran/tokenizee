@@ -13,28 +13,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { PostModal } from "@/components/modals/post-modal";
 import { useGlobal } from "@/context/global-context";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { toast } from "react-hot-toast";
 import { Avatar } from "@/components/ui/avatar";
+import { useNotifications } from "@/context/notification-context";
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { isLoggedIn, user, logout, topic, getNotifications } = useGlobal();
+  const { isLoggedIn, user, logout, topic } = useGlobal();
+  const { unreadNotifications } = useNotifications();
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [notifications, setNotifications] = useState<{ unreadCount: number }>({
     unreadCount: 0,
   });
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      const result = await getNotifications();
-      setNotifications(result);
-    };
-    fetchNotifications();
-  }, [getNotifications]);
 
   if (!isLoggedIn || !user) {
     return null;
@@ -47,8 +41,7 @@ export function Sidebar() {
       name: "Notifications",
       href: "/notifications",
       icon: Bell,
-      badge:
-        notifications.unreadCount > 0 ? notifications.unreadCount : undefined,
+      badge: unreadNotifications > 0 ? unreadNotifications : undefined,
     },
     { name: "Profile", href: "/profile", icon: User },
   ];
