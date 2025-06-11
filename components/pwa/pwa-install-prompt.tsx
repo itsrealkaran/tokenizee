@@ -31,6 +31,17 @@ export function PWAInstallPrompt() {
     setIsInstalled(isStandalone);
     addDebugInfo(`App is ${isStandalone ? "installed" : "not installed"}`);
 
+    // Register service worker
+    const registerSW = async () => {
+      const registration = await notificationService.registerServiceWorker();
+      if (registration) {
+        addDebugInfo("Service worker registered on mount");
+      } else {
+        addDebugInfo("Failed to register service worker on mount");
+      }
+    };
+    registerSW();
+
     // Listen for the beforeinstallprompt event
     window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
@@ -88,6 +99,17 @@ export function PWAInstallPrompt() {
   const handlePushSubscription = async () => {
     try {
       addDebugInfo("Attempting to subscribe to push notifications");
+
+      // First, ensure service worker is registered
+      const registration = await notificationService.registerServiceWorker();
+      if (!registration) {
+        addDebugInfo("Failed to register service worker");
+        toast.error("Failed to enable notifications. Please try again.");
+        return;
+      }
+      addDebugInfo("Service worker registered successfully");
+
+      // Then attempt to subscribe
       const subscription =
         await notificationService.subscribeToPushNotifications();
       if (subscription) {
