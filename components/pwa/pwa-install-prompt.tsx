@@ -5,8 +5,14 @@ import { Button } from "@/components/ui/button";
 import { notificationService } from "@/lib/notification-service";
 import toast from "react-hot-toast";
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
 export function PWAInstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isPushSupported, setIsPushSupported] = useState(false);
   const [isPushEnabled, setIsPushEnabled] = useState(false);
@@ -28,7 +34,7 @@ export function PWAInstallPrompt() {
     // Listen for the beforeinstallprompt event
     window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
       addDebugInfo("Install prompt is available");
     });
 
