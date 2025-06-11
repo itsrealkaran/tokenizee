@@ -2,14 +2,36 @@ export class NotificationService {
   private static instance: NotificationService;
   private swRegistration: ServiceWorkerRegistration | null = null;
   private pushSubscription: PushSubscription | null = null;
+  private vapidPublicKey: string;
 
-  private constructor() {}
+  private constructor() {
+    // Get VAPID public key from environment variable
+    this.vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
+    if (!this.vapidPublicKey) {
+      console.warn('VAPID public key is not set. Push notifications may not work.');
+    }
+  }
 
   public static getInstance(): NotificationService {
     if (!NotificationService.instance) {
       NotificationService.instance = new NotificationService();
     }
     return NotificationService.instance;
+  }
+
+  private urlBase64ToUint8Array(base64String: string): Uint8Array {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
   }
 
   public async registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
@@ -56,10 +78,17 @@ export class NotificationService {
         return null;
       }
 
+      if (!this.vapidPublicKey) {
+        throw new Error("VAPID public key is not set");
+      }
+
+      // Convert VAPID key to Uint8Array
+      const applicationServerKey = this.urlBase64ToUint8Array(this.vapidPublicKey);
+
       // Get the push subscription
       this.pushSubscription = await this.swRegistration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+        applicationServerKey,
       });
 
       console.log("Push subscription:", this.pushSubscription);

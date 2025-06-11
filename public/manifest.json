@@ -19,5 +19,17 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "gcm_sender_id": "1067855446397",
+  "gcm_user_visible_only": true,
+  "permissions": ["notifications"],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "orientation": "portrait",
+  "scope": "/",
+  "categories": ["social", "productivity"],
+  "screenshots": [],
+  "shortcuts": [],
+  "lang": "en",
+  "dir": "ltr"
 } 
