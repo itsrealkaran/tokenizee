@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { notificationService } from "@/lib/notification-service";
 import toast from "react-hot-toast";
+import { X } from "lucide-react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -17,6 +18,7 @@ export function PWAInstallPrompt() {
   const [isPushSupported, setIsPushSupported] = useState(false);
   const [isPushEnabled, setIsPushEnabled] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string[]>([]);
+  const [isVisible, setIsVisible] = useState(true);
 
   const addDebugInfo = (info: string) => {
     setDebugInfo((prev) => [...prev, `${new Date().toISOString()}: ${info}`]);
@@ -123,15 +125,26 @@ export function PWAInstallPrompt() {
     }
   };
 
-  if (isInstalled) return null;
+  if (isInstalled || !isVisible) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 bg-background p-4 rounded-lg shadow-lg border">
-      <div className="flex flex-col gap-1">
-        <h3 className="font-semibold">Install Tokenizee</h3>
-        <p className="text-sm text-muted-foreground">
-          Install Tokenizee for a better experience
-        </p>
+      <div className="flex justify-between items-start">
+        <div className="flex flex-col gap-1">
+          <h3 className="font-semibold">Install Tokenizee</h3>
+          <p className="text-sm text-muted-foreground">
+            Install Tokenizee for a better experience
+          </p>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 -mt-1 -mr-1"
+          onClick={() => setIsVisible(false)}
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </Button>
       </div>
       <div className="flex flex-col gap-2">
         {deferredPrompt && (
