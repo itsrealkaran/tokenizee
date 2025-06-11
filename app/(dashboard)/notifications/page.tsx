@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useGlobal } from "@/context/global-context";
+import { useNotifications } from "@/context/notification-context";
 import { Notification } from "@/lib/ao-client";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -61,7 +61,7 @@ const getNotificationIcon = (type: string) => {
 };
 
 export default function NotificationsPage() {
-  const { getNotifications, markNotificationsRead } = useGlobal();
+  const { getNotifications, markNotificationsRead } = useNotifications();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -153,8 +153,6 @@ export default function NotificationsPage() {
                 }
                 if (notification.post) {
                   router.push(`/feed/${notification.post.id}`);
-                } else if (notification?.actor?.username) {
-                  router.push(`/profile/${notification.actor.username}`);
                 }
               }}
               tabIndex={0}
@@ -173,6 +171,12 @@ export default function NotificationsPage() {
                     profileImageUrl={notification.actor?.profileImageUrl}
                     size="sm"
                     className="h-10 w-10 sm:h-12 sm:w-12 shrink-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (notification?.actor?.username) {
+                        router.push(`/profile/${notification.actor.username}`);
+                      }
+                    }}
                   />
                   <span className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-background text-[10px] text-primary-foreground flex items-center justify-center">
                     {getNotificationIcon(notification.type)}
@@ -188,6 +192,7 @@ export default function NotificationsPage() {
                               href={`/profile/${notification.actor.username}`}
                               className="text-sm sm:text-base font-medium hover:underline truncate text-foreground"
                               tabIndex={-1}
+                              onClick={(e) => e.stopPropagation()}
                             >
                               {notification.actor.displayName}
                             </Link>

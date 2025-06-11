@@ -13,7 +13,6 @@ import {
   Post,
   Comment,
   LeaderboardEntry,
-  Notification,
   MediaItem,
 } from "@/lib/ao-client";
 import { toast } from "react-hot-toast";
@@ -102,12 +101,6 @@ interface GlobalContextType {
   refreshLeaderboard: () => Promise<void>;
   getUserPosts: (wallet: string) => Promise<Post[]>;
   getUserComments: (wallet: string) => Promise<Comment[]>;
-  // New handlers
-  getNotifications: () => Promise<{
-    notifications: Notification[];
-    unreadCount: number;
-  }>;
-  markNotificationsRead: () => Promise<{ message: string }>;
   bookmarkPost: (
     postId: string,
     action: "add" | "remove"
@@ -117,7 +110,6 @@ interface GlobalContextType {
   getTopicFeed: (topic: string) => Promise<Post[]>;
   getFollowersList: (wallet: string) => Promise<User[]>;
   getFollowingList: (wallet: string) => Promise<User[]>;
-  setUnreadNotifications: (count: number) => void;
   uploadMedia: (file: File) => Promise<string>;
 }
 
@@ -134,7 +126,6 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [userComments, setUserComments] = useState<Comment[]>([]);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [ffmpeg, setFFmpeg] = useState<FFmpeg | null>(null);
   const [isFFmpegLoaded, setIsFFmpegLoaded] = useState(false);
 
@@ -1011,46 +1002,6 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     };
   }, [isLoggedIn, walletAddress]);
 
-  // Add new handler implementations
-  const getNotifications = async (): Promise<{
-    notifications: Notification[];
-    unreadCount: number;
-  }> => {
-    try {
-      if (!walletAddress) {
-        throw new Error("Wallet not connected");
-      }
-      const response = await aoClient.getNotifications(walletAddress);
-      setUnreadNotifications(response.unreadCount);
-      return response;
-    } catch (error) {
-      console.error("Error getting notifications:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to get notifications"
-      );
-      return { notifications: [], unreadCount: 0 };
-    }
-  };
-
-  const markNotificationsRead = async (): Promise<{ message: string }> => {
-    try {
-      if (!walletAddress) {
-        throw new Error("Wallet not connected");
-      }
-      const response = await aoClient.markNotificationsRead(walletAddress);
-      setUnreadNotifications(0);
-      return response;
-    } catch (error) {
-      console.error("Error marking notifications as read:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to mark notifications as read"
-      );
-      throw error;
-    }
-  };
-
   const bookmarkPost = async (
     postId: string,
     action: "add" | "remove"
@@ -1162,7 +1113,6 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
       return [];
     }
   };
-
   const search = async (
     query: string,
     type: "all" | "users" | "posts" | "comments" = "all"
@@ -1230,16 +1180,12 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
         refreshLeaderboard,
         getUserPosts,
         getUserComments,
-        // New handlers
-        getNotifications,
-        markNotificationsRead,
         bookmarkPost,
         getPersonalizedFeed,
         getBookmarkedFeed,
         getTopicFeed,
         getFollowersList,
         getFollowingList,
-        setUnreadNotifications,
         uploadMedia,
       }}
     >

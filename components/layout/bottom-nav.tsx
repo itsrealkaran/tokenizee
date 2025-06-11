@@ -4,20 +4,18 @@ import { usePathname, useRouter } from "next/navigation";
 import { Compass, User2, Bell, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGlobal } from "@/context/global-context";
-import { useEffect, useState } from "react";
+import { useNotifications } from "@/context/notification-context";
+import { useEffect } from "react";
 
 export function BottomNav() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, getNotifications } = useGlobal();
-  const [notifications, setNotifications] = useState<{ unreadCount: number }>({
-    unreadCount: 0,
-  });
+  const { user } = useGlobal();
+  const { unreadNotifications, getNotifications } = useNotifications();
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      const result = await getNotifications();
-      setNotifications(result);
+      await getNotifications();
     };
     fetchNotifications();
   }, [getNotifications]);
@@ -37,8 +35,7 @@ export function BottomNav() {
       name: "Notifications",
       href: "/notifications",
       icon: Bell,
-      badge:
-        notifications.unreadCount > 0 ? notifications.unreadCount : undefined,
+      badge: unreadNotifications > 0 ? unreadNotifications : undefined,
     },
     {
       name: "Profile",
@@ -46,7 +43,6 @@ export function BottomNav() {
       icon: User2,
     },
   ];
-  console.log(notifications);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background">
