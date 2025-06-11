@@ -26,9 +26,6 @@ export function Sidebar() {
   const { isLoggedIn, user, logout, topic } = useGlobal();
   const { unreadNotifications } = useNotifications();
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
-  const [notifications, setNotifications] = useState<{ unreadCount: number }>({
-    unreadCount: 0,
-  });
 
   if (!isLoggedIn || !user) {
     return null;
