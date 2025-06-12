@@ -70,23 +70,28 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
           <div
             key={posts[currentIndex].id}
             className={cn(
-              "absolute inset-0 transition-all duration-700 ease-in-out cursor-pointer opacity-100 scale-100"
+              "absolute inset-0 transition-all duration-700 ease-in-out cursor-pointer opacity-100 scale-100 w-full h-full"
             )}
             onClick={() => router.push(`/feed/${posts[currentIndex].id}`)}
           >
             {(() => {
-              const imageId = Math.abs(
-                posts[currentIndex].id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-              ) % 1000;
-              const imageUrl = posts.length > 0 
-                ? posts[currentIndex].media[0].url 
-                : `https://picsum.photos/seed/${imageId}/800/450`;
-              
+              const imageId =
+                Math.abs(
+                  posts[currentIndex].id
+                    .split("")
+                    .reduce((acc, char) => acc + char.charCodeAt(0), 0)
+                ) % 1000;
+              const imageUrl =
+                posts.length > 0
+                  ? posts[currentIndex].media[0].url
+                  : `https://picsum.photos/seed/${imageId}/800/450`;
+
               return (
                 <Image
                   src={imageUrl}
                   alt={posts[currentIndex].title}
                   fill
+                  priority
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
@@ -96,23 +101,47 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
 
             {/* Content Container */}
-            <div className="absolute inset-0 flex flex-col justify-between p-3 sm:p-4 md:p-5 lg:p-6">
-              {/* Top Section */}
-              <div className="flex items-start justify-between">
-                {posts[currentIndex].author && (
-                  <span className="bg-white/90 text-black text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full shadow-sm backdrop-blur-sm hover:bg-white transition-colors">
-                    @{posts[currentIndex].author.username}
+            <div className="absolute inset-0 flex flex-col justify-between p-2 sm:p-4 md:p-5 lg:p-6 w-full h-full">
+              {/* Top Section: Author info and navigation arrows */}
+              <div className="flex items-start justify-between w-full flex-col xs:flex-row sm:flex-row gap-2 xs:gap-0 sm:gap-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Avatar
+                    displayName={posts[currentIndex].author.displayName}
+                    profileImageUrl={posts[currentIndex].author.profileImageUrl}
+                    size="sm"
+                  />
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-primary-foreground text-xs sm:text-sm font-bold line-clamp-1 break-words">
+                      {posts[currentIndex].author.displayName}
+                    </span>
+                    <span className="text-primary-foreground text-[10px] sm:text-xs flex items-center gap-1 break-words">
+                      @{posts[currentIndex].author.username}
+                    </span>
+                  </div>
+                  <span className="text-primary-foreground text-[10px] sm:text-xs flex items-center gap-1 ml-1">
+                    {` • `}
+                    <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary-foreground" />
+                    {(() => {
+                      // Show relative time (e.g., 4hr)
+                      const now = new Date();
+                      const created = new Date(posts[currentIndex].createdAt);
+                      const diffMs = now.getTime() - created.getTime();
+                      const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+                      if (diffHrs < 1) return "<1hr";
+                      if (diffHrs < 24) return `${diffHrs}hr`;
+                      return `${Math.floor(diffHrs / 24)}d`;
+                    })()}
                   </span>
-                )}
-                <div className="flex items-center gap-1 sm:gap-1.5">
+                </div>
+                <div className="flex items-center gap-1 sm:gap-1.5 mt-2 xs:mt-0 sm:mt-0 self-end xs:self-auto">
                   <button
-                    className="p-1.5 sm:p-1.5 rounded-full bg-black/30 text-white/80 hover:text-white hover:bg-black/50 transition-all backdrop-blur-sm"
+                    className="p-1.5 sm:p-1.5 rounded-full bg-primary/20 text-primary-foreground hover:bg-primary/40 transition-all backdrop-blur-sm shadow-md"
                     onClick={handlePrevClick}
                   >
                     <ChevronLeft className="h-4 w-4 sm:h-4 sm:w-4" />
                   </button>
                   <button
-                    className="p-1.5 sm:p-1.5 rounded-full bg-black/30 text-white/80 hover:text-white hover:bg-black/50 transition-all backdrop-blur-sm"
+                    className="p-1.5 sm:p-1.5 rounded-full bg-primary/20 text-primary-foreground hover:bg-primary/40 transition-all backdrop-blur-sm shadow-md"
                     onClick={handleNextClick}
                   >
                     <ChevronRight className="h-4 w-4 sm:h-4 sm:w-4" />
@@ -120,18 +149,56 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2 sm:gap-3 md:gap-4">
-                {/* Middle Section */}
-                <div className="space-y-2 sm:space-y-3">
-                  <h2 className="text-white text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight drop-shadow-lg line-clamp-2">
+              <div className="flex flex-col-reverse xs:flex-col sm:flex-row gap-2 sm:gap-4 w-full max-w-full mt-2">
+                {/* Share and Bookmark */}
+                <div className="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto justify-start sm:justify-end order-2 sm:order-1">
+                  <button
+                    className="flex items-center gap-1 sm:gap-1.5 text-primary-foreground hover:text-primary transition-colors bg-primary/10 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full backdrop-blur-sm hover:bg-primary/20 border border-primary/20 shadow-sm w-full sm:w-auto"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // TODO: Implement share functionality
+                    }}
+                  >
+                    <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="text-[10px] sm:text-xs font-medium">
+                      {posts[currentIndex].shares}
+                    </span>
+                  </button>
+                  <button
+                    className="flex items-center gap-1 sm:gap-1.5 text-primary-foreground hover:text-primary transition-colors bg-primary/10 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full backdrop-blur-sm hover:bg-primary/20 border border-primary/20 shadow-sm w-full sm:w-auto"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // TODO: Implement bookmark functionality
+                    }}
+                  >
+                    <Bookmark
+                      className={cn(
+                        "h-3.5 w-3.5 sm:h-4 sm:w-4",
+                        posts[currentIndex].hasBookmarked && "fill-current"
+                      )}
+                    />
+                    <span className="text-[10px] sm:text-xs font-medium">
+                      {posts[currentIndex].bookmarks}
+                    </span>
+                  </button>
+                </div>
+                {/* Bottom Section: Title, description, tags */}
+                <div className="flex flex-col gap-2 sm:gap-3 md:gap-4 w-full max-w-full order-1 sm:order-2">
+                  <h2 className="text-primary-foreground text-lg sm:text-2xl md:text-3xl font-bold leading-tight drop-shadow-lg line-clamp-2 break-words">
                     {posts[currentIndex].title}
                   </h2>
+                  {/* Description with Read More */}
+                  {posts[currentIndex].content && (
+                    <p className="text-muted-foreground text-xs sm:text-sm md:text-base line-clamp-2 break-words">
+                      {posts[currentIndex].content}
+                    </p>
+                  )}
                   {/* Topics */}
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2">
                     {posts[currentIndex].topic.map((topic) => (
                       <span
                         key={topic}
-                        className="text-white/90 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+                        className="text-primary-foreground/80 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-primary/10 backdrop-blur-sm hover:bg-primary/20 transition-colors border border-primary/20 break-words"
                         onClick={(e) => {
                           e.stopPropagation();
                           router.push(`/feed/topic/${topic}`);
@@ -142,74 +209,19 @@ export function FeaturedPosts({ posts }: FeaturedPostsProps) {
                     ))}
                   </div>
                 </div>
-
-                {/* Bottom Section */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 sm:gap-2.5">
-                    <Avatar
-                      displayName={posts[currentIndex].author.displayName}
-                      profileImageUrl={
-                        posts[currentIndex].author.profileImageUrl
-                      }
-                      size="sm"
-                    />
-                    <div className="flex flex-col">
-                      <span className="text-white/90 text-xs sm:text-sm font-medium line-clamp-1">
-                        {posts[currentIndex].author.displayName}
-                      </span>
-                      <span className="text-white/60 text-[10px] sm:text-xs flex items-center gap-1">
-                        <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                        {new Date(
-                          posts[currentIndex].createdAt
-                        ).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <button
-                      className="flex items-center gap-1 sm:gap-1.5 text-white/80 hover:text-white transition-colors bg-black/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full backdrop-blur-sm hover:bg-black/40"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // TODO: Implement share functionality
-                      }}
-                    >
-                      <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                      <span className="text-[10px] sm:text-xs font-medium">
-                        {posts[currentIndex].shares}
-                      </span>
-                    </button>
-                    <button
-                      className="flex items-center gap-1 sm:gap-1.5 text-white/80 hover:text-white transition-colors bg-black/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full backdrop-blur-sm hover:bg-black/40"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // TODO: Implement bookmark functionality
-                      }}
-                    >
-                      <Bookmark
-                        className={cn(
-                          "h-3.5 w-3.5 sm:h-4 sm:w-4",
-                          posts[currentIndex].hasBookmarked && "fill-current"
-                        )}
-                      />
-                      <span className="text-[10px] sm:text-xs font-medium">
-                        {posts[currentIndex].bookmarks}
-                      </span>
-                    </button>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         )}
       </div>
       {/* Dots Indicator */}
-      <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2">
+      <div className="absolute bottom-1 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 sm:gap-2 z-10">
         {posts.map((_, index) => (
           <button
             key={index}
             onClick={() => handleDotClick(index)}
             className={cn(
-              "h-1.5 sm:h-2 w-1.5 sm:w-2 rounded-full transition-all duration-300",
+              "h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full transition-all duration-300",
               index === currentIndex
                 ? "bg-white w-4 sm:w-6"
                 : "bg-white/50 hover:bg-white/75"

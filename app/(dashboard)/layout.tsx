@@ -1,7 +1,7 @@
 import { Sidebar } from "@/components/layout/sidebar";
 import { RankingList } from "@/components/feed/ranking-card";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
-import { AuthCheck } from "@/components/auth-check";
+import { AuthCheck } from "@/components/providers/auth-check";
 import { BottomNav } from "@/components/layout/bottom-nav";
 
 export default function DashboardLayout({

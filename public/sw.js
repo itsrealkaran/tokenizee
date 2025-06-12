@@ -33,6 +33,11 @@ self.addEventListener("activate", (event) => {
 
 // Fetch event - serve from cache or network
 self.addEventListener("fetch", (event) => {
+  // Only cache GET requests
+  if (event.request.method !== "GET") {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((response) => {
       // Return cached response if found
@@ -64,16 +69,30 @@ self.addEventListener("fetch", (event) => {
 
 // Push event - handle incoming push notifications
 self.addEventListener("push", (event) => {
-  if (!event.data) return;
+  if (!event.data) {
+    console.log("Push event received but no data");
+    return;
+  }
 
   try {
-    const data = event.data.json();
+    let data;
+    try {
+      data = event.data.json();
+    } catch (e) {
+      // If JSON parsing fails, try to get text
+      data = {
+        title: "New Notification",
+        body: event.data.text() || "You have a new notification",
+        url: "/notifications",
+      };
+    }
+
     const options = {
-      body: data.body,
+      body: data.body || "You have a new notification",
       icon: "/icons/icon-192x192.png",
       badge: "/icons/icon-192x192.png",
       data: {
-        url: data.url,
+        url: data.url || "/notifications",
       },
       actions: [
         {
@@ -85,11 +104,30 @@ self.addEventListener("push", (event) => {
           title: "Close",
         },
       ],
+      requireInteraction: true,
+      vibrate: [200, 100, 200],
+      tag: data.tag || "default",
+      renotify: true,
     };
 
-    event.waitUntil(self.registration.showNotification(data.title, options));
+    event.waitUntil(
+      self.registration
+        .showNotification(data.title || "New Notification", options)
+        .catch((error) => {
+          console.error("Error showing notification:", error);
+        })
+    );
   } catch (error) {
     console.error("Error handling push event:", error);
+    // Show a fallback notification
+    event.waitUntil(
+      self.registration.showNotification("New Notification", {
+        body: "You have a new notification",
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-192x192.png",
+        data: { url: "/notifications" },
+      })
+    );
   }
 });
 

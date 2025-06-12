@@ -102,26 +102,59 @@ export function PWAInstallPrompt() {
     try {
       addDebugInfo("Attempting to subscribe to push notifications");
 
-      // First, ensure service worker is registered
+      // First, ensure service worker is registered and activated
       const registration = await notificationService.registerServiceWorker();
       if (!registration) {
         addDebugInfo("Failed to register service worker");
         toast.error("Failed to enable notifications. Please try again.");
         return;
       }
-      addDebugInfo("Service worker registered successfully");
+
+      // Wait for service worker to be active
+      if (registration.active) {
+        addDebugInfo("Service worker is active");
+      } else {
+        addDebugInfo("Waiting for service worker to activate...");
+        await new Promise<void>((resolve) => {
+          if (registration.installing) {
+            registration.installing.addEventListener("statechange", () => {
+              if (registration.installing?.state === "activated") {
+                addDebugInfo("Service worker activated");
+                resolve();
+              }
+            });
+          } else {
+            resolve();
+          }
+        });
+      }
 
       // Then attempt to subscribe
       const subscription =
         await notificationService.subscribeToPushNotifications();
+
       if (subscription) {
         setIsPushEnabled(true);
         addDebugInfo("Successfully subscribed to push notifications");
         toast.success("Push notifications have been enabled!");
+      } else if (process.env.NODE_ENV === "development") {
+        addDebugInfo("Push notifications not available in development mode");
+        toast("Push notifications are not available in development mode", {
+          icon: "ℹ️",
+        });
+      } else {
+        addDebugInfo("Failed to subscribe to push notifications");
+        toast.error("Failed to enable push notifications. Please try again.");
       }
     } catch (error) {
       addDebugInfo(`Failed to subscribe to push notifications: ${error}`);
-      toast.error("Failed to enable push notifications. Please try again.");
+      if (process.env.NODE_ENV === "development") {
+        toast("Push notifications are not available in development mode", {
+          icon: "ℹ️",
+        });
+      } else {
+        toast.error("Failed to enable push notifications. Please try again.");
+      }
     }
   };
 
